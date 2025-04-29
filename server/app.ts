@@ -18,6 +18,40 @@ const keepPollQrResultCode = new Set([PollQrResultCode.NOT_CONFIRMED, PollQrResu
 
 export const app = new Hono();
 
+// 添加cookie转换接口
+app.post('/api/convert', async c => {
+  const { cookies } = await c.req.json();
+
+  if (!cookies || typeof cookies !== 'string') {
+    return c.json({ error: '无效的cookie数据' }, 400);
+  }
+
+  try {
+    const cookieArray = cookies.split('; ').map((cookie: string) => {
+      const [name, value] = cookie.split('=');
+      return {
+        domain: '.bilibili.com',
+        expiry: 2000000000,
+        httpOnly: true,
+        name,
+        path: '/',
+        sameSite: 'Lax',
+        secure: false,
+        value,
+      };
+    });
+
+    const result = {
+      bilibili_cookies: cookieArray,
+    };
+
+    return c.json(result);
+  } catch (error) {
+    console.error('转换cookie时出错:', error);
+    return c.json({ error: '处理cookie时出错' }, 500);
+  }
+});
+
 let globalId = 0;
 
 app.get('/api/qr', c => {

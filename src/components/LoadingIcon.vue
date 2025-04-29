@@ -6,19 +6,45 @@
 
 <style lang="less" scoped>
 .loader {
-  width: 50px;
+  width: 48px;
+  height: 48px;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background:
-    radial-gradient(farthest-side, #6cf 94%, #0000) top/8px 8px no-repeat,
-    conic-gradient(#0000 30%, #6cf);
-  mask: radial-gradient(farthest-side, #0000 calc(100% - 8px), #000 0);
-  animation: l13 1s infinite linear;
+  border-radius: var(--radius-round);
+  position: relative;
+  background: conic-gradient(transparent 25%, var(--bilibili-pink));
+  animation: rotate 1s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-round);
+    background-color: var(--bilibili-pink);
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-round);
+    background-color: white;
+  }
 }
 
-@keyframes l13 {
-  100% {
-    transform: rotate(1turn);
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
