@@ -20,29 +20,116 @@ export const app = new Hono();
 
 // 添加cookie转换接口
 app.post('/api/convert', async c => {
-  const { cookies } = await c.req.json();
+  const body = await c.req.json();
+  const { cookies } = body;
 
-  if (!cookies || typeof cookies !== 'string') {
+  if (!cookies) {
     return c.json({ error: '无效的cookie数据' }, 400);
   }
 
   try {
-    const cookieArray = cookies.split('; ').map((cookie: string) => {
-      const [name, value] = cookie.split('=');
-      return {
-        domain: '.bilibili.com',
-        expiry: 2000000000,
-        httpOnly: true,
-        name,
-        path: '/',
-        sameSite: 'Lax',
-        secure: false,
-        value,
-      };
-    });
+    interface CookieItem {
+      name: string;
+      value: string;
+      domain: string;
+      path: string;
+      expires: number;
+      httpOnly: boolean;
+      secure: boolean;
+      sameSite: string;
+    }
 
+    // 根据cookie名称猜测domain
+    const guessDomain = (name: string): string => {
+      if (name.startsWith('HMACCOUNT') || name.startsWith('Hm_')) {
+        return '.hm.baidu.com';
+      }
+
+      if (
+        name.includes('bili_') ||
+        name.includes('SESSDATA') ||
+        name.includes('DedeUserID') ||
+        name.includes('buvid') ||
+        name === 'sid' ||
+        name === 'fingerprint' ||
+        name === 'b_lsid' ||
+        name === 'b_nut' ||
+        name === '_uuid'
+      ) {
+        // 对于B站相关cookie，根据名称进一步区分
+        if (name.includes('comic')) {
+          return '.bilicomic.com';
+        } else if (name.includes('game')) {
+          return '.biligame.com';
+        } else {
+          return '.bilibili.com';
+        }
+      }
+
+      return body.domain || '.bilibili.com';
+    };
+
+    let cookieArray: CookieItem[] = [];
+
+    // 处理字符串格式的cookies
+    if (typeof cookies === 'string') {
+      cookieArray = cookies.split('; ').map((cookie: string) => {
+        const [name, value] = cookie.split('=');
+        const domain = guessDomain(name);
+
+        // 根据cookie名称和domain设置适当的属性
+        let httpOnly = false;
+        let secure = false;
+        let sameSite = 'Lax';
+
+        // SESSDATA通常是httpOnly和secure的
+        if (name === 'SESSDATA') {
+          httpOnly = true;
+          secure = true;
+        }
+
+        // 非bilibili.com域名的cookie通常使用None sameSite
+        if (domain !== '.bilibili.com') {
+          sameSite = 'None';
+        }
+
+        return {
+          name,
+          value,
+          domain,
+          path: body.path || '/',
+          expires: body.expires || Date.now() / 1000 + 86400 * 30, // 默认30天
+          httpOnly,
+          secure,
+          sameSite,
+        };
+      });
+    }
+    // 处理已经是数组格式的cookies
+    else if (Array.isArray(cookies)) {
+      cookieArray = cookies.map(cookie => {
+        // 确保cookie对象包含所有必要的字段
+        return {
+          name: cookie.name,
+          value: cookie.value,
+          domain: cookie.domain || guessDomain(cookie.name),
+          path: cookie.path || '/',
+          expires: cookie.expires || -1,
+          httpOnly: cookie.httpOnly !== undefined ? cookie.httpOnly : false,
+          secure: cookie.secure !== undefined ? cookie.secure : false,
+          sameSite: cookie.sameSite || 'Lax',
+        };
+      });
+    }
+
+    // 使用_default格式包装结果
     const result = {
-      bilibili_cookies: cookieArray,
+      _default: {
+        '1': {
+          key: 'cookie',
+          value: cookieArray,
+        },
+      },
     };
 
     return c.json(result);
