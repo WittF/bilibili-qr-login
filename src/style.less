@@ -48,6 +48,7 @@ body {
   font-family: var(--font-family);
   background-color: var(--background);
   color: var(--text-primary);
+  overflow-x: hidden; /* 防止水平滚动 */
 }
 
 body {
@@ -55,8 +56,12 @@ body {
   -moz-osx-font-smoothing: auto;
 }
 
-body,
-#app,
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .flex {
   display: flex;
   flex-direction: column;
@@ -66,10 +71,6 @@ body,
 
 .flex-row {
   flex-direction: row;
-}
-
-#app {
-  margin: 0 var(--spacing-md);
 }
 
 .text-center {

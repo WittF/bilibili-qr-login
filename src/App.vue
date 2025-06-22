@@ -109,12 +109,16 @@ onBeforeUnmount(stop);
   max-width: 800px;
   margin: 0 auto;
   padding: var(--spacing-xl);
-  min-height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   animation: fadeIn 0.5s ease-in-out;
+
+  @media (min-height: 800px) {
+    justify-content: center;
+  }
 }
 
 @keyframes fadeIn {
@@ -399,8 +403,8 @@ onBeforeUnmount(stop);
   }
 
   .qrcode {
-    width: 180px;
-    height: 180px;
+    width: 190px;
+    height: 190px;
 
     &__placeholder {
       width: 164px;
@@ -416,8 +420,9 @@ onBeforeUnmount(stop);
 // 高度较小的设备优化
 @media (max-height: 700px) {
   .container {
-    justify-content: flex-start;
-    padding-top: 5vh;
+    justify-content: flex-start !important;
+    padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
   }
 
   .header {
@@ -426,11 +431,32 @@ onBeforeUnmount(stop);
 
   .qrcode-container--with-cookie {
     transform: scale(0.9);
-    margin-bottom: 0;
+    margin-bottom: var(--spacing-xs);
   }
 
   .cookie-container {
-    margin-top: 0;
+    margin-top: var(--spacing-xs);
+  }
+}
+
+// 非常小的设备优化
+@media (max-height: 600px) {
+  .container {
+    padding-top: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+  }
+
+  .header {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .title {
+    font-size: 1.3rem;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
   }
 }
 </style>
