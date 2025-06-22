@@ -25,7 +25,25 @@
               </div>
             </div>
           </div>
+
           <p class="status-text" :class="getStatusClass">{{ getters.statusText }}</p>
+
+          <div class="footer-links">
+            <a
+              href="https://github.com/WittF/bilibili-qr-login"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="github-link"
+              title="查看源码"
+            >
+              <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"
+                />
+              </svg>
+              <span class="github-text">查看源码</span>
+            </a>
+          </div>
         </div>
 
         <div v-if="!PARAM_MODE" class="cookie-container">
@@ -115,7 +133,10 @@ onBeforeUnmount(stop);
   align-items: center;
   justify-content: flex-start;
   animation: fadeIn 0.5s ease-in-out;
+  min-width: 320px;
+  overflow: visible;
 
+  /* 当内容较少时才居中 */
   @media (min-height: 800px) {
     justify-content: center;
   }
@@ -138,6 +159,7 @@ onBeforeUnmount(stop);
   align-items: center;
   width: 100%;
   max-width: 650px;
+  overflow: visible;
 }
 
 .main-content {
@@ -145,13 +167,13 @@ onBeforeUnmount(stop);
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: visible;
 }
 
 .header {
   text-align: center;
   margin-bottom: var(--spacing-xl);
   width: 100%;
-  position: static; /* 确保标题不会被固定或绝对定位 */
 }
 
 .title {
@@ -174,6 +196,9 @@ onBeforeUnmount(stop);
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
 
   &--with-cookie {
     margin-bottom: var(--spacing-sm);
@@ -271,38 +296,6 @@ onBeforeUnmount(stop);
   }
 }
 
-.status-text {
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  text-align: center;
-  min-height: 1.5rem;
-
-  &--loading {
-    color: var(--text-tertiary);
-  }
-
-  &--waiting {
-    color: var(--text-secondary);
-  }
-
-  &--scanned {
-    color: var(--bilibili-blue);
-  }
-
-  &--expired {
-    color: var(--error);
-  }
-
-  &--success {
-    color: var(--success);
-  }
-
-  &--error {
-    color: var(--error);
-  }
-}
-
 .cookie-container {
   width: 100%;
   margin-top: var(--spacing-sm);
@@ -365,6 +358,15 @@ onBeforeUnmount(stop);
     margin-bottom: var(--spacing-lg);
   }
 
+  .footer-links {
+    margin-top: var(--spacing-sm);
+  }
+
+  .github-link {
+    font-size: 0.8rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
   .qrcode {
     width: 196px;
     height: 196px;
@@ -402,18 +404,38 @@ onBeforeUnmount(stop);
     margin-bottom: var(--spacing-sm);
   }
 
+  .footer-links {
+    margin-top: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+  }
+
+  .github-link {
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  .github-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .github-text {
+    letter-spacing: 0.3px;
+  }
+
+  .status-text {
+    font-size: 0.9rem;
+  }
+
   .qrcode {
-    width: 190px;
-    height: 190px;
+    width: 180px;
+    height: 180px;
 
     &__placeholder {
       width: 164px;
       height: 164px;
     }
-  }
-
-  .status-text {
-    font-size: 0.9rem;
   }
 }
 
@@ -427,6 +449,20 @@ onBeforeUnmount(stop);
 
   .header {
     margin-bottom: var(--spacing-md);
+  }
+
+  .qrcode-container {
+    gap: var(--spacing-sm);
+  }
+
+  .footer-links {
+    margin-top: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+  }
+
+  .github-link {
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 
   .qrcode-container--with-cookie {
@@ -458,5 +494,109 @@ onBeforeUnmount(stop);
   .subtitle {
     font-size: 0.9rem;
   }
+
+  .footer-links {
+    margin-top: 0;
+    padding: var(--spacing-xs) 0;
+  }
+
+  .github-link {
+    font-size: 0.75rem;
+    padding: var(--spacing-xs);
+  }
+
+  .github-icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.status-text {
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-align: center;
+  min-height: 1.5rem;
+  margin: 0;
+  color: var(--text-secondary);
+
+  &--loading {
+    color: var(--text-tertiary);
+  }
+
+  &--waiting {
+    color: var(--text-secondary);
+  }
+
+  &--scanned {
+    color: var(--bilibili-blue);
+  }
+
+  &--expired {
+    color: var(--error);
+  }
+
+  &--success {
+    color: var(--success);
+  }
+
+  &--error {
+    color: var(--error);
+  }
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  width: 100%;
+  min-height: auto;
+  overflow: visible;
+}
+
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  border: 1px solid var(--divider);
+  background-color: var(--card-background);
+  box-shadow: var(--shadow-sm);
+  min-width: fit-content;
+  min-height: auto;
+  position: relative;
+  overflow: visible;
+
+  &:hover {
+    color: var(--bilibili-pink);
+    background-color: rgba(251, 114, 153, 0.08);
+    border-color: rgba(251, 114, 153, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(251, 114, 153, 0.15);
+  }
+}
+
+.github-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+  fill: currentColor;
+  overflow: visible;
+  vertical-align: middle;
+}
+
+.github-text {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 </style>

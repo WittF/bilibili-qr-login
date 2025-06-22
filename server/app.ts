@@ -28,6 +28,22 @@ enum PollQrResultCode {
 
 const keepPollQrResultCode = new Set([PollQrResultCode.NOT_CONFIRMED, PollQrResultCode.NOT_SCANNED]);
 
+// 添加状态码描述工具函数
+const getQrStatusDescription = (code: number): string => {
+  switch (code) {
+    case PollQrResultCode.SUCCESS:
+      return 'SUCCESS(登录成功)';
+    case PollQrResultCode.EXPIRED:
+      return 'EXPIRED(QR码已过期)';
+    case PollQrResultCode.NOT_CONFIRMED:
+      return 'NOT_CONFIRMED(已扫码未确认)';
+    case PollQrResultCode.NOT_SCANNED:
+      return 'NOT_SCANNED(未扫码)';
+    default:
+      return `UNKNOWN(${code})`;
+  }
+};
+
 // 添加日志工具函数
 const isDebugMode = process.env.DEBUG === '1' || process.env.DEBUG === 'true';
 
@@ -62,15 +78,6 @@ const logger = {
     console.warn(`[${timestamp}] [${sessionId}] WARN: ${message}`, data ? JSON.stringify(data) : '');
   },
 };
-
-// 启动时输出调试模式状态
-console.log(`\n🚀 哔哩哔哩QR登录服务启动`);
-console.log(`📊 调试模式: ${isDebugMode ? '开启 (展示详细日志)' : '关闭 (仅展示重要日志)'}`);
-if (!isDebugMode) {
-  console.log(`💡 提示: 设置环境变量 DEBUG=1 可开启详细日志\n`);
-} else {
-  console.log(`💡 详细日志已开启，包含所有请求和响应信息\n`);
-}
 
 export const app = new Hono();
 
@@ -288,13 +295,13 @@ app.get('/api/qr', c => {
             logger.important(sessionId, `轮询状态变化`, {
               pollCount: i + 1,
               duration: `${pollDuration}ms`,
-              code: result.code,
+              status: getQrStatusDescription(result.code),
               message: result.msg,
             });
           } else {
             logger.debug(sessionId, `轮询第${i + 1}次`, {
               duration: `${pollDuration}ms`,
-              code: result.code,
+              status: getQrStatusDescription(result.code),
             });
           }
 
@@ -304,7 +311,7 @@ app.get('/api/qr', c => {
             const totalDuration = Date.now() - startTime;
             logger.important(sessionId, '轮询结束', {
               reason: result.code === 0 ? '登录成功' : '登录失败或过期',
-              code: result.code,
+              status: getQrStatusDescription(result.code),
               totalDuration: `${totalDuration}ms`,
               pollCount: i + 1,
             });
@@ -322,10 +329,26 @@ app.get('/api/qr', c => {
         }
 
         await stream.sleep(2000);
+
+        // 检查连接状态，如果用户断开则退出
+        if (streamClosed) {
+          const totalDuration = Date.now() - startTime;
+          logger.info(sessionId, '用户断开连接', {
+            totalDuration: `${totalDuration}ms`,
+            pollCount: i + 1,
+          });
+          return;
+        }
       }
 
-      const totalDuration = Date.now() - startTime;
-      logger.warn(sessionId, '轮询超时终止', { totalDuration: `${totalDuration}ms` });
+      // 只有在没有断开连接的情况下才是真正的超时
+      if (!streamClosed) {
+        const totalDuration = Date.now() - startTime;
+        logger.warn(sessionId, '轮询达到最大次数限制', {
+          totalDuration: `${totalDuration}ms`,
+          maxPolls: 100,
+        });
+      }
     } catch (error) {
       const totalDuration = Date.now() - startTime;
       logger.error(sessionId, 'SSE流异常', {
@@ -338,7 +361,10 @@ app.get('/api/qr', c => {
       return;
     }
 
-    await stream.writeSSE({ data: '超时终止', event: SSEEvent.END });
+    // 正常结束，不需要额外的日志
+    if (!streamClosed) {
+      await stream.writeSSE({ data: '服务结束', event: SSEEvent.END });
+    }
     await stream.close();
   });
 });
@@ -539,14 +565,14 @@ class LoginQr {
           logger.important(this.sessionId, 'QR码已过期', {
             duration: `${duration}ms`,
             httpStatus: r0.status,
-            biliCode: result.code,
+            status: getQrStatusDescription(result.code),
             message: result.msg,
           });
         } else {
           logger.debug(this.sessionId, '轮询结果详情', {
             duration: `${duration}ms`,
             httpStatus: r0.status,
-            biliCode: result.code,
+            status: getQrStatusDescription(result.code),
             message: result.msg,
           });
         }
