@@ -14,7 +14,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY --from=build /app/dist .
+COPY --from=build /app/dist ./dist
+
+RUN mv ./dist/index.js ./index.js
 
 RUN chmod -R 777 /app
 
