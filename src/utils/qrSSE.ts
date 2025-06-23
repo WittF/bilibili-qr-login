@@ -18,6 +18,11 @@ interface SSEPollData {
   code: number;
   msg: string;
   cookie?: string;
+  cookieValidation?: {
+    status: 'success' | 'failed' | 'error';
+    message: string;
+    details?: string;
+  };
 }
 
 enum PollQrResultCode {
@@ -41,6 +46,11 @@ interface QrState {
   cookie: string;
   errMsg: string;
   status: QrStatus;
+  cookieValidation?: {
+    status: 'success' | 'failed' | 'error';
+    message: string;
+    details?: string;
+  };
 }
 
 const defaultState = (): QrState => ({
@@ -101,6 +111,42 @@ class QrSSE {
     return;
   }
 
+  private logCookieValidationResult(validation: {
+    status: 'success' | 'failed' | 'error';
+    message: string;
+    details?: string;
+  }) {
+    const timestamp = new Date().toLocaleTimeString();
+
+    switch (validation.status) {
+      case 'success':
+        console.log(
+          `%c[${timestamp}] 🍪 Cookie可用性验证通过`,
+          'color: #10b981; font-weight: bold;',
+          `\n✅ ${validation.message}`,
+        );
+        break;
+
+      case 'failed':
+        console.warn(
+          `%c[${timestamp}] 🍪 Cookie可用性验证未通过`,
+          'color: #f59e0b; font-weight: bold;',
+          `\n⚠️ ${validation.message}`,
+          validation.details ? `\n📝 ${validation.details}` : '',
+        );
+        break;
+
+      case 'error':
+        console.error(
+          `%c[${timestamp}] 🍪 Cookie可用性验证异常`,
+          'color: #ef4444; font-weight: bold;',
+          `\n❌ ${validation.message}`,
+          validation.details ? `\n📝 ${validation.details}` : '',
+        );
+        break;
+    }
+  }
+
   private handleGenerate({ code, msg, url }: SSEGenerateData) {
     if (code !== 0) {
       this.handleError(msg);
@@ -111,7 +157,7 @@ class QrSSE {
     this.state.status = QrStatus.WAIT;
   }
 
-  private handlePoll({ code, msg, cookie }: SSEPollData) {
+  private handlePoll({ code, msg, cookie, cookieValidation }: SSEPollData) {
     switch (code) {
       case PollQrResultCode.NOT_SCANNED:
         this.state.status = QrStatus.WAIT;
@@ -125,6 +171,13 @@ class QrSSE {
       case PollQrResultCode.SUCCESS:
         this.state.status = QrStatus.SUCCESS;
         this.state.cookie = cookie!;
+        this.state.cookieValidation = cookieValidation;
+
+        // 在浏览器控制台显示Cookie验证结果
+        if (cookieValidation) {
+          this.logCookieValidationResult(cookieValidation);
+        }
+
         postQrMessage({ type: 'success', data: cookie! });
         break;
       default:
