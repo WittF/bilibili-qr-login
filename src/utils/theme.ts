@@ -26,50 +26,48 @@ export class ThemeManager {
 
   // 公开方法，允许手动重新初始化
   reinitialize() {
-    console.log('🔄 重新初始化主题管理器');
+    if (import.meta.env.DEV) {
+      console.log('🔄 重新初始化主题管理器');
+    }
     this.init();
   }
 
   private init() {
     if (this.initialized) {
-      console.log('⚠️ 主题管理器已经初始化，跳过');
       return;
     }
 
-    console.log('🎨 主题管理器初始化开始');
-    console.log('📍 初始化时机:', {
-      readyState: document.readyState,
-      timestamp: new Date().toISOString(),
-    });
+    const isDebug = import.meta.env.DEV;
+
+    if (isDebug) {
+      console.log('🎨 主题管理器初始化');
+    }
 
     // 优先级：URL参数 > Cookie > 默认(auto)
     const urlTheme = this.getUrlTheme();
     const savedTheme = this.getCookieTheme();
 
-    console.log('🔍 主题检测结果:', {
-      urlTheme,
-      savedTheme,
-      currentUrl: window.location.href,
-      search: window.location.search,
-      hasDocument: typeof document !== 'undefined',
-    });
+    if (isDebug) {
+      console.log('🔍 主题检测:', { urlTheme, savedTheme });
+    }
 
     if (urlTheme) {
-      console.log('✅ 使用URL参数主题:', urlTheme);
       this.currentTheme = urlTheme;
-      // 如果URL指定了主题，也保存到cookie中
       this.setCookieTheme(urlTheme);
+      if (isDebug) console.log('✅ 使用URL参数主题:', urlTheme);
     } else if (savedTheme) {
-      console.log('✅ 使用Cookie保存的主题:', savedTheme);
       this.currentTheme = savedTheme;
+      if (isDebug) console.log('✅ 使用Cookie主题:', savedTheme);
     } else {
-      console.log('✅ 使用默认主题: auto');
+      if (isDebug) console.log('✅ 使用默认主题: auto');
     }
 
     // 监听系统主题变化（只添加一次）
     if (!this.initialized) {
       this.mediaQuery.addEventListener('change', e => {
-        console.log('🌓 系统主题变化:', e.matches ? 'dark' : 'light');
+        if (isDebug) {
+          console.log('🌓 系统主题变化:', e.matches ? 'dark' : 'light');
+        }
         if (this.currentTheme === 'auto') {
           this.applyTheme();
         }
@@ -121,11 +119,9 @@ export class ThemeManager {
   private applyTheme() {
     const effectiveTheme = this.getEffectiveTheme();
 
-    console.log('🎯 应用主题:', {
-      currentTheme: this.currentTheme,
-      effectiveTheme,
-      systemPreference: this.mediaQuery.matches ? 'dark' : 'light',
-    });
+    if (import.meta.env.DEV) {
+      console.log('🎯 应用主题:', effectiveTheme);
+    }
 
     document.documentElement.setAttribute('data-theme', effectiveTheme);
 
@@ -134,12 +130,12 @@ export class ThemeManager {
     if (metaThemeColor) {
       metaThemeColor.content = effectiveTheme === 'dark' ? '#0e0f10' : '#f6f7f8';
     }
-
-    console.log('✨ 主题应用完成:', effectiveTheme);
   }
 
   setTheme(theme: Theme) {
-    console.log('🎛️ 手动设置主题:', theme);
+    if (import.meta.env.DEV) {
+      console.log('🎛️ 手动设置主题:', theme);
+    }
     this.currentTheme = theme;
     this.setCookieTheme(theme);
     this.applyTheme();
