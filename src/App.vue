@@ -616,6 +616,8 @@ onBeforeUnmount(stop);
 // 暗色主题下的github链接
 [data-theme='dark'] {
   .github-link {
+    border-color: var(--divider);
+
     &:hover {
       color: var(--bilibili-pink);
       background-color: var(--bilibili-pink-light);
