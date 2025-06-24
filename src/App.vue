@@ -246,9 +246,9 @@ onBeforeUnmount(stop);
     left: 0;
     background-color: var(--qr-mask-bg);
     border-radius: var(--radius-lg);
-    backdrop-filter: blur(4px);
-    transition: all 0.3s ease;
-    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(3px);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    animation: maskFadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
 
   &__placeholder {
@@ -268,8 +268,23 @@ onBeforeUnmount(stop);
     border-radius: 50%;
     border: 3px solid var(--loading-bg);
     border-top-color: var(--bilibili-blue);
-    animation: spin 1s linear infinite;
-    transition: border-color 0.3s ease;
+    animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    transition: all 0.3s ease;
+    transform-origin: center;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--bilibili-pink);
+      animation: spinReverse 2s linear infinite;
+      opacity: 0.6;
+    }
   }
 
   &__actions {
@@ -277,33 +292,37 @@ onBeforeUnmount(stop);
     width: 100%;
     height: 100%;
     flex-direction: column;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 
     .icon--success {
       position: absolute;
       transition:
-        transform 0.3s ease,
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
         opacity 0.3s ease;
+      animation: successPulse 0.6s ease-out;
     }
 
     .icon--refresh {
       position: absolute;
       bottom: 20px;
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(15px) scale(0.9);
       transition:
-        transform 0.3s ease,
-        opacity 0.3s ease;
+        transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.3s ease,
+        filter 0.2s ease;
     }
 
     &:hover {
       .icon--success {
-        transform: translateY(-30px);
+        transform: translateY(-35px) scale(0.95);
+        opacity: 0.8;
       }
 
       .icon--refresh {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
       }
     }
   }
@@ -312,7 +331,35 @@ onBeforeUnmount(stop);
 // 过期状态时，刷新按钮始终可见
 .icon--refresh.always-visible {
   opacity: 1 !important;
-  transform: translateY(0) !important;
+  transform: translateY(0) scale(1) !important;
+  animation: refreshPulse 2s ease-in-out infinite;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes refreshPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+  50% {
+    transform: translateY(-2px) scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+  }
 }
 
 @keyframes spin {
@@ -321,6 +368,32 @@ onBeforeUnmount(stop);
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReverse {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes maskFadeIn {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.7;
+    backdrop-filter: blur(1.5px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(3px);
+    transform: scale(1);
   }
 }
 
@@ -359,15 +432,25 @@ onBeforeUnmount(stop);
   transform: translateY(20px);
 }
 
-// 淡入淡出动画
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+// 淡入淡出动画 - 优化QR码切换效果
+.fade-enter-active {
+  transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.fade-enter-from,
+.fade-leave-active {
+  transition: all 0.3s ease-out;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: scale(0.95) rotateY(10deg);
+  filter: blur(2px);
+}
+
 .fade-leave-to {
   opacity: 0;
+  transform: scale(1.05) rotateY(-10deg);
+  filter: blur(1px);
 }
 
 // 响应式布局优化

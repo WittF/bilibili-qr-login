@@ -48,11 +48,18 @@ const isDarkTheme = computed(() => {
   svg {
     width: 20px;
     height: 20px;
-    transition: transform 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center;
   }
 
   &:hover svg {
-    transform: rotate(30deg);
+    transform: rotate(180deg) scale(1.1);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+
+  &:active svg {
+    transform: rotate(360deg) scale(0.95);
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
 }
 
