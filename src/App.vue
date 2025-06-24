@@ -71,7 +71,7 @@ import RefreshBtn from './components/RefreshBtn.vue';
 import CookieDisplay from './components/CookieDisplay.vue';
 import LoadingIcon from './components/LoadingIcon.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
-import CheckIcon from './assets/icons/check_circle.svg';
+import CheckIcon from './components/CheckIcon.vue';
 import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
 import { PARAM_MODE } from './utils/const';
