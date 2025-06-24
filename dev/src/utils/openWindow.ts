@@ -1,15 +1,15 @@
 // 为开发模式添加简单的日志系统
 const createDevLogger = (module: string) => ({
   debug: (message: string, data?: any) => {
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toLocaleString();
     console.log(`[${timestamp}] [${module}] DEBUG: ${message}`, data || '');
   },
   info: (message: string, data?: any) => {
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toLocaleString();
     console.log(`[${timestamp}] [${module}] INFO: ${message}`, data || '');
   },
   error: (message: string, data?: any) => {
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toLocaleString();
     console.error(`[${timestamp}] [${module}] ERROR: ${message}`, data || '');
   },
 });
@@ -113,4 +113,22 @@ export const openQrWindow = (url: string) => {
     });
     return null;
   }
+};
+
+export const openWindow = (url: string) => {
+  const timestamp = new Date().toLocaleString();
+  console.log(`[${timestamp}] [DEV] 打开新窗口: ${url}`);
+  window.open(url, '_blank');
+};
+
+export const closeWindow = () => {
+  const timestamp = new Date().toLocaleString();
+  console.log(`[${timestamp}] [DEV] 关闭当前窗口`);
+  window.close();
+};
+
+export const refreshWindow = () => {
+  const timestamp = new Date().toLocaleString();
+  console.log(`[${timestamp}] [DEV] 刷新当前窗口`);
+  window.location.reload();
 };

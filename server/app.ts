@@ -56,34 +56,52 @@ const formatSessionId = (sessionId: number): string => {
   return `Client#${sessionId}`;
 };
 
+// 格式化中国标准时间
+const getCSTTimestamp = (): string => {
+  const now = new Date();
+  // 转换为中国标准时间 (UTC+8)
+  const chinaTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+
+  // 格式化为 YYYY-MM-DD HH:mm:ss.SSS CST
+  const year = chinaTime.getUTCFullYear();
+  const month = String(chinaTime.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(chinaTime.getUTCDate()).padStart(2, '0');
+  const hour = String(chinaTime.getUTCHours()).padStart(2, '0');
+  const minute = String(chinaTime.getUTCMinutes()).padStart(2, '0');
+  const second = String(chinaTime.getUTCSeconds()).padStart(2, '0');
+  const millisecond = String(chinaTime.getUTCMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}.${millisecond} CST`;
+};
+
 const logger = {
   // 调试信息 - 仅在DEBUG模式下显示
   debug: (sessionId: number, message: string, data?: any) => {
     if (isDebugMode) {
-      const timestamp = new Date().toISOString();
+      const timestamp = getCSTTimestamp();
       console.log(`[${timestamp}] [${formatSessionId(sessionId)}] DEBUG: ${message}`, data ? JSON.stringify(data) : '');
     }
   },
   // 一般信息 - 仅在DEBUG模式下显示
   info: (sessionId: number, message: string, data?: any) => {
     if (isDebugMode) {
-      const timestamp = new Date().toISOString();
+      const timestamp = getCSTTimestamp();
       console.log(`[${timestamp}] [${formatSessionId(sessionId)}] INFO: ${message}`, data ? JSON.stringify(data) : '');
     }
   },
   // 重要信息 - 始终显示
   important: (sessionId: number, message: string, data?: any) => {
-    const timestamp = new Date().toISOString();
+    const timestamp = getCSTTimestamp();
     console.log(`[${timestamp}] [${formatSessionId(sessionId)}] INFO: ${message}`, data ? JSON.stringify(data) : '');
   },
   // 错误信息 - 始终显示
   error: (sessionId: number, message: string, error?: any) => {
-    const timestamp = new Date().toISOString();
+    const timestamp = getCSTTimestamp();
     console.error(`[${timestamp}] [${formatSessionId(sessionId)}] ERROR: ${message}`, error);
   },
   // 警告信息 - 始终显示
   warn: (sessionId: number, message: string, data?: any) => {
-    const timestamp = new Date().toISOString();
+    const timestamp = getCSTTimestamp();
     console.warn(`[${timestamp}] [${formatSessionId(sessionId)}] WARN: ${message}`, data ? JSON.stringify(data) : '');
   },
 };
@@ -318,7 +336,7 @@ class ClientManager {
   private activeSessions = new Map<number, ActiveSession>();
   private cleanupInterval?: NodeJS.Timeout;
 
-  constructor() {
+  public constructor() {
     // 每30秒清理一次超时的会话（5分钟无活动）
     this.cleanupInterval = setInterval(() => {
       this.cleanupInactiveSessions(5 * 60 * 1000); // 5分钟
@@ -326,7 +344,7 @@ class ClientManager {
   }
 
   // 添加新会话
-  addSession(sessionId: number, clientIP: string, userAgent: string): void {
+  public addSession(sessionId: number, clientIP: string, userAgent: string): void {
     const now = Date.now();
     this.activeSessions.set(sessionId, {
       sessionId,
@@ -341,7 +359,7 @@ class ClientManager {
   }
 
   // 更新会话活跃时间
-  updateActivity(sessionId: number): void {
+  public updateActivity(sessionId: number): void {
     const session = this.activeSessions.get(sessionId);
     if (session) {
       session.lastActiveTime = Date.now();
@@ -350,7 +368,7 @@ class ClientManager {
   }
 
   // 移除会话
-  removeSession(sessionId: number, reason: string = '正常断开'): void {
+  public removeSession(sessionId: number, reason: string = '正常断开'): void {
     const session = this.activeSessions.get(sessionId);
     if (session) {
       const duration = Date.now() - session.connectTime;
@@ -364,6 +382,19 @@ class ClientManager {
 
       this.logSessionStats('客户端断开');
     }
+  }
+
+  // 获取当前活跃会话数量
+  public getActiveCount(): number {
+    return this.activeSessions.size;
+  }
+
+  // 清理资源
+  public destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    this.activeSessions.clear();
   }
 
   // 清理不活跃的会话
@@ -399,7 +430,7 @@ class ClientManager {
     logger.important(0, `客户端统计 - ${action}`, {
       当前在线: activeCount,
       独立IP数: uniqueIPs.size,
-      统计时间: currentTime,
+      计算时间: currentTime,
     });
 
     // 调试模式下显示详细信息
@@ -413,19 +444,6 @@ class ClientManager {
 
       logger.debug(0, '活跃会话详情', { sessions });
     }
-  }
-
-  // 获取当前活跃会话数量
-  getActiveCount(): number {
-    return this.activeSessions.size;
-  }
-
-  // 清理资源
-  destroy(): void {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-    }
-    this.activeSessions.clear();
   }
 }
 
@@ -455,7 +473,7 @@ app.get('/api/qr', c => {
 
     logger.debug(sessionId, 'IP头部调试信息', {
       finalIP: clientIP,
-      headers: Object.fromEntries(Object.entries(debugHeaders).filter(([_, v]) => v)),
+      headers: Object.fromEntries(Object.entries(debugHeaders).filter(([_key, v]) => v)),
     });
   }
 
