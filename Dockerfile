@@ -7,8 +7,9 @@ WORKDIR /app
 # 先复制package.json和yarn.lock以利用Docker层缓存
 COPY package.json yarn.lock ./
 
-# 安装依赖（这层会被缓存，除非package.json或yarn.lock改变）
-RUN yarn install --frozen-lockfile --production=false
+# 安装依赖（使用yarn缓存挂载优化）
+RUN --mount=type=cache,target=/root/.yarn \
+    yarn install --frozen-lockfile --production=false
 
 # 再复制源代码
 COPY . .
