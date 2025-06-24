@@ -22,7 +22,7 @@ jobs:
       contents: read
       packages: write
     env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       TRUST_ORIGIN: ${{ secrets.TRUST_ORIGIN }}
 
