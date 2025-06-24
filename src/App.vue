@@ -309,17 +309,14 @@ onBeforeUnmount(stop);
         transform: translateY(0);
       }
     }
+      }
   }
 }
 
 // 过期状态时，刷新按钮始终可见
-.status-text--expired ~ .qrcode-container .qrcode__actions .icon--refresh,
-.qrcode__actions:not(:hover) .icon--refresh {
-  &.always-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  }
+.icon--refresh.always-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 @keyframes spin {
