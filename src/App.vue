@@ -24,7 +24,11 @@
               <LoadingIcon v-if="state.status === QrStatus.LOADING" />
               <div v-else class="qrcode__actions flex">
                 <CheckIcon v-if="showCheckIcon" class="icon--success" />
-                <RefreshBtn class="icon--refresh" @click="handleRestart" />
+                <RefreshBtn
+                  class="icon--refresh"
+                  :class="{ 'always-visible': state.status === QrStatus.EXPIRED }"
+                  @click="handleRestart"
+                />
               </div>
             </div>
           </div>
@@ -305,6 +309,16 @@ onBeforeUnmount(stop);
         transform: translateY(0);
       }
     }
+  }
+}
+
+// 过期状态时，刷新按钮始终可见
+.status-text--expired ~ .qrcode-container .qrcode__actions .icon--refresh,
+.qrcode__actions:not(:hover) .icon--refresh {
+  &.always-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
   }
 }
 
