@@ -10,13 +10,38 @@ interface LoggerConfig {
   debugMode?: boolean;
 }
 
+// 前端调试模式控制 - 使用独立的环境变量
+const getFrontendDebugMode = (): boolean => {
+  // 1. 优先检查 URL 参数
+  const urlParams = new URLSearchParams(window.location.search);
+  const debugParam = urlParams.get('debug');
+  if (debugParam === '1' || debugParam === 'true') {
+    return true;
+  }
+
+  // 2. 检查 localStorage 设置
+  const localDebug = localStorage.getItem('bilibili-qr-debug');
+  if (localDebug === '1' || localDebug === 'true') {
+    return true;
+  }
+
+  // 3. 检查环境变量（仅在开发模式下作为后备）
+  if (import.meta.env.VITE_DEBUG === 'true') {
+    return true;
+  }
+
+  // 4. 默认关闭调试模式
+  return false;
+};
+
 class Logger {
   private module: string;
   private debugMode: boolean;
 
   constructor(config: LoggerConfig) {
     this.module = config.module;
-    this.debugMode = config.debugMode ?? import.meta.env.DEV;
+    // 使用独立的调试模式控制，而不是开发模式
+    this.debugMode = config.debugMode ?? getFrontendDebugMode();
   }
 
   /**
@@ -167,3 +192,67 @@ export const loggers = {
   app: createLogger('APP'),
   cookie: createLogger('COOKIE'),
 } as const;
+
+/**
+ * 全局调试控制接口
+ * 可以在浏览器控制台中使用
+ */
+export const debugControl = {
+  /**
+   * 开启前端调试模式
+   */
+  enable(): void {
+    localStorage.setItem('bilibili-qr-debug', 'true');
+    console.log('%c[DEBUG] 前端调试模式已开启，刷新页面生效', 'color: #3b82f6; font-weight: bold;');
+    console.log('%c[DEBUG] 当前页面 URL 加上 ?debug=1 可立即生效', 'color: #3b82f6;');
+  },
+
+  /**
+   * 关闭前端调试模式
+   */
+  disable(): void {
+    localStorage.removeItem('bilibili-qr-debug');
+    console.log('%c[DEBUG] 前端调试模式已关闭，刷新页面生效', 'color: #f59e0b; font-weight: bold;');
+  },
+
+  /**
+   * 查看当前调试状态
+   */
+  status(): void {
+    const isEnabled = getFrontendDebugMode();
+    const methods = [];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('debug') === '1' || urlParams.get('debug') === 'true') {
+      methods.push('URL参数');
+    }
+
+    if (localStorage.getItem('bilibili-qr-debug') === 'true') {
+      methods.push('localStorage');
+    }
+
+    if (import.meta.env.VITE_DEBUG === 'true') {
+      methods.push('环境变量');
+    }
+
+    console.log(
+      `%c[DEBUG] 调试模式状态: ${isEnabled ? '已开启' : '已关闭'}`,
+      `color: ${isEnabled ? '#10b981' : '#ef4444'}; font-weight: bold;`,
+    );
+
+    if (isEnabled && methods.length > 0) {
+      console.log(`%c[DEBUG] 开启方式: ${methods.join(', ')}`, 'color: #6b7280;');
+    }
+
+    console.log('%c[DEBUG] 控制方法:', 'color: #6b7280;');
+    console.log('%c  debugControl.enable()  - 开启调试模式', 'color: #6b7280;');
+    console.log('%c  debugControl.disable() - 关闭调试模式', 'color: #6b7280;');
+    console.log('%c  debugControl.status()  - 查看状态', 'color: #6b7280;');
+  },
+};
+
+// 在开发环境下，将调试控制接口挂载到全局对象
+if (import.meta.env.DEV) {
+  (window as any).debugControl = debugControl;
+  console.log('%c[LOGGER] 调试控制接口已挂载到 window.debugControl', 'color: #8b5cf6;');
+}
