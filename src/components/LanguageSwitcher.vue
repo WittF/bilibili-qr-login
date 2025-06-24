@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useI18n } from '../utils/i18n';
+import { focusManager } from '../utils/focusManager';
 import LanguageIcon from '../assets/icons/language.svg';
 import ArrowDownIcon from '../assets/icons/arrow_down.svg';
 import CheckSmallIcon from '../assets/icons/check_small.svg';
@@ -66,12 +67,11 @@ const selectLanguage = (lang: SupportedLanguage) => {
   setLanguage(lang);
   isOpen.value = false;
   currentFocusIndex.value = -1;
-  // 返回焦点到主按钮，延迟确保DOM更新完成
+  // 使用focusManager智能管理焦点
   nextTick(() => {
     const button = document.querySelector('.language-switcher__current') as HTMLElement;
     if (button) {
-      button.blur(); // 先取消焦点，避免残留聚焦状态
-      setTimeout(() => button.focus(), 50); // 然后重新聚焦
+      focusManager.handleLanguageSwitcherFocus(button, true);
     }
   });
 };
@@ -139,12 +139,11 @@ const handleOptionKeyDown = (event: KeyboardEvent, index: number) => {
       event.preventDefault();
       isOpen.value = false;
       currentFocusIndex.value = -1;
-      // 返回焦点到主按钮，避免残留聚焦状态
+      // 使用focusManager智能返回焦点
       nextTick(() => {
         const button = document.querySelector('.language-switcher__current') as HTMLElement;
         if (button) {
-          button.blur();
-          setTimeout(() => button.focus(), 50);
+          focusManager.handleLanguageSwitcherFocus(button, true);
         }
       });
       break;
@@ -157,10 +156,10 @@ const closeDropdown = (event: MouseEvent) => {
   if (!target.closest('.language-switcher')) {
     isOpen.value = false;
     currentFocusIndex.value = -1;
-    // 清除可能的残留聚焦状态
+    // 使用focusManager智能处理焦点
     const button = document.querySelector('.language-switcher__current') as HTMLElement;
     if (button && document.activeElement === button) {
-      button.blur();
+      focusManager.smartBlur(button);
     }
   }
 };

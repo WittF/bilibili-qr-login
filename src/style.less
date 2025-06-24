@@ -12,10 +12,12 @@
 
   // 聚焦效果变量
   --focus-ring-color: var(--bilibili-pink);
-  --focus-ring-shadow: 0 0 0 3px rgba(251, 114, 153, 0.3);
-  --focus-ring-shadow-inset: 0 0 0 2px rgba(251, 114, 153, 0.5);
-  --focus-ring-transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --focus-ring-shadow: 0 0 0 3px rgba(251, 114, 153, 0.25);
+  --focus-ring-shadow-strong: 0 0 0 4px rgba(251, 114, 153, 0.3);
+  --focus-ring-shadow-inset: 0 0 0 2px rgba(251, 114, 153, 0.4);
+  --focus-ring-glow: 0 0 12px rgba(251, 114, 153, 0.15);
+  --focus-ring-transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --focus-ring-transition-fast: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   // 中性色 - 浅色主题
   --text-primary: #18191c;
@@ -68,8 +70,10 @@
 // 暗色主题
 [data-theme='dark'] {
   // 聚焦效果变量 - 暗色主题
-  --focus-ring-shadow: 0 0 0 3px rgba(255, 126, 185, 0.4);
-  --focus-ring-shadow-inset: 0 0 0 2px rgba(255, 126, 185, 0.6);
+  --focus-ring-shadow: 0 0 0 3px rgba(255, 126, 185, 0.35);
+  --focus-ring-shadow-strong: 0 0 0 4px rgba(255, 126, 185, 0.4);
+  --focus-ring-shadow-inset: 0 0 0 2px rgba(255, 126, 185, 0.5);
+  --focus-ring-glow: 0 0 15px rgba(255, 126, 185, 0.2);
 
   // 中性色 - 暗色主题
   --text-primary: #e1e3e6;
@@ -167,7 +171,8 @@ body {
   user-select: none;
   border-radius: var(--radius-md);
   overflow: hidden;
-  transition: transform 0.15s ease;
+  transition: var(--focus-ring-transition-fast);
+  will-change: transform, box-shadow;
 
   &::after {
     position: absolute;
@@ -176,7 +181,8 @@ body {
     right: 0;
     left: 0;
     bottom: 0;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
   }
 
   &:hover::after {
@@ -185,10 +191,16 @@ body {
 
   &:active {
     transform: scale(0.98);
+    transition: var(--focus-ring-transition-fast);
   }
 
   &:active::after {
     background-color: var(--overlay-mask-active);
+  }
+
+  // 聚焦时保持按钮效果
+  &:focus-visible {
+    outline: none;
   }
 }
 
@@ -250,16 +262,45 @@ body {
   outline: none;
 }
 
-// 通用按钮聚焦效果
-button:focus-visible,
-[role='button']:focus-visible,
-[tabindex]:focus-visible {
+// 重置所有元素的默认聚焦状态
+*:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-shadow);
-  transition: var(--focus-ring-transition);
 }
 
-// 输入框聚焦效果
+// 通用按钮聚焦效果 - 丝滑过渡
+button:focus-visible,
+[role='button']:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow);
+  transform: translateY(-1px);
+  transition: var(--focus-ring-transition);
+  z-index: 1;
+  position: relative;
+}
+
+// 特殊按钮聚焦效果 - 增强版
+.btn:focus-visible,
+.refresh-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-shadow-strong), var(--focus-ring-glow);
+  transform: translateY(-2px) scale(1.02);
+  transition: var(--focus-ring-transition);
+  z-index: 2;
+  position: relative;
+}
+
+// 语言切换器主按钮特殊聚焦效果
+.language-switcher__current:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow);
+  background-color: var(--overlay-light);
+  transform: translateY(-1px) scale(1.01);
+  transition: var(--focus-ring-transition);
+  z-index: 1;
+}
+
+// 可交互元素聚焦效果
+[tabindex]:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
@@ -273,10 +314,40 @@ a:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring-shadow);
   border-radius: var(--radius-sm);
+  transform: translateY(-1px);
   transition: var(--focus-ring-transition);
 }
 
 // 内嵌聚焦效果（用于下拉选项等）
 .focus-inset:focus-visible {
+  outline: none;
   box-shadow: var(--focus-ring-shadow-inset) !important;
+  background-color: var(--background) !important;
+  transition: var(--focus-ring-transition-fast) !important;
+}
+
+// 清除按钮按下状态的残留聚焦
+button:active,
+[role='button']:active,
+.btn:active {
+  transition: var(--focus-ring-transition-fast);
+}
+
+// 鼠标点击时清除聚焦效果（避免残留）
+button:active:focus,
+[role='button']:active:focus,
+.btn:active:focus {
+  box-shadow: none;
+  transform: scale(0.98);
+}
+
+// 暗色主题下的特殊优化
+[data-theme='dark'] {
+  .language-switcher__current:focus-visible {
+    background-color: var(--overlay-dark);
+  }
+
+  .focus-inset:focus-visible {
+    background-color: var(--overlay-dark) !important;
+  }
 }

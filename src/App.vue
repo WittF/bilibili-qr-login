@@ -90,6 +90,7 @@ import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
 import { PARAM_MODE } from './utils/const';
 import { themeManager } from './utils/theme';
+import { focusManager } from './utils/focusManager';
 import GithubIcon from './assets/icons/github.svg';
 import type { QRCodeRenderersOptions } from 'qrcode';
 
@@ -100,6 +101,8 @@ onMounted(() => {
   updatePageTitle();
   // 确保主题管理器正确初始化
   themeManager.reinitialize();
+  // 初始化聚焦管理器（自动开始管理全局聚焦状态）
+  // focusManager已在模块导入时自动初始化
 });
 
 const qrCodeOption: QRCodeRenderersOptions = {

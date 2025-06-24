@@ -1,5 +1,12 @@
 <template>
-  <div class="refresh-btn btn flex">
+  <div
+    class="refresh-btn btn flex"
+    tabindex="0"
+    role="button"
+    :aria-label="t.common.refresh"
+    @keydown="handleKeyDown"
+    @click="handleClick"
+  >
     <RefreshIcon v-if="!isDarkTheme" />
     <RefreshWhiteIcon v-else />
   </div>
@@ -7,13 +14,34 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from '../utils/i18n';
 import RefreshIcon from '../assets/icons/refresh.svg';
 import RefreshWhiteIcon from '../assets/icons/refresh-white.svg';
+
+const { t } = useI18n();
+
+// 定义事件
+const emit = defineEmits<{
+  click: [event: Event];
+}>();
 
 // 检测当前是否为暗色主题
 const isDarkTheme = computed(() => {
   return document.documentElement.getAttribute('data-theme') === 'dark';
 });
+
+// 处理键盘事件
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    handleClick(event);
+  }
+};
+
+// 处理点击事件
+const handleClick = (event: Event) => {
+  emit('click', event);
+};
 </script>
 
 <style scoped lang="less">
@@ -43,7 +71,10 @@ const isDarkTheme = computed(() => {
 
   &:active {
     background-color: var(--overlay-strong);
+    transform: translateY(0) scale(0.98);
   }
+
+  // 特殊的聚焦效果已在全局样式中定义
 
   svg {
     width: 20px;
