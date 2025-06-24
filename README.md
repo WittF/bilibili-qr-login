@@ -31,6 +31,10 @@
 
 ## 快速开始
 
+> 默认服务将运行在 localhost:3000，你可以根据需要自行修改端口映射
+
+### 在本地部署
+
 ```bash
 # 克隆仓库
 git clone https://github.com/WittF/bilibili-qr-login.git
@@ -43,7 +47,7 @@ yarn install
 yarn start
 ```
 
-## 在 Docker 部署
+### 在 Docker 部署
 
 ```bash
 # 拉取镜像
@@ -56,8 +60,7 @@ docker run -d \
   wittf/bili-qrlogin:latest
 ```
 
-## 在 Vercel 部署
+### 在 Vercel 部署
 
 [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/WittF/bilibili-qr-login)
 
-> 默认服务将运行在 localhost:3000，你可以根据需要修改端口映射
