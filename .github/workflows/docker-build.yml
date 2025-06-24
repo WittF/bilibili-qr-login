@@ -25,6 +25,7 @@ jobs:
       DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       TRUST_ORIGIN: ${{ secrets.TRUST_ORIGIN }}
+      WEBHOOK_IP: ${{ secrets.WEBHOOK_IP }}
 
     steps:
       - name: Checkout repository
@@ -39,6 +40,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
+          webhook-ip: ${{ env.WEBHOOK_IP }}
 
       - name: Extract metadata
         id: meta
@@ -62,8 +64,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:cache
+            type=gha
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:cache,mode=max
+            type=gha,mode=min
           build-args: |
             TRUST_ORIGIN=${{ env.TRUST_ORIGIN }}
 
@@ -74,4 +80,16 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
           repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
-          readme-filepath: ./README.md 
+          readme-filepath: ./README.md
+
+      - name: Wait before webhook
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: sleep 3
+
+      - name: Trigger k3s pods update webhook
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"repository": {"repo_name": "${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"}}' \
+            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push 
