@@ -23,6 +23,7 @@ jobs:
       packages: write
     env:
       DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
+      DOCKER_USERMAIL: ${{ vars.DOCKER_USERMAIL }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       TRUST_ORIGIN: ${{ secrets.TRUST_ORIGIN }}
 
@@ -37,7 +38,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ env.DOCKER_USERNAME }}
+          username: ${{ env.DOCKER_USERMAIL }}
           password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Extract metadata
@@ -71,7 +72,7 @@ jobs:
         uses: peter-evans/dockerhub-description@v3
         if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
         with:
-          username: ${{ env.DOCKER_USERNAME }}
+          username: ${{ env.DOCKER_USERMAIL }}
           password: ${{ env.DOCKER_PASSWORD }}
           repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           readme-filepath: ./README.md 
