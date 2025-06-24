@@ -592,7 +592,7 @@ onBeforeUnmount(stop);
   font-weight: 500;
 
   &:hover {
-    color: var(--bilibili-blue);
+    color: var(--bilibili-pink);
     background-color: var(--bilibili-pink-light);
     border-color: var(--bilibili-pink-border);
     transform: translateY(-1px);
@@ -614,7 +614,7 @@ onBeforeUnmount(stop);
 [data-theme='dark'] {
   .github-link {
     &:hover {
-      color: var(--bilibili-blue);
+      color: var(--bilibili-pink);
       background-color: var(--bilibili-pink-light);
       border-color: var(--bilibili-pink-border);
       box-shadow: var(--bilibili-pink-medium);
