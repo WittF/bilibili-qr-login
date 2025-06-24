@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - '**.md'
       - 'LICENSE'
+      - 'CHANGELOG.md'
     tags:
       - 'v*.*.*'
 
@@ -40,7 +41,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
-          webhook-ip: ${{ env.WEBHOOK_IP }}
 
       - name: Extract metadata
         id: meta
@@ -64,12 +64,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:cache
-            type=gha
-          cache-to: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:cache,mode=max
-            type=gha,mode=min
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             TRUST_ORIGIN=${{ env.TRUST_ORIGIN }}
 

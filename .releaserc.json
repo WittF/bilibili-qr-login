@@ -1,0 +1,74 @@
+{
+  "branches": [
+    "main",
+    "master"
+  ],
+  "repositoryUrl": "https://github.com/WittF/bilibili-qr-login",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "docs", "release": "patch" },
+          { "type": "style", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "test", "release": "patch" },
+          { "type": "build", "release": "patch" },
+          { "type": "ci", "release": "patch" },
+          { "type": "chore", "release": "patch" },
+          { "type": "revert", "release": "patch" },
+          { "breaking": true, "release": "major" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "✨ 新功能" },
+            { "type": "fix", "section": "🐛 Bug修复" },
+            { "type": "docs", "section": "📚 文档更新" },
+            { "type": "style", "section": "💄 样式优化" },
+            { "type": "refactor", "section": "♻️ 代码重构" },
+            { "type": "perf", "section": "⚡ 性能优化" },
+            { "type": "test", "section": "✅ 测试" },
+            { "type": "build", "section": "📦 构建" },
+            { "type": "ci", "section": "👷 CI/CD" },
+            { "type": "chore", "section": "🔧 其他更改" }
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# 🍪 哔哩哔哩 Cookie 获取工具 - 更新日志\n\n所有重要的项目变更都会记录在此文件中。\n\n版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。\n"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md",
+          "package.json"
+        ],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "successComment": "🎉 此问题已在版本 ${nextRelease.version} 中修复",
+        "failComment": "❌ 自动发版失败，请检查日志",
+        "releasedLabels": ["✅ 已发版"]
+      }
+    ]
+  ]
+} 
