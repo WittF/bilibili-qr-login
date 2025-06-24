@@ -19,7 +19,9 @@
 
         <div class="cookie-card__copy-indicator" :class="{ 'cookie-card__copy-indicator--visible': copied }">
           <CheckCopyIcon class="cookie-card__copy-icon" />
-          <span>{{ t.cookie.copied }}</span>
+          <transition name="text-fade" mode="out-in">
+            <span :key="t.cookie.copied">{{ t.cookie.copied }}</span>
+          </transition>
         </div>
       </div>
     </div>
@@ -28,16 +30,22 @@
       <div v-if="convertedData" class="cookie-card cookie-card--result">
         <div class="cookie-card__header">
           <div class="cookie-card__title">
-            <span>{{ t.cookie.result }}</span>
+            <transition name="text-fade" mode="out-in">
+              <span :key="t.cookie.result">{{ t.cookie.result }}</span>
+            </transition>
           </div>
           <div class="cookie-card__actions">
             <button class="cookie-card__btn cookie-card__btn--copy" @click="copyConverted">
               <ContentCopyIcon class="cookie-card__icon" />
-              <span>{{ convertedCopyText }}</span>
+              <transition name="text-fade" mode="out-in">
+                <span :key="convertedCopyText">{{ convertedCopyText }}</span>
+              </transition>
             </button>
             <button class="cookie-card__btn cookie-card__btn--download" @click="downloadConverted">
               <DownloadIcon class="cookie-card__icon" />
-              <span>{{ t.cookie.download }}</span>
+              <transition name="text-fade" mode="out-in">
+                <span :key="t.cookie.download">{{ t.cookie.download }}</span>
+              </transition>
             </button>
           </div>
         </div>
@@ -474,6 +482,32 @@ const convert = async () => {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(10px);
+}
+
+// 文本切换动画
+.text-fade-enter-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.1s;
+}
+
+.text-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.text-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+.text-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(1.02);
+}
+
+.text-fade-enter-to,
+.text-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 @media (max-width: 768px) {

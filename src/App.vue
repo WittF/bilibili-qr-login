@@ -5,10 +5,20 @@
         <div class="header__top">
           <LanguageSwitcher />
         </div>
-        <h1 class="title">{{ PARAM_MODE ? t.title.login : t.title.cookieTool }}</h1>
-        <p class="subtitle">
-          {{ PARAM_MODE ? t.subtitle.login : t.subtitle.cookieTool }}
-        </p>
+        <div class="title-container">
+          <transition name="text-fade" mode="out-in">
+            <h1 :key="PARAM_MODE ? t.title.login : t.title.cookieTool" class="title">
+              {{ PARAM_MODE ? t.title.login : t.title.cookieTool }}
+            </h1>
+          </transition>
+        </div>
+        <div class="subtitle-container">
+          <transition name="text-fade" mode="out-in">
+            <p :key="PARAM_MODE ? t.subtitle.login : t.subtitle.cookieTool" class="subtitle">
+              {{ PARAM_MODE ? t.subtitle.login : t.subtitle.cookieTool }}
+            </p>
+          </transition>
+        </div>
       </div>
 
       <div class="main-content">
@@ -48,7 +58,9 @@
               title="查看源码"
             >
               <GithubIcon class="github-icon" />
-              <span class="github-text">{{ t.common.viewSource }}</span>
+              <transition name="text-fade" mode="out-in">
+                <span :key="t.common.viewSource" class="github-text">{{ t.common.viewSource }}</span>
+              </transition>
             </a>
           </div>
         </div>
@@ -199,17 +211,47 @@ onBeforeUnmount(stop);
   width: 100%;
 }
 
+.title-container {
+  margin-bottom: var(--spacing-sm);
+}
+
+.title-container {
+  width: 100%;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: var(--spacing-sm);
+}
+
 .title {
   font-size: clamp(1.5rem, 5vw, 2rem);
   color: var(--bilibili-pink);
-  margin-bottom: var(--spacing-sm);
+  margin: 0;
   font-weight: 600;
   letter-spacing: -0.5px;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.subtitle-container {
+  width: 100%;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .subtitle {
   color: var(--text-secondary);
   font-size: clamp(0.9rem, 3vw, 1.1rem);
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .qrcode-container {
@@ -451,6 +493,14 @@ onBeforeUnmount(stop);
 @media (max-width: 480px) {
   .container {
     padding: var(--spacing-sm);
+  }
+
+  .title-container {
+    min-height: 2.5rem;
+  }
+
+  .subtitle-container {
+    min-height: 1.8rem;
   }
 
   .qrcode-container {
