@@ -43,7 +43,7 @@ yarn install
 yarn start
 ```
 
-## Docker 部署方式
+## 在 Docker 部署
 
 ```bash
 # 拉取镜像
@@ -55,4 +55,9 @@ docker run -d \
   -p 3000:3000 \
   wittf/bili-qrlogin:latest
 ```
+
+## 在 Vercel 部署
+
+[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/WittF/bilibili-qr-login)
+
 > 默认服务将运行在 localhost:3000，你可以根据需要修改端口映射
