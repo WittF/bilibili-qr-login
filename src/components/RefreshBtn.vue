@@ -46,20 +46,11 @@ import RefreshIcon from '../assets/icons/refresh.svg';
   }
 }
 
-// 暗色主题下的特殊样式
+// 暗色主题下的特殊颜色调整
 [data-theme='dark'] .refresh-btn {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--bilibili-blue);
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-
   &:active {
-    background-color: rgba(255, 255, 255, 0.2);
     color: var(--bilibili-pink);
   }
 }
