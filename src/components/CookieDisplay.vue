@@ -63,6 +63,7 @@
 import { ref } from 'vue';
 import { useTipText } from '../utils/tipText';
 import { useI18n } from '../utils/i18n';
+import { loggers } from '../utils/logger';
 import ConvertIcon from '../assets/icons/convert.svg';
 import ContentCopyIcon from '../assets/icons/content_copy.svg';
 import DownloadIcon from '../assets/icons/download.svg';
@@ -179,20 +180,43 @@ const convert = async () => {
     const result = await response.json();
     convertedData.value = JSON.stringify(result, null, 2);
   } catch (error) {
+    let userErrorMsg = '';
+
     if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        errorMsg.value = `${t.value.cookie.convertError}: 请求超时，请检查网络连接`;
-      } else if (error.message.includes('fetch')) {
-        errorMsg.value = `${t.value.cookie.convertError}: 网络连接失败，请检查网络状态`;
-      } else {
-        errorMsg.value = `${t.value.cookie.convertError}: ${error.message}`;
+      switch (error.name) {
+        case 'AbortError':
+          userErrorMsg = '请求超时，请检查网络连接';
+          break;
+        case 'TypeError':
+          // TypeError 通常表示网络连接问题
+          userErrorMsg = '网络连接失败，请检查网络状态';
+          break;
+        case 'NetworkError':
+          userErrorMsg = '网络连接失败，请检查网络状态';
+          break;
+        default:
+          // 检查是否是fetch相关的网络错误
+          if (
+            error.message.includes('Failed to fetch') ||
+            error.message.includes('Network request failed') ||
+            error.message.includes('fetch')
+          ) {
+            userErrorMsg = '网络连接失败，请检查网络状态';
+          } else {
+            userErrorMsg = error.message;
+          }
       }
+      errorMsg.value = `${t.value.cookie.convertError}: ${userErrorMsg}`;
     } else {
       errorMsg.value = `${t.value.cookie.convertError}: ${t.value.cookie.unknownError}`;
     }
 
-    // 记录详细错误信息到控制台
-    console.error('Cookie转换失败:', error);
+    // 记录详细错误信息
+    loggers.cookie.error('Cookie转换失败', {
+      errorType: error instanceof Error ? error.name : typeof error,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      isOnline: navigator.onLine,
+    });
   } finally {
     isConverting.value = false;
   }

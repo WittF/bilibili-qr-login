@@ -149,34 +149,22 @@ class QrSSE {
     message: string;
     details?: string;
   }) {
-    // 保留特殊的Cookie验证日志样式，因为这是用户关心的重要信息
-    const timestamp = new Date().toLocaleTimeString();
+    // 使用统一的日志系统记录Cookie验证结果
+    const logData = {
+      status: validation.status,
+      message: validation.message,
+      details: validation.details,
+    };
 
     switch (validation.status) {
       case 'success':
-        console.log(
-          `%c[${timestamp}] 🍪 Cookie可用性验证通过`,
-          'color: #10b981; font-weight: bold;',
-          `\n✅ ${validation.message}`,
-        );
+        loggers.qrSSE.important('Cookie可用性验证通过', logData);
         break;
-
       case 'failed':
-        console.warn(
-          `%c[${timestamp}] 🍪 Cookie可用性验证未通过`,
-          'color: #f59e0b; font-weight: bold;',
-          `\n⚠️ ${validation.message}`,
-          validation.details ? `\n📝 ${validation.details}` : '',
-        );
+        loggers.qrSSE.warn('Cookie可用性验证未通过', logData);
         break;
-
       case 'error':
-        console.error(
-          `%c[${timestamp}] 🍪 Cookie可用性验证异常`,
-          'color: #ef4444; font-weight: bold;',
-          `\n❌ ${validation.message}`,
-          validation.details ? `\n📝 ${validation.details}` : '',
-        );
+        loggers.qrSSE.error('Cookie可用性验证异常', logData);
         break;
     }
   }

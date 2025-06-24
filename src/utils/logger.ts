@@ -97,19 +97,43 @@ class Logger {
       console.error(`%c${formattedMessage}`, this.getStyle('error'), error);
 
       // 如果是网络错误，提供更多上下文
-      if (error instanceof Error && (error.message.includes('fetch') || error.name === 'AbortError')) {
-        console.error(`%c[${this.module}] Network Error Details:`, this.getStyle('error'), {
-          name: error.name,
-          message: error.message,
-          stack: error.stack?.split('\n').slice(0, 3).join('\n'),
-          userAgent: navigator.userAgent,
-          online: navigator.onLine,
-          url: window.location.href,
-        });
+      if (error instanceof Error && this.isNetworkError(error)) {
+        const networkDetails = {
+          errorName: error.name,
+          errorMessage: error.message,
+          isOnline: navigator.onLine,
+          currentUrl: window.location.href,
+          userAgent: navigator.userAgent.substring(0, 100), // 限制长度
+        };
+
+        const detailMessage = this.formatMessage('error', `${this.module} 网络错误详情`);
+        console.error(`%c${detailMessage}`, this.getStyle('error'), networkDetails);
       }
     } else {
       console.error(`%c${formattedMessage}`, this.getStyle('error'));
     }
+  }
+
+  /**
+   * 检查是否为网络相关错误
+   */
+  private isNetworkError(error: Error): boolean {
+    // 检查错误名称
+    if (['AbortError', 'TypeError', 'NetworkError'].includes(error.name)) {
+      return true;
+    }
+
+    // 检查错误消息中的关键词
+    const networkKeywords = [
+      'Failed to fetch',
+      'Network request failed',
+      'fetch',
+      'ERR_NETWORK',
+      'ERR_INTERNET_DISCONNECTED',
+      'Connection refused',
+    ];
+
+    return networkKeywords.some(keyword => error.message.includes(keyword));
   }
 
   /**
@@ -141,4 +165,5 @@ export const loggers = {
   qrSSE: createLogger('QR-SSE'),
   postMessage: createLogger('POST-MSG'),
   app: createLogger('APP'),
+  cookie: createLogger('COOKIE'),
 } as const;
