@@ -245,8 +245,8 @@ onBeforeUnmount(stop);
     left: 0;
     background-color: var(--qr-mask-bg);
     border-radius: var(--radius-lg);
-    backdrop-filter: blur(2px);
-    transition: background-color 0.3s ease;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
     animation: fadeIn 0.3s ease;
   }
 

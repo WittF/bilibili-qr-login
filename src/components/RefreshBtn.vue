@@ -48,7 +48,11 @@ import RefreshIcon from '../assets/icons/refresh.svg';
 
 // 暗色主题下的特殊颜色调整
 [data-theme='dark'] .refresh-btn {
-  color: var(--bilibili-blue);
+  color: var(--text-primary);
+
+  &:hover {
+    color: var(--bilibili-blue);
+  }
 
   &:active {
     color: var(--bilibili-pink);
