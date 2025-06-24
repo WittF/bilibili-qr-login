@@ -10,7 +10,7 @@ import RefreshIcon from '../assets/icons/refresh.svg';
 .refresh-btn {
   width: 36px;
   height: 36px;
-  background-color: white;
+  background-color: var(--card-background);
   border-radius: var(--radius-round);
   box-shadow: var(--shadow-sm);
   overflow: hidden;

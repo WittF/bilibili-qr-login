@@ -104,8 +104,8 @@ onUnmounted(() => {
     align-items: center;
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) var(--spacing-sm);
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: var(--card-background);
+    border: 1px solid var(--divider);
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -114,15 +114,17 @@ onUnmounted(() => {
     min-width: 100px;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.3);
+      background-color: var(--card-background);
+      border-color: var(--bilibili-blue);
       color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
     }
 
     &--open {
-      background-color: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.3);
+      background-color: var(--card-background);
+      border-color: var(--bilibili-blue);
       color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
     }
   }
 
@@ -174,7 +176,7 @@ onUnmounted(() => {
     font-size: 0.9rem;
 
     &:hover {
-      background-color: var(--hover-background);
+      background-color: var(--background);
     }
 
     &--active {

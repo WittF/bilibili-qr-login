@@ -71,13 +71,15 @@ import CheckIcon from './assets/icons/check_circle.svg';
 import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
 import { PARAM_MODE } from './utils/const';
+import { themeManager } from './utils/theme';
 import type { QRCodeRenderersOptions } from 'qrcode';
 
 const { t, updatePageTitle } = useI18n();
 
-// 初始化页面标题
+// 初始化页面标题和主题
 onMounted(() => {
   updatePageTitle();
+  // 主题管理器会自动初始化并应用主题
 });
 
 const qrCodeOption: QRCodeRenderersOptions = {
@@ -242,9 +244,10 @@ onBeforeUnmount(stop);
     right: 0;
     bottom: 0;
     left: 0;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: var(--qr-mask-bg);
     border-radius: var(--radius-lg);
     backdrop-filter: blur(2px);
+    transition: background-color 0.3s ease;
     animation: fadeIn 0.3s ease;
   }
 
@@ -254,17 +257,19 @@ onBeforeUnmount(stop);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f5f5f5;
+    background-color: var(--qr-placeholder-bg);
     border-radius: 4px;
+    transition: background-color 0.3s ease;
   }
 
   &__loading-animation {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 3px solid #e0e0e0;
+    border: 3px solid var(--loading-bg);
     border-top-color: var(--bilibili-blue);
     animation: spin 1s linear infinite;
+    transition: border-color 0.3s ease;
   }
 
   &__actions {
@@ -615,5 +620,16 @@ onBeforeUnmount(stop);
   font-weight: 500;
   letter-spacing: 0.5px;
   white-space: nowrap;
+}
+
+// 暗色主题下的特殊处理
+[data-theme='dark'] .github-link {
+  border-color: var(--divider);
+
+  &:hover {
+    background-color: rgba(255, 126, 185, 0.12);
+    border-color: rgba(255, 126, 185, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 126, 185, 0.2);
+  }
 }
 </style>
