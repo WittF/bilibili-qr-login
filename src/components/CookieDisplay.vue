@@ -271,8 +271,8 @@ const convert = async () => {
     width: 16px;
     height: 16px;
     fill: currentColor;
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
   }
 
   &__copy-indicator {
@@ -303,8 +303,8 @@ const convert = async () => {
     width: 16px;
     height: 16px;
     color: var(--text-primary);
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
   }
 
   &__pre {
@@ -360,8 +360,8 @@ const convert = async () => {
     width: 20px;
     height: 20px;
     color: var(--error);
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
   }
 }
 

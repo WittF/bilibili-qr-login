@@ -96,8 +96,8 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     color: currentColor;
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
   }
 
   &__label {
@@ -109,8 +109,8 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     color: currentColor;
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
     transition: transform 0.2s ease;
 
     &--open {
@@ -162,8 +162,8 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     color: var(--bilibili-pink);
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
   }
 }
 

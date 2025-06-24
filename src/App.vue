@@ -435,8 +435,8 @@ onBeforeUnmount(stop);
   .github-icon {
     width: 14px;
     height: 14px;
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
   }
 
   .github-text {
@@ -527,8 +527,8 @@ onBeforeUnmount(stop);
   .github-icon {
     width: 12px;
     height: 12px;
-    display: block;
     flex-shrink: 0;
+    vertical-align: middle;
   }
 }
 
@@ -605,8 +605,8 @@ onBeforeUnmount(stop);
   width: 16px;
   height: 16px;
   fill: currentColor;
-  display: block;
   flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .github-text {
