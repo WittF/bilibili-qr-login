@@ -1,0 +1,73 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+    tags:
+      - 'v*.*.*'
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: bilibili-qr-login
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # 当创建 tag 时设置版本号和 latest
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+            # 当 push 到主分支时设置 dev 标签
+            type=raw,value=dev,enable={{is_default_branch}}
+            # 添加 commit SHA 作为标签
+            type=sha,prefix={{branch}}-,format=short
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            TRUST_ORIGIN=${{ secrets.TRUST_ORIGIN }}
+
+      - name: Update Docker Hub description
+        uses: peter-evans/dockerhub-description@v3
+        if: github.event_name == 'create' && contains(github.ref, 'refs/tags/')
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+          readme-filepath: ./README.md 
