@@ -97,6 +97,9 @@ onUnmounted(() => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     svg {
       width: 16px !important;
@@ -115,6 +118,9 @@ onUnmounted(() => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.2s ease;
 
     svg {
@@ -173,6 +179,9 @@ onUnmounted(() => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     svg {
       width: 16px !important;

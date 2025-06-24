@@ -271,6 +271,9 @@ const convert = async () => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     svg {
       width: 16px !important;
@@ -308,6 +311,9 @@ const convert = async () => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     svg {
       width: 16px !important;
@@ -370,6 +376,9 @@ const convert = async () => {
     flex-shrink: 0;
     width: 20px;
     height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     svg {
       width: 20px !important;
