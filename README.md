@@ -1,6 +1,6 @@
 # 哔哩哔哩 Cookie 获取工具 🍪
 
-> 通过扫码登录，快速获取哔哩哔哩（B站）Cookie，并支持将 Cookie 转换为 JSON 格式下载。<br>
+> 直接打开页面扫码登录，即可快速获取哔哩哔哩（B站）的Cookie，并支持将 Cookie 转换为 JSON 格式下载。<br>
 > 本项目基于 [Tsuk1ko/bilibili-qr-login](https://github.com/Tsuk1ko/bilibili-qr-login)，感谢原作者[@Tsuk1ko](https://github.com/Tsuk1ko/)的贡献！
 
 ---
