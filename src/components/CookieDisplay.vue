@@ -311,12 +311,14 @@ const convert = async () => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
-    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     svg {
       width: 16px !important;
       height: 16px !important;
-      vertical-align: text-bottom;
+      display: block;
     }
   }
 
