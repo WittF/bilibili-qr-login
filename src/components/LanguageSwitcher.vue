@@ -19,7 +19,7 @@
         <button
           v-for="(language, index) in getSupportedLanguages()"
           :key="language.code"
-          class="language-switcher__option"
+          class="language-switcher__option focus-inset"
           :class="{ 'language-switcher__option--active': language.code === currentLanguage }"
           role="menuitem"
           :tabindex="isOpen ? 0 : -1"
@@ -66,11 +66,14 @@ const selectLanguage = (lang: SupportedLanguage) => {
   setLanguage(lang);
   isOpen.value = false;
   currentFocusIndex.value = -1;
-  // 返回焦点到主按钮
-  const button = document.querySelector('.language-switcher__current') as HTMLElement;
-  if (button) {
-    button.focus();
-  }
+  // 返回焦点到主按钮，延迟确保DOM更新完成
+  nextTick(() => {
+    const button = document.querySelector('.language-switcher__current') as HTMLElement;
+    if (button) {
+      button.blur(); // 先取消焦点，避免残留聚焦状态
+      setTimeout(() => button.focus(), 50); // 然后重新聚焦
+    }
+  });
 };
 
 const handleKeyDown = (event: KeyboardEvent) => {
@@ -136,11 +139,14 @@ const handleOptionKeyDown = (event: KeyboardEvent, index: number) => {
       event.preventDefault();
       isOpen.value = false;
       currentFocusIndex.value = -1;
-      // 返回焦点到主按钮
-      const button = document.querySelector('.language-switcher__current') as HTMLElement;
-      if (button) {
-        button.focus();
-      }
+      // 返回焦点到主按钮，避免残留聚焦状态
+      nextTick(() => {
+        const button = document.querySelector('.language-switcher__current') as HTMLElement;
+        if (button) {
+          button.blur();
+          setTimeout(() => button.focus(), 50);
+        }
+      });
       break;
     }
   }
@@ -151,6 +157,11 @@ const closeDropdown = (event: MouseEvent) => {
   if (!target.closest('.language-switcher')) {
     isOpen.value = false;
     currentFocusIndex.value = -1;
+    // 清除可能的残留聚焦状态
+    const button = document.querySelector('.language-switcher__current') as HTMLElement;
+    if (button && document.activeElement === button) {
+      button.blur();
+    }
   }
 };
 
@@ -199,16 +210,6 @@ onUnmounted(() => {
     &:hover {
       background-color: var(--overlay-light);
       transform: translateY(-1px);
-    }
-
-    &:focus {
-      outline: 2px solid var(--bilibili-pink);
-      outline-offset: 2px;
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--bilibili-pink);
-      outline-offset: 2px;
     }
 
     &--open {
@@ -312,9 +313,7 @@ onUnmounted(() => {
       background-color: var(--background);
     }
 
-    &:focus {
-      outline: 2px solid var(--bilibili-pink);
-      outline-offset: -2px;
+    &:focus-visible {
       background-color: var(--background);
     }
 
@@ -385,7 +384,7 @@ onUnmounted(() => {
       background-color: var(--overlay-dark);
     }
 
-    &:focus {
+    &:focus-visible {
       background-color: var(--overlay-dark);
     }
 
