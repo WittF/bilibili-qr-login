@@ -5,32 +5,9 @@
       :class="{ 'language-switcher__current--open': isOpen }"
       @click="toggleDropdown"
     >
-      <svg class="language-switcher__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-          stroke="currentColor"
-          stroke-width="2"
-        />
-        <path d="M2 12H22" stroke="currentColor" stroke-width="2" />
-        <path
-          d="M12 2C14.5013 4.73835 15.9228 8.29203 16 12C15.9228 15.708 14.5013 19.2616 12 22C9.49872 19.2616 8.07725 15.708 8 12C8.07725 8.29203 9.49872 4.73835 12 2Z"
-          stroke="currentColor"
-          stroke-width="2"
-        />
-      </svg>
+      <LanguageIcon class="language-switcher__icon" />
       <span class="language-switcher__label">{{ getLanguageDisplayName(currentLanguage) }}</span>
-      <svg
-        class="language-switcher__arrow"
-        :class="{ 'language-switcher__arrow--open': isOpen }"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-          clip-rule="evenodd"
-        />
-      </svg>
+      <ArrowDownIcon class="language-switcher__arrow" :class="{ 'language-switcher__arrow--open': isOpen }" />
     </div>
 
     <transition name="dropdown">
@@ -43,18 +20,7 @@
           @click="selectLanguage(language.code)"
         >
           <span class="language-switcher__option-name">{{ language.name }}</span>
-          <svg
-            v-if="language.code === currentLanguage"
-            class="language-switcher__check"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clip-rule="evenodd"
-            />
-          </svg>
+          <CheckSmallIcon v-if="language.code === currentLanguage" class="language-switcher__check" />
         </div>
       </div>
     </transition>
@@ -64,6 +30,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '../utils/i18n';
+import LanguageIcon from '../assets/icons/language.svg';
+import ArrowDownIcon from '../assets/icons/arrow_down.svg';
+import CheckSmallIcon from '../assets/icons/check_small.svg';
 import type { SupportedLanguage } from '../utils/i18n';
 
 const { currentLanguage, setLanguage, getLanguageDisplayName, getSupportedLanguages } = useI18n();
@@ -127,6 +96,8 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     color: currentColor;
+    display: block;
+    flex-shrink: 0;
   }
 
   &__label {
@@ -138,6 +109,8 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     color: currentColor;
+    display: block;
+    flex-shrink: 0;
     transition: transform 0.2s ease;
 
     &--open {
@@ -189,6 +162,8 @@ onUnmounted(() => {
     width: 16px;
     height: 16px;
     color: var(--bilibili-pink);
+    display: block;
+    flex-shrink: 0;
   }
 }
 

@@ -7,22 +7,7 @@
         </div>
         <div class="cookie-card__actions">
           <button class="cookie-card__btn cookie-card__btn--convert" :disabled="isConverting" @click="convert">
-            <svg class="cookie-card__icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M4 10a6 6 0 0 1 6-6c1.657 0 3.156.672 4.243 1.757M16 10a6 6 0 0 1-6 6c-1.657 0-3.156-.672-4.243-1.757"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M2 10h2m12 0h2"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <ConvertIcon class="cookie-card__icon" />
             <span v-if="isConverting">{{ t.cookie.converting }}</span>
             <span v-else>{{ t.cookie.convert }}</span>
           </button>
@@ -33,9 +18,7 @@
         <pre ref="pre" class="cookie-card__pre" @click="copy">{{ value }}</pre>
 
         <div class="cookie-card__copy-indicator" :class="{ 'cookie-card__copy-indicator--visible': copied }">
-          <svg class="cookie-card__copy-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor" />
-          </svg>
+          <CheckCopyIcon class="cookie-card__copy-icon" />
           <span>{{ t.cookie.copied }}</span>
         </div>
       </div>
@@ -49,18 +32,11 @@
           </div>
           <div class="cookie-card__actions">
             <button class="cookie-card__btn cookie-card__btn--copy" @click="copyConverted">
-              <svg class="cookie-card__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
-                  fill="currentColor"
-                />
-              </svg>
+              <ContentCopyIcon class="cookie-card__icon" />
               <span>{{ convertedCopyText }}</span>
             </button>
             <button class="cookie-card__btn cookie-card__btn--download" @click="downloadConverted">
-              <svg class="cookie-card__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor" />
-              </svg>
+              <DownloadIcon class="cookie-card__icon" />
               <span>{{ t.cookie.download }}</span>
             </button>
           </div>
@@ -75,12 +51,7 @@
     <transition name="fade-slide">
       <div v-if="errorMsg" class="cookie-card cookie-card--error">
         <div class="cookie-card__error">
-          <svg class="cookie-card__error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
-              fill="currentColor"
-            />
-          </svg>
+          <ErrorIcon class="cookie-card__error-icon" />
           <span>{{ errorMsg }}</span>
         </div>
       </div>
@@ -92,6 +63,11 @@
 import { ref } from 'vue';
 import { useTipText } from '../utils/tipText';
 import { useI18n } from '../utils/i18n';
+import ConvertIcon from '../assets/icons/convert.svg';
+import ContentCopyIcon from '../assets/icons/content_copy.svg';
+import DownloadIcon from '../assets/icons/download.svg';
+import CheckCopyIcon from '../assets/icons/check_copy.svg';
+import ErrorIcon from '../assets/icons/error.svg';
 
 const props = defineProps<{ value: string }>();
 const { t } = useI18n();
@@ -295,6 +271,8 @@ const convert = async () => {
     width: 16px;
     height: 16px;
     fill: currentColor;
+    display: block;
+    flex-shrink: 0;
   }
 
   &__copy-indicator {
@@ -325,6 +303,8 @@ const convert = async () => {
     width: 16px;
     height: 16px;
     color: var(--text-primary);
+    display: block;
+    flex-shrink: 0;
   }
 
   &__pre {
@@ -380,6 +360,8 @@ const convert = async () => {
     width: 20px;
     height: 20px;
     color: var(--error);
+    display: block;
+    flex-shrink: 0;
   }
 }
 
