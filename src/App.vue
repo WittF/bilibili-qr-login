@@ -720,12 +720,15 @@ onBeforeUnmount(stop);
   text-decoration: none;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.9rem;
   font-weight: 500;
   border: 1px solid var(--divider);
   background-color: var(--card-background);
   box-shadow: var(--shadow-sm);
+  min-width: 120px;
+  justify-content: center;
+  white-space: nowrap;
 
   &:hover {
     color: var(--bilibili-pink);

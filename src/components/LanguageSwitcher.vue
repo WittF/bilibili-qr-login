@@ -182,6 +182,9 @@ onUnmounted(() => {
     font-size: 0.9rem;
     min-width: 110px;
     font-family: inherit;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
 
     // 重置button默认样式
     appearance: none;
@@ -194,6 +197,7 @@ onUnmounted(() => {
     &:hover {
       background-color: var(--overlay-light);
       transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     &:focus {
@@ -209,6 +213,7 @@ onUnmounted(() => {
     &--open {
       background-color: var(--overlay-light);
       color: var(--text-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
   }
 
@@ -220,11 +225,13 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     svg {
       width: 16px !important;
       height: 16px !important;
       display: block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
@@ -248,12 +255,13 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     svg {
       width: 16px !important;
       height: 16px !important;
       display: block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     &--open {
@@ -275,6 +283,7 @@ onUnmounted(() => {
     overflow: hidden;
     z-index: 2000;
     min-width: 120px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &__option {
@@ -283,16 +292,19 @@ onUnmounted(() => {
     justify-content: space-between;
     padding: var(--spacing-sm) var(--spacing-md);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 0.9rem;
     background-color: transparent;
     border: none;
     width: 100%;
     text-align: left;
     font-family: inherit;
+    white-space: nowrap;
+    position: relative;
 
     &:hover {
       background-color: var(--background);
+      transform: translateX(2px);
     }
 
     &:focus {
