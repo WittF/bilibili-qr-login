@@ -593,7 +593,7 @@ onBeforeUnmount(stop);
 
   &:hover {
     color: var(--bilibili-pink);
-    background-color: var(--bilibili-pink-light);
+    background-color: var(--overlay-light);
     border-color: var(--bilibili-pink-border);
     transform: translateY(-1px);
     box-shadow: var(--bilibili-pink-medium);
