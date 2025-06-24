@@ -87,8 +87,8 @@ const qrCodeOption: QRCodeRenderersOptions = {
   margin: 0,
   width: 196,
   color: {
-    dark: 'var(--text-primary)',
-    light: 'var(--card-background)',
+    dark: '#18191C',
+    light: '#FFFFFF',
   },
 };
 
