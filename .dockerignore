@@ -1,0 +1,45 @@
+# 版本控制
+.git
+.github
+
+# 依赖目录
+node_modules
+dist
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 环境配置
+.env
+.env.*
+
+# IDE配置
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# 临时文件
+.tmp
+.cache
+
+# 构建产物
+coverage
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 发版脚本和文档
+release.py
+*.md
+LICENSE
+CHANGELOG.md
+
+# 开发相关
+dev/
+*.test.* 
