@@ -177,10 +177,10 @@ onUnmounted(() => {
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--text-secondary);
     font-size: 0.9rem;
-    min-width: 100px;
+    min-width: 110px;
     font-family: inherit;
 
     // 重置button默认样式
@@ -193,6 +193,7 @@ onUnmounted(() => {
 
     &:hover {
       background-color: var(--overlay-light);
+      transform: translateY(-1px);
     }
 
     &:focus {
@@ -234,6 +235,9 @@ onUnmounted(() => {
     align-items: center;
     height: 16px;
     line-height: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   &__arrow {
@@ -378,7 +382,7 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .language-switcher {
     &__current {
-      min-width: 80px;
+      min-width: 90px;
       padding: var(--spacing-xs);
       font-size: 0.85rem;
     }

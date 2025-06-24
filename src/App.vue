@@ -33,7 +33,11 @@
             </div>
           </div>
 
-          <p class="status-text" :class="getStatusClass">{{ getters.statusText }}</p>
+          <div class="status-text-container">
+            <transition name="text-fade" mode="out-in">
+              <p :key="getters.statusText" class="status-text" :class="getStatusClass">{{ getters.statusText }}</p>
+            </transition>
+          </div>
 
           <div class="footer-links">
             <a
@@ -483,6 +487,10 @@ onBeforeUnmount(stop);
     font-size: 0.9rem;
   }
 
+  .status-text-container {
+    min-height: 2.2rem;
+  }
+
   .qrcode {
     width: 180px;
     height: 180px;
@@ -571,14 +579,26 @@ onBeforeUnmount(stop);
   }
 }
 
+.status-text-container {
+  width: 100%;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
 .status-text {
   font-size: 1rem;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
-  min-height: 1.5rem;
   margin: 0;
   color: var(--text-secondary);
+  white-space: nowrap;
+  max-width: 100%;
+  line-height: 1.5;
 
   &--loading {
     color: var(--text-tertiary);
@@ -603,6 +623,32 @@ onBeforeUnmount(stop);
   &--error {
     color: var(--error);
   }
+}
+
+// 文本切换动画
+.text-fade-enter-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.1s;
+}
+
+.text-fade-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.text-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+.text-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(1.02);
+}
+
+.text-fade-enter-to,
+.text-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .footer-links {
