@@ -435,8 +435,11 @@ onBeforeUnmount(stop);
   .github-icon {
     width: 14px;
     height: 14px;
-    flex-shrink: 0;
-    vertical-align: middle;
+
+    svg {
+      width: 14px !important;
+      height: 14px !important;
+    }
   }
 
   .github-text {
@@ -527,8 +530,11 @@ onBeforeUnmount(stop);
   .github-icon {
     width: 12px;
     height: 12px;
-    flex-shrink: 0;
-    vertical-align: middle;
+
+    svg {
+      width: 12px !important;
+      height: 12px !important;
+    }
   }
 }
 
@@ -602,11 +608,15 @@ onBeforeUnmount(stop);
 }
 
 .github-icon {
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
-  fill: currentColor;
-  flex-shrink: 0;
-  vertical-align: middle;
+
+  svg {
+    width: 16px !important;
+    height: 16px !important;
+    display: block;
+  }
 }
 
 .github-text {

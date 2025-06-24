@@ -93,11 +93,16 @@ onUnmounted(() => {
   }
 
   &__icon {
-    width: 16px;
-    height: 16px;
     color: currentColor;
     flex-shrink: 0;
-    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      display: block;
+    }
   }
 
   &__label {
@@ -106,12 +111,17 @@ onUnmounted(() => {
   }
 
   &__arrow {
-    width: 16px;
-    height: 16px;
     color: currentColor;
     flex-shrink: 0;
-    vertical-align: middle;
+    width: 16px;
+    height: 16px;
     transition: transform 0.2s ease;
+
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      display: block;
+    }
 
     &--open {
       transform: rotate(180deg);
@@ -159,11 +169,16 @@ onUnmounted(() => {
   }
 
   &__check {
-    width: 16px;
-    height: 16px;
     color: var(--bilibili-pink);
     flex-shrink: 0;
-    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      display: block;
+    }
   }
 }
 

@@ -268,11 +268,15 @@ const convert = async () => {
   }
 
   &__icon {
+    flex-shrink: 0;
     width: 16px;
     height: 16px;
-    fill: currentColor;
-    flex-shrink: 0;
-    vertical-align: middle;
+
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      display: block;
+    }
   }
 
   &__copy-indicator {
@@ -300,11 +304,16 @@ const convert = async () => {
   }
 
   &__copy-icon {
-    width: 16px;
-    height: 16px;
     color: var(--text-primary);
     flex-shrink: 0;
-    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      display: block;
+    }
   }
 
   &__pre {
@@ -357,11 +366,16 @@ const convert = async () => {
   }
 
   &__error-icon {
-    width: 20px;
-    height: 20px;
     color: var(--error);
     flex-shrink: 0;
-    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+
+    svg {
+      width: 20px !important;
+      height: 20px !important;
+      display: block;
+    }
   }
 }
 
