@@ -41,3 +41,18 @@ cd bilibili-qr-login
 # 运行项目（根据项目实际运行方式调整）
 yarn install
 yarn start
+```
+
+## Docker 部署方式
+
+```bash
+# 拉取镜像
+docker pull wittf/bili-qrlogin:latest
+
+# 运行容器
+docker run -d \
+  --name bili-qrlogin \
+  -p 3000:3000 \
+  wittf/bili-qrlogin:latest
+```
+> 默认服务将运行在 localhost:3000，你可以根据需要修改端口映射
