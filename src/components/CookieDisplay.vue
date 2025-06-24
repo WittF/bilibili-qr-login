@@ -3,18 +3,18 @@
     <div class="cookie-card">
       <div class="cookie-card__header">
         <div class="cookie-card__title">
-          <transition name="text-fade" mode="out-in">
-            <span :key="t.cookie.info">{{ t.cookie.info }}</span>
-          </transition>
+          <span>{{ t.cookie.info }}</span>
         </div>
         <div class="cookie-card__actions">
           <button class="cookie-card__btn cookie-card__btn--convert" :disabled="isConverting" @click="convert">
             <ConvertIcon class="cookie-card__icon" />
-            <transition name="text-fade" mode="out-in">
-              <span :key="isConverting ? 'converting' : 'convert'">
-                {{ isConverting ? t.cookie.converting : t.cookie.convert }}
-              </span>
-            </transition>
+            <div class="cookie-card__btn-text">
+              <transition name="text-fade" mode="out-in">
+                <span :key="isConverting ? 'converting' : 'convert'">
+                  {{ isConverting ? t.cookie.converting : t.cookie.convert }}
+                </span>
+              </transition>
+            </div>
           </button>
         </div>
       </div>
@@ -42,15 +42,19 @@
           <div class="cookie-card__actions">
             <button class="cookie-card__btn cookie-card__btn--copy" @click="copyConverted">
               <ContentCopyIcon class="cookie-card__icon" />
-              <transition name="text-fade" mode="out-in">
-                <span :key="convertedCopyText">{{ convertedCopyText }}</span>
-              </transition>
+              <div class="cookie-card__btn-text">
+                <transition name="text-fade" mode="out-in">
+                  <span :key="convertedCopyText">{{ convertedCopyText }}</span>
+                </transition>
+              </div>
             </button>
             <button class="cookie-card__btn cookie-card__btn--download" @click="downloadConverted">
               <DownloadIcon class="cookie-card__icon" />
-              <transition name="text-fade" mode="out-in">
-                <span :key="t.cookie.download">{{ t.cookie.download }}</span>
-              </transition>
+              <div class="cookie-card__btn-text">
+                <transition name="text-fade" mode="out-in">
+                  <span :key="t.cookie.download">{{ t.cookie.download }}</span>
+                </transition>
+              </div>
             </button>
           </div>
         </div>
@@ -279,13 +283,10 @@ const convert = async () => {
   &__actions {
     display: flex;
     gap: var(--spacing-sm);
-    align-items: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &__content {
     position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &__btn {
@@ -301,13 +302,11 @@ const convert = async () => {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     justify-content: center;
-    white-space: nowrap;
-    position: relative;
     overflow: hidden;
+    position: relative;
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     &:active {
@@ -318,37 +317,44 @@ const convert = async () => {
       opacity: 0.7;
       cursor: not-allowed;
       transform: none;
-      box-shadow: none;
     }
 
     &--convert {
       background-color: var(--bilibili-pink);
-      min-width: 90px;
 
-      &:hover:not(:disabled) {
+      &:hover {
         filter: brightness(1.1);
-        background-color: var(--bilibili-pink);
       }
     }
 
     &--copy {
       background-color: var(--bilibili-blue);
-      min-width: 75px;
 
-      &:hover:not(:disabled) {
+      &:hover {
         filter: brightness(1.1);
-        background-color: var(--bilibili-blue);
       }
     }
 
     &--download {
       background-color: var(--success);
-      min-width: 80px;
 
-      &:hover:not(:disabled) {
+      &:hover {
         filter: brightness(1.1);
-        background-color: var(--success);
       }
+    }
+  }
+
+  &__btn-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    overflow: hidden;
+
+    span {
+      display: inline-block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
@@ -365,7 +371,6 @@ const convert = async () => {
       width: 16px !important;
       height: 16px !important;
       display: block;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
@@ -545,22 +550,6 @@ const convert = async () => {
     &__btn {
       padding: var(--spacing-xs) var(--spacing-sm);
       font-size: 0.85rem;
-
-      &--convert {
-        min-width: 80px;
-      }
-
-      &--copy {
-        min-width: 65px;
-      }
-
-      &--download {
-        min-width: 70px;
-      }
-    }
-
-    &__actions {
-      gap: var(--spacing-xs);
     }
   }
 }

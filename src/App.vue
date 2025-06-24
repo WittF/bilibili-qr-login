@@ -58,9 +58,11 @@
               title="查看源码"
             >
               <GithubIcon class="github-icon" />
-              <transition name="text-fade" mode="out-in">
-                <span :key="t.common.viewSource" class="github-text">{{ t.common.viewSource }}</span>
-              </transition>
+              <div class="github-text-container">
+                <transition name="text-fade" mode="out-in">
+                  <span :key="t.common.viewSource" class="github-text">{{ t.common.viewSource }}</span>
+                </transition>
+              </div>
             </a>
           </div>
         </div>
@@ -726,9 +728,7 @@ onBeforeUnmount(stop);
   border: 1px solid var(--divider);
   background-color: var(--card-background);
   box-shadow: var(--shadow-sm);
-  min-width: 120px;
-  justify-content: center;
-  white-space: nowrap;
+  overflow: hidden;
 
   &:hover {
     color: var(--bilibili-pink);
@@ -746,6 +746,7 @@ onBeforeUnmount(stop);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   svg {
     width: 16px !important;
@@ -754,8 +755,19 @@ onBeforeUnmount(stop);
   }
 }
 
+.github-text-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 .github-text {
   letter-spacing: 0.5px;
+  display: inline-block;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // 暗色主题下的github链接
