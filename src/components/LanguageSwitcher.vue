@@ -104,8 +104,8 @@ onUnmounted(() => {
     align-items: center;
     gap: var(--spacing-xs);
     padding: var(--spacing-xs) var(--spacing-sm);
-    background-color: var(--card-background);
-    border: 1px solid var(--divider);
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all 0.2s ease;
@@ -114,17 +114,15 @@ onUnmounted(() => {
     min-width: 100px;
 
     &:hover {
-      background-color: var(--card-background);
-      border-color: var(--bilibili-blue);
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
       color: var(--text-primary);
-      box-shadow: var(--shadow-sm);
     }
 
     &--open {
-      background-color: var(--card-background);
-      border-color: var(--bilibili-blue);
+      background-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
       color: var(--text-primary);
-      box-shadow: var(--shadow-sm);
     }
   }
 
@@ -207,6 +205,24 @@ onUnmounted(() => {
 .dropdown-leave-to {
   opacity: 0;
   transform: translateY(-8px);
+}
+
+// 暗色主题下的特殊样式
+[data-theme='dark'] .language-switcher {
+  &__current {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.4);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    &--open {
+      background-color: rgba(0, 0, 0, 0.4);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
 }
 
 // 响应式设计
