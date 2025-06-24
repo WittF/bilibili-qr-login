@@ -1,5 +1,6 @@
 import { computed, reactive } from 'vue';
 import { postQrMessage } from './postMessage';
+import { useI18n } from './i18n';
 
 enum SSEEvent {
   GENERATE = 'generate',
@@ -189,19 +190,21 @@ class QrSSE {
 
 export const useQrSSE = () => {
   const state = reactive<QrState>(defaultState());
+  const { t } = useI18n();
+
   const getters = reactive({
     statusText: computed(() => {
       switch (state.status) {
         case QrStatus.LOADING:
-          return '加载中';
+          return t.value.status.loading;
         case QrStatus.WAIT:
-          return '等待扫码';
+          return t.value.status.waiting;
         case QrStatus.SCANNED:
-          return '已扫码，等待登录';
+          return t.value.status.scanned;
         case QrStatus.EXPIRED:
-          return '二维码已过期，请刷新';
+          return t.value.status.expired;
         case QrStatus.SUCCESS:
-          return '登录成功';
+          return t.value.status.success;
         default:
           return state.errMsg;
       }

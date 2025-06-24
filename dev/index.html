@@ -2,11 +2,179 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width"
-    />
-    <title>开发专用页面</title>
+    <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="author" content="WittF" />
+    <meta name="generator" content="Vue.js" />
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" href="../favicon.svg" />
+    <link rel="apple-touch-icon" href="../favicon.svg" />
+    
+    <!-- Basic SEO -->
+    <title>Loading...</title>
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="哔哩哔哩二维码登录工具开发版" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@WittF" />
+    
+    <!-- Additional SEO -->
+    <link rel="canonical" id="canonical-url" href="" />
+    <meta name="theme-color" content="#fb7299" />
+    
+    <!-- 动态设置语言和meta信息的脚本 -->
+    <script>
+      // 语言检测函数
+             function detectLanguage() {
+         const urlParams = new URLSearchParams(window.location.search);
+         const langParam = urlParams.get('lang');
+         if (langParam) {
+           // 标准化语言代码
+           const lang = langParam.toLowerCase();
+           if (lang === 'zh-cn' || lang === 'cn') return 'zh-CN';
+           if (lang === 'zh-tw') return 'zh-TW';
+           if (lang === 'en') return 'en';
+           if (lang === 'ja' || lang === 'jp') return 'jp';
+         }
+        
+                 const savedLang = localStorage.getItem('bilibili-qr-lang');
+         if (savedLang && ['zh-CN', 'zh-TW', 'en', 'jp'].includes(savedLang)) {
+           return savedLang;
+         }
+         
+         const browserLangs = navigator.languages || [navigator.language];
+         for (const browserLang of browserLangs) {
+           const lang = browserLang.toLowerCase();
+           if (lang === 'zh-cn' || lang === 'zh_cn' || lang === 'cn' || lang.startsWith('zh-cn')) return 'zh-CN';
+           if (lang === 'zh-tw' || lang === 'zh_tw' || lang.startsWith('zh-tw') || lang.startsWith('zh-hk') || lang.startsWith('zh-mo')) return 'zh-TW';
+           if (lang === 'en' || lang.startsWith('en')) return 'en';
+           if (lang === 'ja' || lang === 'jp' || lang.startsWith('ja') || lang.startsWith('jp')) return 'jp';
+           if (lang.startsWith('zh')) return 'zh-CN';
+         }
+        
+        return 'zh-CN';
+      }
+      
+             // 获取翻译文本
+       function getDevTranslations(lang) {
+         const translations = {
+           'zh-CN': {
+             title: '开发专用页面',
+             description: '哔哩哔哩二维码登录工具开发版 - 开发测试专用页面',
+             keywords: '哔哩哔哩,bilibili,开发版,测试,二维码登录,开发工具',
+             siteName: '哔哩哔哩二维码登录工具开发版',
+             image: {
+               url: '../favicon.svg',
+               alt: '哔哩哔哩二维码登录工具开发版图标'
+             }
+           },
+           'zh-TW': {
+             title: '開發專用頁面',
+             description: 'bilibili 二維碼登入工具開發版 - 開發測試專用頁面',
+             keywords: 'bilibili,開發版,測試,二維碼登入,開發工具',
+             siteName: 'bilibili 二維碼登入工具開發版',
+             image: {
+               url: '../favicon.svg',
+               alt: 'bilibili 二維碼登入工具開發版圖標'
+             }
+           },
+           'en': {
+             title: 'Development Page',
+             description: 'Bilibili QR Code Login Tool Development Version - Development and testing page',
+             keywords: 'bilibili,development,testing,QR code,login,dev tools',
+             siteName: 'Bilibili QR Login Tool Development',
+             image: {
+               url: '../favicon.svg',
+               alt: 'Bilibili QR Login Tool Development Icon'
+             }
+           },
+           'jp': {
+             title: '開発専用ページ',
+             description: 'bilibili QRコードログインツール開発版 - 開発・テスト専用ページ',
+             keywords: 'bilibili,開発版,テスト,QRコード,ログイン,開発ツール',
+             siteName: 'bilibili QRログインツール開発版',
+             image: {
+               url: '../favicon.svg',
+               alt: 'bilibili QRログインツール開発版アイコン'
+             }
+           }
+         };
+         return translations[lang] || translations['zh-CN'];
+       }
+      
+                        // 创建或更新meta标签的工具函数
+         function setMetaTag(name, content, property = false) {
+           const attribute = property ? 'property' : 'name';
+           let meta = document.querySelector(`meta[${attribute}="${name}"]`);
+           if (!meta) {
+             meta = document.createElement('meta');
+             meta.setAttribute(attribute, name);
+             document.head.appendChild(meta);
+           }
+           meta.setAttribute('content', content);
+         }
+
+         // 安全初始化语言设置
+         try {
+           const currentLang = detectLanguage();
+           const t = getDevTranslations(currentLang);
+           const currentUrl = window.location.href;
+           const imageUrl = new URL(t.image.url, window.location.origin).href;
+           
+           // 设置HTML lang属性
+           document.documentElement.lang = currentLang;
+           
+           // 设置基本SEO标签
+           document.title = t.title;
+           setMetaTag('description', t.description);
+           setMetaTag('keywords', t.keywords);
+           
+           // 设置Open Graph标签
+           setMetaTag('og:url', currentUrl, true);
+           setMetaTag('og:title', t.title, true);
+           setMetaTag('og:description', t.description, true);
+           setMetaTag('og:image', imageUrl, true);
+           setMetaTag('og:image:alt', t.image.alt, true);
+           setMetaTag('og:site_name', t.siteName, true);
+           setMetaTag('og:locale', currentLang, true);
+           
+           // 设置Twitter Cards标签
+           setMetaTag('twitter:url', currentUrl);
+           setMetaTag('twitter:title', t.title);
+           setMetaTag('twitter:description', t.description);
+           setMetaTag('twitter:image', imageUrl);
+           setMetaTag('twitter:image:alt', t.image.alt);
+           
+           // 设置canonical URL
+           const canonicalLink = document.getElementById('canonical-url');
+           if (canonicalLink) {
+             canonicalLink.href = currentUrl;
+           }
+           
+           // 更新网站名称
+           const ogSiteName = document.querySelector('meta[property="og:site_name"]');
+           if (ogSiteName) {
+             ogSiteName.setAttribute('content', t.siteName);
+           }
+           
+         } catch (error) {
+           console.error('语言初始化失败，使用默认设置:', error);
+           document.documentElement.lang = 'zh-CN';
+           document.title = '开发专用页面';
+           
+           // 设置默认meta标签
+           setMetaTag('description', '哔哩哔哩二维码登录工具开发版 - 开发测试专用页面');
+           setMetaTag('keywords', '哔哩哔哩,bilibili,开发版,测试,二维码登录,开发工具');
+           setMetaTag('og:title', '开发专用页面', true);
+           setMetaTag('og:description', '哔哩哔哩二维码登录工具开发版 - 开发测试专用页面', true);
+           setMetaTag('twitter:title', '开发专用页面');
+           setMetaTag('twitter:description', '哔哩哔哩二维码登录工具开发版 - 开发测试专用页面');
+         }
+    </script>
   </head>
   <body>
     <div id="app"></div>

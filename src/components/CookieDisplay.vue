@@ -3,7 +3,7 @@
     <div class="cookie-card">
       <div class="cookie-card__header">
         <div class="cookie-card__title">
-          <span>Cookie 信息</span>
+          <span>{{ t.cookie.info }}</span>
         </div>
         <div class="cookie-card__actions">
           <button class="cookie-card__btn cookie-card__btn--convert" :disabled="isConverting" @click="convert">
@@ -23,8 +23,8 @@
                 stroke-linejoin="round"
               />
             </svg>
-            <span v-if="isConverting">转换中...</span>
-            <span v-else>转换</span>
+            <span v-if="isConverting">{{ t.cookie.converting }}</span>
+            <span v-else>{{ t.cookie.convert }}</span>
           </button>
         </div>
       </div>
@@ -36,7 +36,7 @@
           <svg class="cookie-card__copy-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor" />
           </svg>
-          <span>已复制</span>
+          <span>{{ t.cookie.copied }}</span>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@
       <div v-if="convertedData" class="cookie-card cookie-card--result">
         <div class="cookie-card__header">
           <div class="cookie-card__title">
-            <span>转换结果</span>
+            <span>{{ t.cookie.result }}</span>
           </div>
           <div class="cookie-card__actions">
             <button class="cookie-card__btn cookie-card__btn--copy" @click="copyConverted">
@@ -61,7 +61,7 @@
               <svg class="cookie-card__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor" />
               </svg>
-              <span>下载</span>
+              <span>{{ t.cookie.download }}</span>
             </button>
           </div>
         </div>
@@ -90,14 +90,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import CopyIcon from '../assets/icons/content_copy.svg';
 import { useTipText } from '../utils/tipText';
+import { useI18n } from '../utils/i18n';
 
 const props = defineProps<{ value: string }>();
+const { t } = useI18n();
 
 const pre = ref<HTMLElement>();
 const convertedPre = ref<HTMLElement>();
-const { text: convertedCopyText, changeText: changeConvertedCopyText } = useTipText('复制');
+const { text: convertedCopyText, changeText: changeConvertedCopyText } = useTipText(() => t.value.cookie.copy);
 const convertedData = ref('');
 const errorMsg = ref('');
 const isConverting = ref(false);
@@ -125,7 +126,7 @@ const copyConverted = () => {
   selection.addRange(range);
   window.document.execCommand('copy');
   selection.removeAllRanges();
-  changeConvertedCopyText('已复制');
+  changeConvertedCopyText(t.value.cookie.copied);
 };
 
 const downloadConverted = () => {
@@ -158,7 +159,7 @@ const convert = async () => {
 
   // 检查cookie格式
   if (!isValidCookie(props.value)) {
-    errorMsg.value = 'Cookie 格式不正确，请确保包含必要的B站登录信息';
+    errorMsg.value = t.value.cookie.formatError;
     return;
   }
 
@@ -174,13 +175,13 @@ const convert = async () => {
     });
 
     if (!response.ok) {
-      throw new Error('服务器响应错误');
+      throw new Error(t.value.cookie.serverError);
     }
 
     const result = await response.json();
     convertedData.value = JSON.stringify(result, null, 2);
   } catch (error) {
-    errorMsg.value = `转换失败: ${error instanceof Error ? error.message : '未知错误'}`;
+    errorMsg.value = `${t.value.cookie.convertError}: ${error instanceof Error ? error.message : t.value.cookie.unknownError}`;
   } finally {
     isConverting.value = false;
   }

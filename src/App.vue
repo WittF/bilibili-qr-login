@@ -2,9 +2,12 @@
   <div class="container">
     <div class="content-wrapper">
       <div class="header">
-        <h1 class="title">{{ PARAM_MODE ? '哔哩哔哩登录' : '哔哩哔哩 Cookie 获取工具' }}</h1>
+        <div class="header__top">
+          <LanguageSwitcher />
+        </div>
+        <h1 class="title">{{ PARAM_MODE ? t.title.login : t.title.cookieTool }}</h1>
         <p class="subtitle">
-          {{ PARAM_MODE ? '请使用哔哩哔哩手机 APP 扫码登录' : '使用手机 APP 扫码登录后即可获取 cookie' }}
+          {{ PARAM_MODE ? t.subtitle.login : t.subtitle.cookieTool }}
         </p>
       </div>
 
@@ -41,7 +44,7 @@
                   d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"
                 />
               </svg>
-              <span class="github-text">查看源码</span>
+              <span class="github-text">{{ t.common.viewSource }}</span>
             </a>
           </div>
         </div>
@@ -59,16 +62,23 @@
 
 <script setup lang="ts">
 import QrCode from '@chenfengyuan/vue-qrcode';
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, onMounted } from 'vue';
 import RefreshBtn from './components/RefreshBtn.vue';
 import CookieDisplay from './components/CookieDisplay.vue';
 import LoadingIcon from './components/LoadingIcon.vue';
+import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import CheckIcon from './assets/icons/check_circle.svg';
 import { useQrSSE, QrStatus } from './utils/qrSSE';
+import { useI18n } from './utils/i18n';
 import { PARAM_MODE } from './utils/const';
 import type { QRCodeRenderersOptions } from 'qrcode';
 
-window.document.title = PARAM_MODE ? '登录哔哩哔哩' : '哔哩哔哩 cookie 获取工具';
+const { t, updatePageTitle } = useI18n();
+
+// 初始化页面标题
+onMounted(() => {
+  updatePageTitle();
+});
 
 const qrCodeOption: QRCodeRenderersOptions = {
   margin: 0,
@@ -173,6 +183,13 @@ onBeforeUnmount(stop);
 .header {
   text-align: center;
   margin-bottom: var(--spacing-xl);
+  width: 100%;
+}
+
+.header__top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing-md);
   width: 100%;
 }
 
