@@ -48,11 +48,11 @@ jobs:
           tags: |
             # 当创建 tag 时设置版本号和 latest
             type=ref,event=tag
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable={{is_default_branch}},priority=600,event=tag
             # 当 push 到主分支时设置 dev 标签
-            type=raw,value=dev,enable={{is_default_branch}}
+            type=raw,value=dev,enable={{is_default_branch}},event=push
             # 添加 commit SHA 作为标签
-            type=sha,prefix={{branch}}-,format=short
+            type=sha,prefix={{branch}}-,format=short,event=push
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5

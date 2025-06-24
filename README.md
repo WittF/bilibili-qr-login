@@ -51,7 +51,7 @@ yarn start
 
 ```bash
 # 拉取镜像
-docker pull wittf/bili-qrlogin:latest
+docker pull wittf/bilibili-qr-login:latest
 
 # 运行容器
 docker run -d \
