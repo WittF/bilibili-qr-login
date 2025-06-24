@@ -96,7 +96,7 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
   'zh-TW': {
     title: {
       login: 'bilibili 登入',
-      cookieTool: 'bilibili Cookie 取得工具',
+      cookieTool: 'Bilibili Cookie 取得工具',
     },
     subtitle: {
       login: '請使用 bilibili 手機 APP 掃碼登入',
@@ -175,7 +175,7 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
   jp: {
     title: {
       login: 'bilibili ログイン',
-      cookieTool: 'bilibili Cookie 取得ツール',
+      cookieTool: 'Bilibili Cookie 取得ツール',
     },
     subtitle: {
       login: 'bilibili モバイルアプリでQRコードをスキャンしてください',
