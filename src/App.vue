@@ -590,6 +590,9 @@ onBeforeUnmount(stop);
   transition: all 0.2s ease;
   font-size: 0.9rem;
   font-weight: 500;
+  border: 1px solid var(--divider);
+  background-color: var(--card-background);
+  box-shadow: var(--shadow-sm);
 
   &:hover {
     color: var(--bilibili-pink);
