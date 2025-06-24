@@ -300,10 +300,14 @@ const convert = async () => {
     font-weight: 500;
     border: none;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.15s ease;
     justify-content: center;
     overflow: hidden;
     position: relative;
+    will-change: width, transform;
 
     &:hover {
       transform: translateY(-1px);
@@ -311,6 +315,7 @@ const convert = async () => {
 
     &:active {
       transform: scale(0.98);
+      transition: transform 0.1s ease;
     }
 
     &:disabled {
@@ -324,6 +329,7 @@ const convert = async () => {
 
       &:hover {
         filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(251, 114, 153, 0.3);
       }
     }
 
@@ -332,6 +338,7 @@ const convert = async () => {
 
       &:hover {
         filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(0, 161, 214, 0.3);
       }
     }
 
@@ -340,6 +347,7 @@ const convert = async () => {
 
       &:hover {
         filter: brightness(1.1);
+        box-shadow: 0 4px 12px rgba(68, 194, 133, 0.3);
       }
     }
   }
@@ -348,9 +356,13 @@ const convert = async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
     overflow: hidden;
+    will-change: width;
+    position: relative;
 
     span {
       display: inline-block;
@@ -365,12 +377,17 @@ const convert = async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.15s ease;
+    will-change: transform;
+    position: relative;
 
     svg {
       width: 16px !important;
       height: 16px !important;
       display: block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 

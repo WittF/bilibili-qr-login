@@ -722,13 +722,19 @@ onBeforeUnmount(stop);
   text-decoration: none;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s ease;
   font-size: 0.9rem;
   font-weight: 500;
   border: 1px solid var(--divider);
   background-color: var(--card-background);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+  will-change: width, transform, border-color;
 
   &:hover {
     color: var(--bilibili-pink);
@@ -746,12 +752,17 @@ onBeforeUnmount(stop);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s ease;
+  will-change: transform;
+  position: relative;
 
   svg {
     width: 16px !important;
     height: 16px !important;
     display: block;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -759,9 +770,13 @@ onBeforeUnmount(stop);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   overflow: hidden;
+  will-change: width;
+  position: relative;
 }
 
 .github-text {

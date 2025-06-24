@@ -177,11 +177,16 @@ onUnmounted(() => {
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.15s ease;
     color: var(--text-secondary);
     font-size: 0.9rem;
     min-width: 110px;
     font-family: inherit;
+    will-change: width, transform, background-color;
 
     // 重置button默认样式
     appearance: none;
@@ -220,11 +225,16 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition:
+      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.15s ease;
+    will-change: transform;
 
     svg {
       width: 16px !important;
       height: 16px !important;
       display: block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
@@ -235,9 +245,12 @@ onUnmounted(() => {
     align-items: center;
     height: 16px;
     line-height: 1;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     white-space: nowrap;
+    will-change: width;
   }
 
   &__arrow {
@@ -248,12 +261,16 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
+    transition:
+      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.2s ease;
+    will-change: transform;
 
     svg {
       width: 16px !important;
       height: 16px !important;
       display: block;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     &--open {
