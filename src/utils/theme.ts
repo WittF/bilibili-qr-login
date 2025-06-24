@@ -18,9 +18,15 @@ export class ThemeManager {
   }
 
   private init() {
-    // 从cookie读取主题偏好
+    // 优先级：URL参数 > Cookie > 默认(auto)
+    const urlTheme = this.getUrlTheme();
     const savedTheme = this.getCookieTheme();
-    if (savedTheme) {
+
+    if (urlTheme) {
+      this.currentTheme = urlTheme;
+      // 如果URL指定了主题，也保存到cookie中
+      this.setCookieTheme(urlTheme);
+    } else if (savedTheme) {
       this.currentTheme = savedTheme;
     }
 
@@ -33,6 +39,15 @@ export class ThemeManager {
 
     // 应用主题
     this.applyTheme();
+  }
+
+  private getUrlTheme(): Theme | null {
+    const urlParams = new URLSearchParams(window.location.search);
+    const themeParam = urlParams.get('theme');
+    if (themeParam && ['light', 'dark', 'auto'].includes(themeParam)) {
+      return themeParam as Theme;
+    }
+    return null;
   }
 
   private getCookieTheme(): Theme | null {
