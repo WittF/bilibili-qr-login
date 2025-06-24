@@ -64,6 +64,9 @@ const defaultState = (): QrState => ({
 
 class QrSSE {
   private es!: EventSource;
+  private reconnectTimeout?: number;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 3;
 
   public constructor(private state: QrState) {
     this.start();
@@ -72,12 +75,22 @@ class QrSSE {
   public restart() {
     const { url } = this.state;
     Object.assign(this.state, defaultState(), { url });
+    this.reconnectAttempts = 0;
+    this.clearReconnectTimeout();
     this.start();
   }
 
   public stop() {
     if (!this.es) return;
     this.es.close();
+    this.clearReconnectTimeout();
+  }
+
+  private clearReconnectTimeout() {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = undefined;
+    }
   }
 
   private start() {
@@ -100,6 +113,15 @@ class QrSSE {
   private handleMessage = ({ type, data }: MessageEvent<string>) => {
     const obj = JSON.parse(data);
     loggers.qrSSE.debug('收到SSE消息', { type, data: obj });
+
+    // 收到消息说明连接正常，重置重连计数器
+    if (this.reconnectAttempts > 0) {
+      loggers.qrSSE.debug('连接已恢复，重置重连计数器', {
+        previousAttempts: this.reconnectAttempts,
+      });
+      this.reconnectAttempts = 0;
+      this.clearReconnectTimeout();
+    }
 
     switch (type) {
       case SSEEvent.POLL:
@@ -129,17 +151,44 @@ class QrSSE {
       readyState: eventSource.readyState,
       url: eventSource.url,
       eventType: event.type,
+      reconnectAttempts: this.reconnectAttempts,
     });
 
     // 根据连接状态提供更精确的错误信息
     switch (eventSource.readyState) {
       case EventSource.CONNECTING:
-        this.handleError('正在重连服务器...');
+        this.reconnectAttempts++;
+
+        if (this.reconnectAttempts <= this.maxReconnectAttempts) {
+          this.handleError('正在重连服务器...');
+
+          // 设置重连超时，如果超时仍未连接成功，则提示用户手动重试
+          this.clearReconnectTimeout();
+          this.reconnectTimeout = window.setTimeout(() => {
+            if (eventSource.readyState === EventSource.CONNECTING) {
+              loggers.qrSSE.warn('重连超时', {
+                attempts: this.reconnectAttempts,
+                duration: '10s',
+              });
+              this.handleError('重连超时，请刷新二维码重试');
+            }
+          }, 10000);
+        } else {
+          loggers.qrSSE.error('重连次数超限', {
+            maxAttempts: this.maxReconnectAttempts,
+            actualAttempts: this.reconnectAttempts,
+          });
+          this.handleError('连接失败次数过多，请刷新二维码重试');
+        }
         break;
+
       case EventSource.CLOSED:
+        this.clearReconnectTimeout();
         this.handleError('连接已断开，请刷新页面重试');
         break;
+
       default:
+        this.clearReconnectTimeout();
         this.handleError('网络连接异常，请检查网络状态');
     }
   };
