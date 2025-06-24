@@ -309,7 +309,6 @@ onBeforeUnmount(stop);
         transform: translateY(0);
       }
     }
-      }
   }
 }
 
