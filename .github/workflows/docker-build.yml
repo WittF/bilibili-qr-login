@@ -48,13 +48,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           tags: |
-            # 当创建 tag 时设置版本号和 latest
+            # Tag 事件：设置版本号和 latest
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}},priority=600,event=tag
-            # 当 push 到主分支时设置 dev 标签
+            # Push 事件：设置 dev 和 commit 标签  
             type=raw,value=dev,enable={{is_default_branch}},event=push
-            # 添加 commit SHA 作为标签
-            type=sha,prefix={{branch}}-,format=short,event=push
+            type=sha,prefix=commit-,format=short,event=push
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
