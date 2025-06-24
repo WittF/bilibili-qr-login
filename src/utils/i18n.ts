@@ -135,11 +135,11 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
   en: {
     title: {
       login: 'Bilibili Login',
-      cookieTool: 'Bilibili Cookie Tool',
+      cookieTool: 'Bilibili Cookie Extractor',
     },
     subtitle: {
       login: 'Please use Bilibili mobile app to scan QR code',
-      cookieTool: 'Scan QR code with mobile app to get cookies',
+      cookieTool: 'Scan QR code with mobile app to extract cookies',
     },
     status: {
       loading: 'Loading',

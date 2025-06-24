@@ -150,16 +150,18 @@ onUnmounted(() => {
 
   &__dropdown {
     position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: var(--spacing-xs);
+    top: 0;
+    bottom: auto;
+    left: 100%;
+    right: auto;
+    margin-left: var(--spacing-xs);
     background-color: var(--card-background);
     border: 1px solid var(--divider);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
     overflow: hidden;
-    z-index: 1000;
+    z-index: 2000;
+    min-width: 120px;
   }
 
   &__option {
@@ -212,6 +214,14 @@ onUnmounted(() => {
       min-width: 80px;
       padding: var(--spacing-xs);
       font-size: 0.85rem;
+    }
+
+    &__dropdown {
+      left: auto;
+      right: 0;
+      margin-left: 0;
+      margin-right: 0;
+      min-width: 100px;
     }
 
     &__option {
