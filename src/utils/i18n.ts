@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import { loggers } from './logger';
 
 // 支持的语言列表
 export type SupportedLanguage = 'zh-CN' | 'zh-TW' | 'en' | 'jp';
@@ -241,7 +242,7 @@ function detectLanguage(): SupportedLanguage {
       }
     }
   } catch (error) {
-    console.warn('语言检测失败，使用默认语言:', error);
+    loggers.i18n.warn('语言检测失败，使用默认语言', error);
   }
 
   // 4. 默认返回简体中文
@@ -297,7 +298,10 @@ export function useI18n() {
       // 更新页面标题
       updatePageTitle();
     } else {
-      console.warn(`不支持的语言代码: ${lang}, 使用默认语言 ${DEFAULT_LANGUAGE}`);
+      loggers.i18n.warn('不支持的语言代码，使用默认语言', {
+        requestedLang: lang,
+        defaultLang: DEFAULT_LANGUAGE,
+      });
       currentLanguage.value = DEFAULT_LANGUAGE;
       document.documentElement.lang = DEFAULT_LANGUAGE;
     }
@@ -354,7 +358,10 @@ export function useI18n() {
 // 验证当前语言是否有效
 function validateCurrentLanguage(): void {
   if (!(currentLanguage.value in translations)) {
-    console.warn(`当前语言 ${currentLanguage.value} 无效，重置为默认语言 ${DEFAULT_LANGUAGE}`);
+    loggers.i18n.warn('当前语言无效，重置为默认语言', {
+      currentLang: currentLanguage.value,
+      defaultLang: DEFAULT_LANGUAGE,
+    });
     currentLanguage.value = DEFAULT_LANGUAGE;
   }
 }
@@ -365,7 +372,7 @@ function safeInitialize(): void {
     validateCurrentLanguage();
     document.documentElement.lang = currentLanguage.value;
   } catch (error) {
-    console.error('国际化初始化失败:', error);
+    loggers.i18n.error('国际化初始化失败', error);
     currentLanguage.value = DEFAULT_LANGUAGE;
     document.documentElement.lang = DEFAULT_LANGUAGE;
   }

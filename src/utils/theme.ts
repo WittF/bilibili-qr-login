@@ -1,3 +1,5 @@
+import { loggers } from './logger';
+
 export type Theme = 'light' | 'dark' | 'auto';
 
 export class ThemeManager {
@@ -26,9 +28,7 @@ export class ThemeManager {
 
   // 公开方法，允许手动重新初始化
   reinitialize() {
-    if (import.meta.env.DEV) {
-      console.log('🔄 重新初始化主题管理器');
-    }
+    loggers.theme.info('重新初始化主题管理器');
     this.init();
   }
 
@@ -37,37 +37,30 @@ export class ThemeManager {
       return;
     }
 
-    const isDebug = import.meta.env.DEV;
-
-    if (isDebug) {
-      console.log('🎨 主题管理器初始化');
-    }
+    loggers.theme.info('主题管理器初始化');
 
     // 优先级：URL参数 > Cookie > 默认(auto)
     const urlTheme = this.getUrlTheme();
     const savedTheme = this.getCookieTheme();
 
-    if (isDebug) {
-      console.log('🔍 主题检测:', { urlTheme, savedTheme });
-    }
+    loggers.theme.debug('主题检测结果', { urlTheme, savedTheme });
 
     if (urlTheme) {
       this.currentTheme = urlTheme;
       this.setCookieTheme(urlTheme);
-      if (isDebug) console.log('✅ 使用URL参数主题:', urlTheme);
+      loggers.theme.info('使用URL参数主题', { theme: urlTheme });
     } else if (savedTheme) {
       this.currentTheme = savedTheme;
-      if (isDebug) console.log('✅ 使用Cookie主题:', savedTheme);
+      loggers.theme.info('使用Cookie主题', { theme: savedTheme });
     } else {
-      if (isDebug) console.log('✅ 使用默认主题: auto');
+      loggers.theme.info('使用默认主题', { theme: 'auto' });
     }
 
     // 监听系统主题变化（只添加一次）
     if (!this.initialized) {
       this.mediaQuery.addEventListener('change', e => {
-        if (isDebug) {
-          console.log('🌓 系统主题变化:', e.matches ? 'dark' : 'light');
-        }
+        const systemTheme = e.matches ? 'dark' : 'light';
+        loggers.theme.info('系统主题变化', { systemTheme });
         if (this.currentTheme === 'auto') {
           this.applyTheme();
         }
@@ -119,9 +112,11 @@ export class ThemeManager {
   private applyTheme() {
     const effectiveTheme = this.getEffectiveTheme();
 
-    if (import.meta.env.DEV) {
-      console.log('🎯 应用主题:', effectiveTheme);
-    }
+    loggers.theme.info('应用主题', {
+      currentTheme: this.currentTheme,
+      effectiveTheme,
+      systemPreference: this.mediaQuery.matches ? 'dark' : 'light',
+    });
 
     document.documentElement.setAttribute('data-theme', effectiveTheme);
 
@@ -133,9 +128,7 @@ export class ThemeManager {
   }
 
   setTheme(theme: Theme) {
-    if (import.meta.env.DEV) {
-      console.log('🎛️ 手动设置主题:', theme);
-    }
+    loggers.theme.info('手动设置主题', { theme });
     this.currentTheme = theme;
     this.setCookieTheme(theme);
     this.applyTheme();

@@ -1,6 +1,7 @@
 import { computed, reactive } from 'vue';
 import { postQrMessage } from './postMessage';
 import { useI18n } from './i18n';
+import { loggers } from './logger';
 
 enum SSEEvent {
   GENERATE = 'generate',
@@ -89,7 +90,7 @@ class QrSSE {
 
   private handleMessage = ({ type, data }: MessageEvent<string>) => {
     const obj = JSON.parse(data);
-    console.log(type, obj);
+    loggers.qrSSE.debug('收到SSE消息', { type, data: obj });
 
     switch (type) {
       case SSEEvent.POLL:
@@ -117,6 +118,7 @@ class QrSSE {
     message: string;
     details?: string;
   }) {
+    // 保留特殊的Cookie验证日志样式，因为这是用户关心的重要信息
     const timestamp = new Date().toLocaleTimeString();
 
     switch (validation.status) {
@@ -126,6 +128,8 @@ class QrSSE {
           'color: #10b981; font-weight: bold;',
           `\n✅ ${validation.message}`,
         );
+        // 同时记录到统一日志系统
+        loggers.qrSSE.important('Cookie验证通过', { message: validation.message });
         break;
 
       case 'failed':
@@ -135,6 +139,11 @@ class QrSSE {
           `\n⚠️ ${validation.message}`,
           validation.details ? `\n📝 ${validation.details}` : '',
         );
+        // 同时记录到统一日志系统
+        loggers.qrSSE.warn('Cookie验证未通过', {
+          message: validation.message,
+          details: validation.details,
+        });
         break;
 
       case 'error':
@@ -144,6 +153,11 @@ class QrSSE {
           `\n❌ ${validation.message}`,
           validation.details ? `\n📝 ${validation.details}` : '',
         );
+        // 同时记录到统一日志系统
+        loggers.qrSSE.error('Cookie验证异常', {
+          message: validation.message,
+          details: validation.details,
+        });
         break;
     }
   }
