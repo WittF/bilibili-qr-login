@@ -82,10 +82,19 @@ class QrSSE {
 
   private start() {
     this.stop();
-    this.es = new EventSource('/api/qr');
-    this.es.addEventListener(SSEEvent.GENERATE, this.handleMessage);
-    this.es.addEventListener(SSEEvent.POLL, this.handleMessage);
-    this.es.addEventListener(SSEEvent.END, this.handleEnd);
+
+    try {
+      this.es = new EventSource('/api/qr');
+      this.es.addEventListener(SSEEvent.GENERATE, this.handleMessage);
+      this.es.addEventListener(SSEEvent.POLL, this.handleMessage);
+      this.es.addEventListener(SSEEvent.END, this.handleEnd);
+      this.es.addEventListener('error', this.handleConnectionError);
+
+      loggers.qrSSE.debug('SSE连接已创建');
+    } catch (error) {
+      loggers.qrSSE.error('创建SSE连接失败', error);
+      this.handleError('连接服务器失败，请检查网络连接');
+    }
   }
 
   private handleMessage = ({ type, data }: MessageEvent<string>) => {
@@ -110,8 +119,30 @@ class QrSSE {
   private handleError(msg: string) {
     this.state.errMsg = msg || '发生错误';
     this.state.status = QrStatus.ERROR;
-    return;
+    loggers.qrSSE.error('QR码服务错误', { message: msg });
   }
+
+  private handleConnectionError = (event: Event) => {
+    const eventSource = event.target as EventSource;
+
+    loggers.qrSSE.warn('SSE连接异常', {
+      readyState: eventSource.readyState,
+      url: eventSource.url,
+      eventType: event.type,
+    });
+
+    // 根据连接状态提供更精确的错误信息
+    switch (eventSource.readyState) {
+      case EventSource.CONNECTING:
+        this.handleError('正在重连服务器...');
+        break;
+      case EventSource.CLOSED:
+        this.handleError('连接已断开，请刷新页面重试');
+        break;
+      default:
+        this.handleError('网络连接异常，请检查网络状态');
+    }
+  };
 
   private logCookieValidationResult(validation: {
     status: 'success' | 'failed' | 'error';

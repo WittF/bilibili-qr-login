@@ -131,7 +131,6 @@ const isValidCookie = (cookie: string): boolean => {
 
 const convert = async () => {
   errorMsg.value = '';
-  // 不立即清空convertedData，避免跳动
 
   // 检查cookie格式
   if (!isValidCookie(props.value)) {
@@ -142,22 +141,58 @@ const convert = async () => {
   isConverting.value = true;
 
   try {
+    // 添加超时控制
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     const response = await fetch('/api/convert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ cookies: props.value }),
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
-      throw new Error(t.value.cookie.serverError);
+      // 根据HTTP状态码提供更详细的错误信息
+      switch (response.status) {
+        case 400:
+          throw new Error('Cookie数据格式错误');
+        case 403:
+          throw new Error('请求被服务器拒绝');
+        case 429:
+          throw new Error('请求过于频繁，请稍后重试');
+        case 500:
+          throw new Error('服务器内部错误');
+        case 502:
+        case 503:
+        case 504:
+          throw new Error('服务器暂时不可用');
+        default:
+          throw new Error(`${t.value.cookie.serverError} (${response.status})`);
+      }
     }
 
     const result = await response.json();
     convertedData.value = JSON.stringify(result, null, 2);
   } catch (error) {
-    errorMsg.value = `${t.value.cookie.convertError}: ${error instanceof Error ? error.message : t.value.cookie.unknownError}`;
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        errorMsg.value = `${t.value.cookie.convertError}: 请求超时，请检查网络连接`;
+      } else if (error.message.includes('fetch')) {
+        errorMsg.value = `${t.value.cookie.convertError}: 网络连接失败，请检查网络状态`;
+      } else {
+        errorMsg.value = `${t.value.cookie.convertError}: ${error.message}`;
+      }
+    } else {
+      errorMsg.value = `${t.value.cookie.convertError}: ${t.value.cookie.unknownError}`;
+    }
+
+    // 记录详细错误信息到控制台
+    console.error('Cookie转换失败:', error);
   } finally {
     isConverting.value = false;
   }

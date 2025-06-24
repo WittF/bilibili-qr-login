@@ -91,8 +91,22 @@ class Logger {
    */
   error(message: string, error?: any): void {
     const formattedMessage = this.formatMessage('error', message);
+
+    // 增强错误日志，包含时间戳和更多上下文
     if (error !== undefined) {
       console.error(`%c${formattedMessage}`, this.getStyle('error'), error);
+
+      // 如果是网络错误，提供更多上下文
+      if (error instanceof Error && (error.message.includes('fetch') || error.name === 'AbortError')) {
+        console.error(`%c[${this.module}] Network Error Details:`, this.getStyle('error'), {
+          name: error.name,
+          message: error.message,
+          stack: error.stack?.split('\n').slice(0, 3).join('\n'),
+          userAgent: navigator.userAgent,
+          online: navigator.onLine,
+          url: window.location.href,
+        });
+      }
     } else {
       console.error(`%c${formattedMessage}`, this.getStyle('error'));
     }

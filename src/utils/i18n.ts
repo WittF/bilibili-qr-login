@@ -23,6 +23,8 @@ interface TranslationTexts {
     scanned: string;
     expired: string;
     success: string;
+    networkError: string;
+    reconnecting: string;
   };
 
   // Cookie 组件
@@ -38,6 +40,8 @@ interface TranslationTexts {
     serverError: string;
     convertError: string;
     unknownError: string;
+    networkError: string;
+    timeoutError: string;
   };
 
   // 其他文本
@@ -70,6 +74,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       scanned: '已扫码，等待登录',
       expired: '二维码已过期，请刷新',
       success: '登录成功',
+      networkError: '网络连接异常',
+      reconnecting: '正在重连...',
     },
     cookie: {
       info: 'Cookie 信息',
@@ -83,6 +89,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       serverError: '服务器响应错误',
       convertError: '转换失败',
       unknownError: '未知错误',
+      networkError: '网络连接失败',
+      timeoutError: '请求超时',
     },
     common: {
       viewSource: '查看源码',
@@ -109,6 +117,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       scanned: '已掃碼，等待登入',
       expired: '二維碼已過期，請重新整理',
       success: '登入成功',
+      networkError: '網路連線異常',
+      reconnecting: '正在重新連線...',
     },
     cookie: {
       info: 'Cookie 資訊',
@@ -122,6 +132,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       serverError: '伺服器回應錯誤',
       convertError: '轉換失敗',
       unknownError: '未知錯誤',
+      networkError: '網路連線失敗',
+      timeoutError: '請求逾時',
     },
     common: {
       viewSource: '查看源碼',
@@ -148,6 +160,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       scanned: 'Scanned, waiting for login',
       expired: 'QR code expired, please refresh',
       success: 'Login successful',
+      networkError: 'Network connection error',
+      reconnecting: 'Reconnecting...',
     },
     cookie: {
       info: 'Cookie Information',
@@ -161,6 +175,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       serverError: 'Server response error',
       convertError: 'Conversion failed',
       unknownError: 'Unknown error',
+      networkError: 'Network connection failed',
+      timeoutError: 'Request timeout',
     },
     common: {
       viewSource: 'View Source',
@@ -188,6 +204,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       scanned: 'スキャン済み、ログイン待ち',
       expired: 'QRコードが期限切れです。更新してください',
       success: 'ログイン成功',
+      networkError: 'ネットワーク接続エラー',
+      reconnecting: '再接続中...',
     },
     cookie: {
       info: 'Cookie 情報',
@@ -201,6 +219,8 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       serverError: 'サーバー応答エラー',
       convertError: '変換に失敗しました',
       unknownError: '不明なエラー',
+      networkError: 'ネットワーク接続に失敗しました',
+      timeoutError: 'リクエストタイムアウト',
     },
     common: {
       viewSource: 'ソースコードを見る',
