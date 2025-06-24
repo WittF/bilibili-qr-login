@@ -341,12 +341,6 @@ onBeforeUnmount(stop);
 }
 
 .icon {
-  &--success {
-    width: 64px;
-    height: 64px;
-    color: var(--success);
-  }
-
   &--refresh {
     width: 42px;
     height: 42px;
@@ -411,11 +405,6 @@ onBeforeUnmount(stop);
 
   .cookie-placeholder {
     height: 160px;
-  }
-
-  .icon--success {
-    width: 56px;
-    height: 56px;
   }
 
   .icon--refresh {
