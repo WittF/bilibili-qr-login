@@ -191,7 +191,6 @@ onBeforeUnmount(stop);
   justify-content: flex-end;
   margin-bottom: var(--spacing-md);
   width: 100%;
-  padding-right: var(--spacing-md);
 }
 
 .title {
@@ -376,10 +375,6 @@ onBeforeUnmount(stop);
     margin-bottom: var(--spacing-lg);
   }
 
-  .header__top {
-    padding-right: var(--spacing-sm);
-  }
-
   .footer-links {
     margin-top: var(--spacing-sm);
   }
@@ -419,10 +414,6 @@ onBeforeUnmount(stop);
 @media (max-width: 480px) {
   .container {
     padding: var(--spacing-sm);
-  }
-
-  .header__top {
-    padding-right: var(--spacing-xs);
   }
 
   .qrcode-container {
