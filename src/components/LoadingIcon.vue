@@ -12,7 +12,7 @@
   border-radius: var(--radius-round);
   position: relative;
   background: conic-gradient(transparent 25%, var(--bilibili-pink));
-  animation: rotate 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  animation: rotate 1s linear infinite;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,8 +27,7 @@
     top: 4px;
     left: 50%;
     transform: translateX(-50%);
-    animation: dotPulse 1.5s ease-in-out infinite;
-    box-shadow: 0 0 10px rgba(251, 114, 153, 0.3);
+    animation: dotPulse 1s ease-in-out infinite;
   }
 
   &::after {
@@ -53,12 +52,12 @@
 @keyframes dotPulse {
   0%,
   100% {
+    opacity: 1;
     transform: translateX(-50%) scale(1);
-    box-shadow: 0 0 10px rgba(251, 114, 153, 0.3);
   }
   50% {
-    transform: translateX(-50%) scale(1.2);
-    box-shadow: 0 0 15px rgba(251, 114, 153, 0.6);
+    opacity: 0.6;
+    transform: translateX(-50%) scale(0.8);
   }
 }
 </style>
