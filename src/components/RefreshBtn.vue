@@ -1,9 +1,19 @@
 <template>
-  <div class="refresh-btn btn flex"><RefreshIcon /></div>
+  <div class="refresh-btn btn flex">
+    <RefreshIcon v-if="!isDarkTheme" />
+    <RefreshWhiteIcon v-else />
+  </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import RefreshIcon from '../assets/icons/refresh.svg';
+import RefreshWhiteIcon from '../assets/icons/refresh-white.svg';
+
+// 检测当前是否为暗色主题
+const isDarkTheme = computed(() => {
+  return document.documentElement.getAttribute('data-theme') === 'dark';
+});
 </script>
 
 <style scoped lang="less">
