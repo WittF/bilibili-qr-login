@@ -304,12 +304,143 @@ const isValidIP = (ip: string): boolean => {
   return ipv6Regex.test(cleanIP);
 };
 
+// 在线客户端管理系统
+interface ActiveSession {
+  sessionId: number;
+  clientIP: string;
+  userAgent: string;
+  connectTime: number;
+  lastActiveTime: number;
+  isActive: boolean;
+}
+
+class ClientManager {
+  private activeSessions = new Map<number, ActiveSession>();
+  private cleanupInterval?: NodeJS.Timeout;
+
+  constructor() {
+    // 每30秒清理一次超时的会话（5分钟无活动）
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupInactiveSessions(5 * 60 * 1000); // 5分钟
+    }, 30 * 1000);
+  }
+
+  // 添加新会话
+  addSession(sessionId: number, clientIP: string, userAgent: string): void {
+    const now = Date.now();
+    this.activeSessions.set(sessionId, {
+      sessionId,
+      clientIP,
+      userAgent: userAgent.substring(0, 100),
+      connectTime: now,
+      lastActiveTime: now,
+      isActive: true,
+    });
+
+    this.logSessionStats('新客户端连接');
+  }
+
+  // 更新会话活跃时间
+  updateActivity(sessionId: number): void {
+    const session = this.activeSessions.get(sessionId);
+    if (session) {
+      session.lastActiveTime = Date.now();
+      session.isActive = true;
+    }
+  }
+
+  // 移除会话
+  removeSession(sessionId: number, reason: string = '正常断开'): void {
+    const session = this.activeSessions.get(sessionId);
+    if (session) {
+      const duration = Date.now() - session.connectTime;
+      this.activeSessions.delete(sessionId);
+
+      logger.info(sessionId, '客户端断开连接', {
+        reason,
+        sessionDuration: `${Math.round(duration / 1000)}s`,
+        totalActiveSessions: this.activeSessions.size,
+      });
+
+      this.logSessionStats('客户端断开');
+    }
+  }
+
+  // 清理不活跃的会话
+  private cleanupInactiveSessions(timeoutMs: number): void {
+    const now = Date.now();
+    let cleanedCount = 0;
+
+    for (const [sessionId, session] of this.activeSessions.entries()) {
+      if (now - session.lastActiveTime > timeoutMs) {
+        this.activeSessions.delete(sessionId);
+        cleanedCount++;
+
+        logger.debug(sessionId, '清理超时会话', {
+          lastActiveTime: new Date(session.lastActiveTime).toISOString(),
+          timeoutMinutes: Math.round(timeoutMs / 60000),
+        });
+      }
+    }
+
+    if (cleanedCount > 0) {
+      this.logSessionStats(`清理了${cleanedCount}个超时会话`);
+    }
+  }
+
+  // 记录会话统计信息
+  private logSessionStats(action: string): void {
+    const activeCount = this.activeSessions.size;
+    const currentTime = new Date().toISOString();
+
+    // 统计不同IP的客户端数量
+    const uniqueIPs = new Set(Array.from(this.activeSessions.values()).map(s => s.clientIP));
+
+    logger.important(0, `客户端统计 - ${action}`, {
+      当前在线: activeCount,
+      独立IP数: uniqueIPs.size,
+      统计时间: currentTime,
+    });
+
+    // 调试模式下显示详细信息
+    if (isDebugMode && activeCount > 0) {
+      const sessions = Array.from(this.activeSessions.values()).map(s => ({
+        sessionId: s.sessionId,
+        clientIP: s.clientIP,
+        connectDuration: `${Math.round((Date.now() - s.connectTime) / 1000)}s`,
+        lastActiveAgo: `${Math.round((Date.now() - s.lastActiveTime) / 1000)}s前`,
+      }));
+
+      logger.debug(0, '活跃会话详情', { sessions });
+    }
+  }
+
+  // 获取当前活跃会话数量
+  getActiveCount(): number {
+    return this.activeSessions.size;
+  }
+
+  // 清理资源
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    this.activeSessions.clear();
+  }
+}
+
+// 创建全局客户端管理器
+const clientManager = new ClientManager();
+
 let globalId = 0;
 
 app.get('/api/qr', c => {
   const sessionId = globalId++;
   const clientIP = getRealClientIP(c);
   const userAgent = c.req.header('User-Agent') || 'unknown';
+
+  // 注册新会话到客户端管理器
+  clientManager.addSession(sessionId, clientIP, userAgent);
 
   // 添加调试信息来帮助排查IP获取问题
   if (isDebugMode) {
@@ -359,6 +490,9 @@ app.get('/api/qr', c => {
       streamClosed = true;
       const duration = Date.now() - startTime;
       logger.debug(sessionId, 'SSE流关闭', { duration: `${duration}ms` });
+
+      // 从客户端管理器中移除会话
+      clientManager.removeSession(sessionId, 'SSE流中断');
     });
 
     // 断线重连时的 key
@@ -404,6 +538,9 @@ app.get('/api/qr', c => {
       for (let i = 0; i < 100 && !streamClosed; i++) {
         const pollStartTime = Date.now();
 
+        // 更新会话活跃时间
+        clientManager.updateActivity(sessionId);
+
         try {
           const result = await qr.poll();
           const pollDuration = Date.now() - pollStartTime;
@@ -427,12 +564,18 @@ app.get('/api/qr', c => {
 
           if (!keepPollQrResultCode.has(result.code)) {
             const totalDuration = Date.now() - startTime;
+            const reason = result.code === 0 ? '登录成功' : '登录失败或过期';
+
             logger.important(sessionId, '轮询结束', {
-              reason: result.code === 0 ? '登录成功' : '登录失败或过期',
+              reason,
               status: getQrStatusDescription(result.code),
               totalDuration: `${totalDuration}ms`,
               pollCount: i + 1,
             });
+
+            // 移除会话
+            clientManager.removeSession(sessionId, reason);
+
             await stream.writeSSE({ data: '', event: SSEEvent.END });
             await stream.close();
             return;
@@ -455,6 +598,9 @@ app.get('/api/qr', c => {
             totalDuration: `${totalDuration}ms`,
             pollCount: i + 1,
           });
+
+          // 移除会话 (注意：可能已经在stream.onAbort中移除过了)
+          clientManager.removeSession(sessionId, '用户主动断开');
           return;
         }
       }
@@ -466,6 +612,9 @@ app.get('/api/qr', c => {
           totalDuration: `${totalDuration}ms`,
           maxPolls: 100,
         });
+
+        // 移除会话
+        clientManager.removeSession(sessionId, '轮询超时');
       }
     } catch (error) {
       const totalDuration = Date.now() - startTime;
@@ -474,6 +623,10 @@ app.get('/api/qr', c => {
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       });
+
+      // 移除会话
+      clientManager.removeSession(sessionId, 'SSE流异常');
+
       await stream.writeSSE({ data: String(error), event: SSEEvent.END });
       await stream.close();
       return;
@@ -482,6 +635,8 @@ app.get('/api/qr', c => {
     // 正常结束，不需要额外的日志
     if (!streamClosed) {
       await stream.writeSSE({ data: '服务结束', event: SSEEvent.END });
+      // 移除会话
+      clientManager.removeSession(sessionId, '服务正常结束');
     }
     await stream.close();
   });
