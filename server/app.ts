@@ -51,35 +51,40 @@ const getQrStatusDescription = (code: number): string => {
 // 添加日志工具函数
 const isDebugMode = process.env.DEBUG === '1' || process.env.DEBUG === 'true';
 
+// 格式化会话ID显示
+const formatSessionId = (sessionId: number): string => {
+  return `Client#${sessionId}`;
+};
+
 const logger = {
   // 调试信息 - 仅在DEBUG模式下显示
   debug: (sessionId: number, message: string, data?: any) => {
     if (isDebugMode) {
       const timestamp = new Date().toISOString();
-      console.log(`[${timestamp}] [${sessionId}] DEBUG: ${message}`, data ? JSON.stringify(data) : '');
+      console.log(`[${timestamp}] [${formatSessionId(sessionId)}] DEBUG: ${message}`, data ? JSON.stringify(data) : '');
     }
   },
   // 一般信息 - 仅在DEBUG模式下显示
   info: (sessionId: number, message: string, data?: any) => {
     if (isDebugMode) {
       const timestamp = new Date().toISOString();
-      console.log(`[${timestamp}] [${sessionId}] INFO: ${message}`, data ? JSON.stringify(data) : '');
+      console.log(`[${timestamp}] [${formatSessionId(sessionId)}] INFO: ${message}`, data ? JSON.stringify(data) : '');
     }
   },
   // 重要信息 - 始终显示
   important: (sessionId: number, message: string, data?: any) => {
     const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [${sessionId}] INFO: ${message}`, data ? JSON.stringify(data) : '');
+    console.log(`[${timestamp}] [${formatSessionId(sessionId)}] INFO: ${message}`, data ? JSON.stringify(data) : '');
   },
   // 错误信息 - 始终显示
   error: (sessionId: number, message: string, error?: any) => {
     const timestamp = new Date().toISOString();
-    console.error(`[${timestamp}] [${sessionId}] ERROR: ${message}`, error);
+    console.error(`[${timestamp}] [${formatSessionId(sessionId)}] ERROR: ${message}`, error);
   },
   // 警告信息 - 始终显示
   warn: (sessionId: number, message: string, data?: any) => {
     const timestamp = new Date().toISOString();
-    console.warn(`[${timestamp}] [${sessionId}] WARN: ${message}`, data ? JSON.stringify(data) : '');
+    console.warn(`[${timestamp}] [${formatSessionId(sessionId)}] WARN: ${message}`, data ? JSON.stringify(data) : '');
   },
 };
 
@@ -208,6 +213,15 @@ app.post('/api/convert', async c => {
 
 // 获取真实客户端IP的函数
 const getRealClientIP = (c: { req: { header: (name: string) => string | undefined } }): string => {
+  // 在开发环境下，优先尝试获取实际的连接IP
+  if (process.env.NODE_ENV === 'development') {
+    // 开发环境下，如果是本地访问，显示localhost而不是unknown
+    const remoteAddr = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'localhost';
+    if (remoteAddr === 'localhost' || remoteAddr.includes('127.0.0.1') || remoteAddr.includes('::1')) {
+      return 'localhost';
+    }
+  }
+
   // 检查各种代理头部，按优先级排序
   const headers = [
     'CF-Connecting-IP', // Cloudflare
@@ -266,10 +280,16 @@ const isValidIP = (ip: string): boolean => {
   // IPv6 正则（简化版）
   const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$/;
 
-  // 排除内网IP和特殊IP
+  // 在生产环境中排除内网IP和特殊IP
   if (ipv4Regex.test(cleanIP)) {
     const parts = cleanIP.split('.').map(Number);
-    // 排除内网IP: 10.x.x.x, 172.16.x.x-172.31.x.x, 192.168.x.x, 127.x.x.x
+
+    // 开发环境下不排除内网IP，让所有有效IP格式都通过
+    if (process.env.NODE_ENV === 'development') {
+      return true;
+    }
+
+    // 生产环境排除内网IP: 10.x.x.x, 172.16.x.x-172.31.x.x, 192.168.x.x, 127.x.x.x
     if (
       parts[0] === 10 ||
       parts[0] === 127 ||
