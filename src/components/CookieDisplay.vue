@@ -270,7 +270,7 @@ const convert = async () => {
       background-color: var(--bilibili-pink);
 
       &:hover {
-        background-color: darken(#fb7299, 5%);
+        filter: brightness(1.1);
       }
     }
 
@@ -278,7 +278,7 @@ const convert = async () => {
       background-color: var(--bilibili-blue);
 
       &:hover {
-        background-color: darken(#00a1d6, 5%);
+        filter: brightness(1.1);
       }
     }
 
@@ -286,7 +286,7 @@ const convert = async () => {
       background-color: var(--success);
 
       &:hover {
-        background-color: darken(#44c285, 5%);
+        filter: brightness(1.1);
       }
     }
   }
@@ -302,8 +302,8 @@ const convert = async () => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
+    background-color: var(--loading-bg);
+    color: var(--text-primary);
     padding: var(--spacing-xs) var(--spacing-md);
     border-radius: var(--radius-md);
     display: flex;
@@ -324,7 +324,7 @@ const convert = async () => {
   &__copy-icon {
     width: 16px;
     height: 16px;
-    color: white;
+    color: var(--text-primary);
   }
 
   &__pre {
@@ -358,11 +358,11 @@ const convert = async () => {
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.02);
+      background: var(--overlay-mask);
     }
 
     &--result {
-      background-color: rgba(0, 161, 214, 0.02);
+      background-color: var(--bilibili-pink-light);
       cursor: text;
     }
   }

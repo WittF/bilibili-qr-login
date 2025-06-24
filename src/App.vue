@@ -87,8 +87,8 @@ const qrCodeOption: QRCodeRenderersOptions = {
   margin: 0,
   width: 196,
   color: {
-    dark: '#18191C',
-    light: '#FFFFFF',
+    dark: 'var(--text-primary)',
+    light: 'var(--card-background)',
   },
 };
 
@@ -582,55 +582,43 @@ onBeforeUnmount(stop);
 .github-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: var(--spacing-xs);
   color: var(--text-tertiary);
   text-decoration: none;
-  font-size: 0.85rem;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
-  border: 1px solid var(--divider);
-  background-color: var(--card-background);
-  box-shadow: var(--shadow-sm);
-  min-width: fit-content;
-  min-height: auto;
-  position: relative;
-  overflow: visible;
+  font-size: 0.9rem;
+  font-weight: 500;
 
   &:hover {
-    color: var(--bilibili-pink);
-    background-color: rgba(251, 114, 153, 0.08);
-    border-color: rgba(251, 114, 153, 0.3);
+    color: var(--bilibili-blue);
+    background-color: var(--bilibili-pink-light);
+    border-color: var(--bilibili-pink-border);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(251, 114, 153, 0.15);
+    box-shadow: var(--bilibili-pink-medium);
   }
 }
 
 .github-icon {
   width: 16px;
   height: 16px;
-  flex-shrink: 0;
-  display: block;
   fill: currentColor;
-  overflow: visible;
-  vertical-align: middle;
 }
 
 .github-text {
-  font-weight: 500;
   letter-spacing: 0.5px;
-  white-space: nowrap;
 }
 
-// 暗色主题下的特殊处理
-[data-theme='dark'] .github-link {
-  border-color: var(--divider);
-
-  &:hover {
-    background-color: rgba(255, 126, 185, 0.12);
-    border-color: rgba(255, 126, 185, 0.4);
-    box-shadow: 0 2px 8px rgba(255, 126, 185, 0.2);
+// 暗色主题下的github链接
+[data-theme='dark'] {
+  .github-link {
+    &:hover {
+      color: var(--bilibili-blue);
+      background-color: var(--bilibili-pink-light);
+      border-color: var(--bilibili-pink-border);
+      box-shadow: var(--bilibili-pink-medium);
+    }
   }
 }
 </style>

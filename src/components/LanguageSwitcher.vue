@@ -114,12 +114,11 @@ onUnmounted(() => {
     min-width: 100px;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
+      background-color: var(--overlay-light);
     }
 
     &--open {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: var(--overlay-light);
       color: var(--text-primary);
     }
   }
@@ -176,8 +175,8 @@ onUnmounted(() => {
     }
 
     &--active {
-      background-color: rgba(251, 114, 153, 0.1);
-      color: var(--bilibili-pink);
+      background-color: var(--overlay-light);
+      color: var(--text-primary);
       font-weight: 500;
     }
   }
@@ -209,11 +208,11 @@ onUnmounted(() => {
 [data-theme='dark'] .language-switcher {
   &__current {
     &:hover {
-      background-color: rgba(0, 0, 0, 0.3);
+      background-color: var(--overlay-dark);
     }
 
     &--open {
-      background-color: rgba(0, 0, 0, 0.3);
+      background-color: var(--overlay-dark);
     }
   }
 }

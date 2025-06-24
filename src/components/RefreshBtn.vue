@@ -8,24 +8,31 @@ import RefreshIcon from '../assets/icons/refresh.svg';
 
 <style scoped lang="less">
 .refresh-btn {
-  width: 36px;
-  height: 36px;
-  background-color: var(--card-background);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
   border-radius: var(--radius-round);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  color: var(--bilibili-blue);
-  transition: all 0.3s ease;
-  transform-origin: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  user-select: none;
+
+  // 使用统一的半透明变量
+  background-color: var(--overlay-light);
+  border: 1px solid var(--overlay-medium);
 
   &:hover {
+    transform: translateY(-2px);
+    background-color: var(--overlay-medium);
+    border-color: var(--overlay-strong);
     box-shadow: var(--shadow-md);
-    transform: scale(1.05);
   }
 
   &:active {
-    color: var(--bilibili-pink);
-    transform: scale(0.95) rotate(30deg);
+    background-color: var(--overlay-strong);
   }
 
   svg {

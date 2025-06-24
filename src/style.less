@@ -22,6 +22,20 @@
   --loading-bg: #e0e0e0;
   --hover-background: #f0f0f0;
 
+  // 统一的半透明变量
+  --overlay-light: rgba(255, 255, 255, 0.1);
+  --overlay-medium: rgba(255, 255, 255, 0.15);
+  --overlay-strong: rgba(255, 255, 255, 0.2);
+  --overlay-mask: rgba(0, 0, 0, 0.05);
+  --overlay-mask-hover: rgba(0, 0, 0, 0.08);
+  --overlay-mask-active: rgba(0, 0, 0, 0.1);
+  --overlay-dark: rgba(0, 0, 0, 0.3);
+
+  // 品牌色半透明变量
+  --bilibili-pink-light: rgba(251, 114, 153, 0.08);
+  --bilibili-pink-medium: rgba(251, 114, 153, 0.15);
+  --bilibili-pink-border: rgba(251, 114, 153, 0.3);
+
   // 间距
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -57,6 +71,20 @@
   --qr-mask-bg: rgba(26, 27, 31, 0.9);
   --loading-bg: #3a3b3f;
   --hover-background: #24252a;
+
+  // 暗色主题的半透明变量
+  --overlay-light: rgba(255, 255, 255, 0.08);
+  --overlay-medium: rgba(255, 255, 255, 0.12);
+  --overlay-strong: rgba(255, 255, 255, 0.16);
+  --overlay-mask: rgba(255, 255, 255, 0.05);
+  --overlay-mask-hover: rgba(255, 255, 255, 0.08);
+  --overlay-mask-active: rgba(255, 255, 255, 0.12);
+  --overlay-dark: rgba(255, 255, 255, 0.15);
+
+  // 暗色主题的品牌色半透明变量
+  --bilibili-pink-light: rgba(255, 126, 185, 0.12);
+  --bilibili-pink-medium: rgba(255, 126, 185, 0.2);
+  --bilibili-pink-border: rgba(255, 126, 185, 0.4);
 
   // 阴影 - 暗色主题
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -141,7 +169,7 @@ body {
   }
 
   &:hover::after {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--overlay-mask-hover);
   }
 
   &:active {
@@ -149,18 +177,18 @@ body {
   }
 
   &:active::after {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--overlay-mask-active);
   }
 }
 
 // 暗色主题下的按钮悬停效果
 [data-theme='dark'] .btn {
   &:hover::after {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--overlay-mask-hover);
   }
 
   &:active::after {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--overlay-mask-active);
   }
 }
 

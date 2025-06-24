@@ -35,7 +35,7 @@
     width: 38px;
     height: 38px;
     border-radius: var(--radius-round);
-    background-color: white;
+    background-color: var(--card-background);
   }
 }
 
