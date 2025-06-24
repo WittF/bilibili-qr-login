@@ -226,6 +226,8 @@ const convert = async () => {
     cursor: pointer;
     transition: all 0.2s ease;
     min-width: 64px;
+    height: 32px;
+    line-height: 1;
     justify-content: center;
 
     &:hover {
@@ -271,6 +273,7 @@ const convert = async () => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    align-self: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -311,6 +314,7 @@ const convert = async () => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    align-self: center;
     display: flex;
     align-items: center;
     justify-content: center;

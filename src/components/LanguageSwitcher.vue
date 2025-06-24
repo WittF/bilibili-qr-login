@@ -80,7 +80,9 @@ onUnmounted(() => {
     transition: all 0.2s ease;
     color: var(--text-secondary);
     font-size: 0.9rem;
+    line-height: 1;
     min-width: 100px;
+    height: 32px;
 
     &:hover {
       background-color: var(--overlay-light);
@@ -97,6 +99,7 @@ onUnmounted(() => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    align-self: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -111,6 +114,9 @@ onUnmounted(() => {
   &__label {
     flex: 1;
     font-weight: 500;
+    line-height: 1;
+    display: flex;
+    align-items: center;
   }
 
   &__arrow {
@@ -118,10 +124,11 @@ onUnmounted(() => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    align-self: center;
+    transition: transform 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease;
 
     svg {
       width: 16px !important;
@@ -158,6 +165,8 @@ onUnmounted(() => {
     cursor: pointer;
     transition: background-color 0.2s ease;
     font-size: 0.9rem;
+    line-height: 1;
+    height: 36px;
 
     &:hover {
       background-color: var(--background);
@@ -172,6 +181,9 @@ onUnmounted(() => {
 
   &__option-name {
     flex: 1;
+    line-height: 1;
+    display: flex;
+    align-items: center;
   }
 
   &__check {
@@ -179,6 +191,7 @@ onUnmounted(() => {
     flex-shrink: 0;
     width: 16px;
     height: 16px;
+    align-self: center;
     display: flex;
     align-items: center;
     justify-content: center;
