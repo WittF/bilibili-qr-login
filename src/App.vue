@@ -72,6 +72,7 @@ import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
 import { PARAM_MODE } from './utils/const';
 import { themeManager } from './utils/theme';
+import './utils/themeDebug'; // 导入主题调试器
 import type { QRCodeRenderersOptions } from 'qrcode';
 
 const { t, updatePageTitle } = useI18n();
@@ -79,7 +80,9 @@ const { t, updatePageTitle } = useI18n();
 // 初始化页面标题和主题
 onMounted(() => {
   updatePageTitle();
-  // 主题管理器会自动初始化并应用主题
+  // 确保主题管理器正确初始化
+  console.log('🚀 App.vue 组件挂载完成，触发主题管理器初始化');
+  themeManager.reinitialize();
 });
 
 const qrCodeOption: QRCodeRenderersOptions = {
