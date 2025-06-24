@@ -344,22 +344,32 @@ onUnmounted(() => {
 // 暗色主题下的特殊样式
 [data-theme='dark'] .language-switcher {
   &__current {
+    color: var(--text-secondary);
+
     &:hover {
       background-color: var(--overlay-dark);
+      color: var(--text-primary);
     }
 
     &--open {
       background-color: var(--overlay-dark);
+      color: var(--text-primary);
     }
   }
 
   &__option {
+    color: var(--text-primary);
+
     &:hover {
       background-color: var(--overlay-dark);
     }
 
     &:focus {
       background-color: var(--overlay-dark);
+    }
+
+    &--active {
+      color: var(--text-primary);
     }
   }
 }

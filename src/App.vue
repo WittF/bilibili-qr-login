@@ -17,7 +17,7 @@
             <transition name="fade" mode="out-in">
               <QrCode v-if="state.url" :value="state.url" :options="qrCodeOption" />
               <div v-else class="qrcode__placeholder">
-                <div class="qrcode__loading-animation"></div>
+                <!-- 移除无用的加载动画 -->
               </div>
             </transition>
             <div v-if="state.status !== QrStatus.WAIT" class="qrcode__mask flex">
@@ -260,16 +260,6 @@ onBeforeUnmount(stop);
     background-color: var(--qr-placeholder-bg);
     border-radius: 4px;
     transition: background-color 0.3s ease;
-  }
-
-  &__loading-animation {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 3px solid var(--loading-bg);
-    border-top-color: var(--bilibili-blue);
-    animation: spin 1s ease-in-out infinite;
-    transition: all 0.3s ease;
   }
 
   &__actions {
