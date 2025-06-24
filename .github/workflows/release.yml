@@ -14,6 +14,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+      id-token: write
 
     steps:
       - name: Checkout
@@ -31,32 +32,16 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Install conventional-changelog-cli
-        run: yarn add --dev conventional-changelog-cli
-
-      - name: Generate changelog
-        run: |
-          npx conventional-changelog -p angular -i CHANGELOG.md -s
-          
-      - name: Commit updated changelog
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add CHANGELOG.md
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "docs: update changelog for ${{ github.ref_name }}"
-            git push origin HEAD:main
-          fi
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          semantic_version: 22
+          extra_plugins: |
+            @semantic-release/commit-analyzer@11
+            @semantic-release/release-notes-generator@12
+            @semantic-release/changelog@6
+            @semantic-release/git@10
+            @semantic-release/github@9
+            conventional-changelog-conventionalcommits@7 
