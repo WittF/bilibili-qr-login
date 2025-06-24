@@ -617,7 +617,7 @@ onBeforeUnmount(stop);
 
     &:hover {
       color: var(--bilibili-pink);
-      background-color: var(--bilibili-pink-light);
+      background-color: var(--overlay-dark);
       border-color: var(--bilibili-pink-border);
       box-shadow: var(--bilibili-pink-medium);
     }
