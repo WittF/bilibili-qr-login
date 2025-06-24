@@ -128,8 +128,6 @@ class QrSSE {
           'color: #10b981; font-weight: bold;',
           `\n✅ ${validation.message}`,
         );
-        // 同时记录到统一日志系统
-        loggers.qrSSE.important('Cookie验证通过', { message: validation.message });
         break;
 
       case 'failed':
@@ -139,11 +137,6 @@ class QrSSE {
           `\n⚠️ ${validation.message}`,
           validation.details ? `\n📝 ${validation.details}` : '',
         );
-        // 同时记录到统一日志系统
-        loggers.qrSSE.warn('Cookie验证未通过', {
-          message: validation.message,
-          details: validation.details,
-        });
         break;
 
       case 'error':
@@ -153,11 +146,6 @@ class QrSSE {
           `\n❌ ${validation.message}`,
           validation.details ? `\n📝 ${validation.details}` : '',
         );
-        // 同时记录到统一日志系统
-        loggers.qrSSE.error('Cookie验证异常', {
-          message: validation.message,
-          details: validation.details,
-        });
         break;
     }
   }
