@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.1.1](https://github.com/WittF/bilibili-qr-login/compare/v1.1.0...v1.1.1) (2025-06-25)
+
+
+### 👷 CI/CD
+
+* 优化发版工作流，仅在main分支触发，支持dev分支开发 ([46aff84](https://github.com/WittF/bilibili-qr-login/commit/46aff84232e5149d0615238a74bf439033710f99))
+
 ## [1.1.0](https://github.com/WittF/bilibili-qr-login/compare/v1.0.1...v1.1.0) (2025-06-25)
 
 
