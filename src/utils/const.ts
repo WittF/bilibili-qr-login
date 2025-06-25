@@ -33,11 +33,17 @@ if (PARAM_MODE) {
 }
 
 // 记录环境配置
-loggers.app.info('常量配置加载完成', {
+const trustOriginStatus = TRUST_ALL_ORIGIN
+  ? '允许所有域名'
+  : trustOrigins.length > 0
+    ? `仅允许: ${trustOrigins.join(', ')}`
+    : '仅允许当前域名';
+
+loggers.app.important('应用配置加载完成', {
   mode: PARAM_MODE || 'standard',
-  trustAllOrigin: TRUST_ALL_ORIGIN,
-  trustedOriginsCount: trustOrigins.length,
-  trustOriginConfig: __TRUST_ORIGIN__,
+  environment: import.meta.env.MODE,
   isDev: import.meta.env.DEV,
-  envMode: import.meta.env.MODE,
+  trustOriginPolicy: trustOriginStatus,
+  trustedOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins.length > 0 ? trustOrigins : [window.location.origin],
+  version: APP_VERSION,
 });

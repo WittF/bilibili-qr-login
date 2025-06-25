@@ -25,7 +25,7 @@ serve(
       console.log('💡 详细日志已开启，包含所有请求和响应信息');
     }
     console.log('💡 请访问前端页面: http://localhost:5173');
-    console.log('💡 API测试: http://localhost:3000/api/qr');
+    console.log('💡 API测试: http://localhost:5173/api/qr');
     console.log('💡 按 Ctrl+C 停止服务');
     console.log('='.repeat(50) + '\n');
   },

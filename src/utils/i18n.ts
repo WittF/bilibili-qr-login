@@ -50,10 +50,15 @@ interface TranslationTexts {
     refreshQR: string;
   };
 
+  // 安全文本
+  security: {
+    embedNotice: string;
+  };
+
   // HTML Meta 信息
   meta: {
     description: string;
-    devDescription: string;
+    devDescription?: string;
   };
 }
 
@@ -95,6 +100,9 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
     common: {
       viewSource: '查看源码',
       refreshQR: '刷新二维码',
+    },
+    security: {
+      embedNotice: '登录信息将发送至',
     },
     meta: {
       description: '哔哩哔哩二维码登录工具 - 使用手机APP扫码快速登录哔哩哔哩，安全获取Cookie信息',
@@ -139,6 +147,9 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       viewSource: '查看源碼',
       refreshQR: '重新整理二維碼',
     },
+    security: {
+      embedNotice: '登入資訊將發送至',
+    },
     meta: {
       description: 'bilibili 二維碼登入工具 - 使用手機APP掃碼快速登入bilibili，安全取得Cookie資訊',
       devDescription: 'bilibili 二維碼登入工具開發版 - 開發測試專用頁面',
@@ -181,6 +192,9 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
     common: {
       viewSource: 'View Source',
       refreshQR: 'Refresh QR Code',
+    },
+    security: {
+      embedNotice: 'Login info will be sent to',
     },
     meta: {
       description:
@@ -225,6 +239,9 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
     common: {
       viewSource: 'ソースコードを見る',
       refreshQR: 'QRコードを更新',
+    },
+    security: {
+      embedNotice: 'ログイン情報の送信先',
     },
     meta: {
       description:

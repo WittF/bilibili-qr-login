@@ -70,43 +70,13 @@ docker run -d \
 
 ---
 
-## 🔗 嵌入模式集成
+## 🔌 集成与API
 
-本工具支持通过iframe或弹窗的方式嵌入到其他网站中，实现无缝的登录体验。
+支持嵌入式登录集成和Cookie JSON转换功能：
 
-### 功能特性
+- **🖼️ 嵌入集成** - 支持iframe/window模式，postMessage通信
+- **🔄 JSON转换** - Cookie转换为TinyDB格式，RESTful API调用
+- **⚙️ 访问控制** - 支持通过 `TRUST_ORIGIN` 环境变量控制授权域名
+- **🔒 安全可靠** - 内置验证和错误处理，嵌入时显示Cookie发送目标
 
-- 🪟 **Window模式**：在新窗口中打开登录页面
-- 🖼️ **iframe模式**：在当前页面内嵌iframe登录
-- 📡 **postMessage通信**：通过标准的postMessage API传递登录结果
-- 🔒 **安全防护**：内置origin验证，防止跨域攻击
-
-完整的集成指南、Vue/React示例、安全配置等，请查看：
-
-📖 **[嵌入模式集成指南](./docs/INTEGRATION.md)**
-
-## 🔌 JSON转换API
-
-本工具提供独立的JSON转换API，支持将B站Cookie转换为TinyDB格式的JSON数据。
-
-### API特性
-
-- 🚀 **RESTful接口**：标准的HTTP POST API
-- 🧠 **智能转换**：自动域名推测和安全属性设置
-- 📁 **标准格式**：输出符合TinyDB标准的JSON格式
-- 🔒 **安全可靠**：完善的输入验证和错误处理
-
-### 快速示例
-
-```bash
-# API调用示例
-curl -X POST https://login.bilibili.bi/api/convert \
-  -H "Content-Type: application/json" \
-  -d '{"cookies": "SESSDATA=xxx; bili_jct=yyy; DedeUserID=zzz"}'
-```
-
-完整的API文档、多语言示例代码、在线测试工具，请查看：
-
-🔄 **[JSON转换API文档](./docs/INTEGRATION.md#json转换api)** | 🧪 **[在线API测试](./demo/json-convert-example.html)**
-
----
+📖 **[Demo示例](./demo/example.html)** | 📚 **[API文档](./demo/API.md)**
