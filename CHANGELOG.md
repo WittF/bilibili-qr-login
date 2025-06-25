@@ -5,6 +5,113 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.1.0](https://github.com/WittF/bilibili-qr-login/compare/v1.0.1...v1.1.0) (2025-06-25)
+
+
+### ✨ 新功能
+
+* **icons:** 优化成功图标清晰度，添加暗色主题自适应 ([2a34f8a](https://github.com/WittF/bilibili-qr-login/commit/2a34f8a20e4b6a3f2fd6da2399571b5636536be4))
+* **icons:** 添加白色刷新图标，支持暗色主题自适应 ([84737a8](https://github.com/WittF/bilibili-qr-login/commit/84737a859378bb7ceb84f2e43a01e4aecd28d259))
+* **iframe-window:** 完善iframe/window模式日志系统 ([ceafc46](https://github.com/WittF/bilibili-qr-login/commit/ceafc46eafeb8b2b935b77be10d86b638fdc3698))
+* **logger:** 使用系统时间并优化i18n按钮可访问性 ([ab7ac17](https://github.com/WittF/bilibili-qr-login/commit/ab7ac1784864b2f11c72788814c4a1d465eb6eb0))
+* **logger:** 统一前端日志系统 ([3d60abc](https://github.com/WittF/bilibili-qr-login/commit/3d60abc0fd6ec4ef83757e7d38e3405790ea31ec))
+* **qr-sse:** 优化SSE重连机制和超时处理 ([adc0abd](https://github.com/WittF/bilibili-qr-login/commit/adc0abdbe6b9a71a27887404f6bf818a62642c0f))
+* **server:** 添加在线客户端统计系统 ([b796bef](https://github.com/WittF/bilibili-qr-login/commit/b796bef4bbca2f6a9d880d7fb8c910a88048ad20))
+* **theme:** 实现自动明暗主题切换系统 ([992ee0e](https://github.com/WittF/bilibili-qr-login/commit/992ee0efc5ff4942ac2218fd10fb5e27f23f95c9))
+* **theme:** 添加URL参数支持和简化i18n按钮样式 ([2ba1519](https://github.com/WittF/bilibili-qr-login/commit/2ba151987add95137d98d2a6216687d3791bb02b))
+* **ui:** 为所有文本切换添加平滑过渡动画 ([3b5d9cb](https://github.com/WittF/bilibili-qr-login/commit/3b5d9cbd6abaa747bd74eabb4a00ddfa07ea310f))
+* **ui:** 为按钮添加固定宽度和平滑过渡动画防止布局跳动 ([b7d6ed0](https://github.com/WittF/bilibili-qr-login/commit/b7d6ed0b58aeb5bad09f2dd4c6312fc938bc91c9))
+* **ui:** 为按钮添加自适应宽度和平滑过渡动画 ([93719c7](https://github.com/WittF/bilibili-qr-login/commit/93719c7a0a9f6b47903416f4ec9608b8c5ef9ddc))
+* **ui:** 优化QR码动画效果和过期模糊度 ([b2ecc3c](https://github.com/WittF/bilibili-qr-login/commit/b2ecc3cf89e58cc5e4d88cf82d8f96c381a486e6))
+* **ui:** 优化全局聚焦效果，实现渐入渐出动画 ([f06e8f8](https://github.com/WittF/bilibili-qr-login/commit/f06e8f80810f1816548a98d54b45c73a47fd6a76))
+* **ui:** 增强边框图标阴影的平滑过渡效果 ([042d3c7](https://github.com/WittF/bilibili-qr-login/commit/042d3c7c6884d677755689fd6a706e8ea0de3007))
+* **ui:** 极致丝滑聚焦体验优化，智能残留状态清除 ([e600a48](https://github.com/WittF/bilibili-qr-login/commit/e600a48d6952f019804b8f301b5a6fe35f49b2ae))
+* **ui:** 添加文本切换动画防止布局跳动 ([cb156f8](https://github.com/WittF/bilibili-qr-login/commit/cb156f834299d66e5a117dfe268e3cf9409363c6))
+* **ui:** 重构转换结果卡片，增强视觉效果和用户体验 ([af9994c](https://github.com/WittF/bilibili-qr-login/commit/af9994cc02374bea534297cbcb5dbf9478ddd0e7))
+* 触发semantic-release自动发版 ([f96538b](https://github.com/WittF/bilibili-qr-login/commit/f96538b2429fe6d7146517481e45c40e05f8b837))
+
+
+### 🐛 Bug修复
+
+* **css:** 修复过期状态刷新按钮CSS语法错误 ([a7122e6](https://github.com/WittF/bilibili-qr-login/commit/a7122e6ce58fd45ce981d2115820a1bd5976661f))
+* **css:** 移除多余的CSS括号，修复语法错误 ([16653b3](https://github.com/WittF/bilibili-qr-login/commit/16653b34e1a6cc4d91efe705db42939cb0aaa95e))
+* **logger:** 前端日志系统解耦开发模式和调试模式 ([79544fd](https://github.com/WittF/bilibili-qr-login/commit/79544fd3c5d49b0d87206380ffef2be8d615d038))
+* **logger:** 移除重复日志，保留Cookie验证特殊样式 ([1483f74](https://github.com/WittF/bilibili-qr-login/commit/1483f7414cdcee606d0ee894aad50d2f8ec2dd0b))
+* **log:** 统一日志风格和网络错误检测 ([dee6705](https://github.com/WittF/bilibili-qr-login/commit/dee67050aaed3b7abb0d2ccf0a09f338f4f205b2))
+* **network:** 优化网络错误处理和日志 ([ae25dcf](https://github.com/WittF/bilibili-qr-login/commit/ae25dcf69d28ae70c61e4bd4423e1c8e69baa98e))
+* **qr:** 恢复QR码硬编码颜色，确保扫描兼容性 ([3ee1e48](https://github.com/WittF/bilibili-qr-login/commit/3ee1e48e9e0a3d19f5b168eee56c6233aa4a234d))
+* **server:** 优化IP获取和会话ID显示格式 ([740d3c5](https://github.com/WittF/bilibili-qr-login/commit/740d3c5a71de1916b1797c031e8869ec83f24601))
+* **theme:** 修复URL参数主题切换并添加调试工具 ([7c577eb](https://github.com/WittF/bilibili-qr-login/commit/7c577eb14cb10a73fcc47836e8413dea9ae893b7))
+* **ui:** 优化载入动画，删除强制滚动条，避免页面跳动 ([572a968](https://github.com/WittF/bilibili-qr-login/commit/572a9687964057c0ee9f7c805a2c413bc31fc473))
+* **ui:** 使用flex居中完全解决SVG图标垂直对齐问题 ([31f5cfb](https://github.com/WittF/bilibili-qr-login/commit/31f5cfbc5c6984cd0e147d20d68cb1771d41faf4))
+* **ui:** 使用vertical-align:middle正确修复SVG图标垂直居中问题 ([61cb614](https://github.com/WittF/bilibili-qr-login/commit/61cb6149d9622eb993ea9e9f4c5b56f035b6d6e1))
+* **ui:** 修复CheckIcon定位问题，防止左上角显示调试信息 ([0fd9210](https://github.com/WittF/bilibili-qr-login/commit/0fd9210b4c16a67e2ab1f98f90f2e5a38b2df589))
+* **ui:** 修复SVG图标垂直对齐问题，确保与文本完美水平对齐 ([4ca9fc9](https://github.com/WittF/bilibili-qr-login/commit/4ca9fc90f257dc580429ccb44df66a927e043f16))
+* **ui:** 修复SVG图标垂直居中问题 ([6e503e2](https://github.com/WittF/bilibili-qr-login/commit/6e503e218d8ae3dad02f3421bdd7ec8182c5df19))
+* **ui:** 修复SVG图标垂直居中问题 - 使用flex布局和固定高度消除基线影响 ([b1010c9](https://github.com/WittF/bilibili-qr-login/commit/b1010c99230f25fd433e179989a2db6d8c9dcac7))
+* **ui:** 修复SVG图标缩放问题，正确显示check图标内容 ([00c84ca](https://github.com/WittF/bilibili-qr-login/commit/00c84cac2f87db9f28adba1e6ec134e9a260d753))
+* **ui:** 修复成功图标显示位置，从左上角移至居中 ([ca2845e](https://github.com/WittF/bilibili-qr-login/commit/ca2845e0d9e6b2db474cf59bfd324b073eb9e864))
+* **ui:** 修复暗色模式下刷新按钮配色问题 ([84b58d1](https://github.com/WittF/bilibili-qr-login/commit/84b58d10867c87d4e40a495781c986c0acfd6678))
+* **ui:** 修复查看源码按钮和语言切换器聚焦效果 ([57c1eda](https://github.com/WittF/bilibili-qr-login/commit/57c1eda08ea30456146da9719e15af241e30b148))
+* **ui:** 修复简体中文激活状态下tab聚焦框不显示问题 ([92d400d](https://github.com/WittF/bilibili-qr-login/commit/92d400d0f9e8f0a700fb48f46ff9154bd556f6b5))
+* **ui:** 修复聚焦模糊和边框溢出问题，优化聚焦清晰度 ([645f30d](https://github.com/WittF/bilibili-qr-login/commit/645f30d95c7a3ce0338dba8819e195b745282340))
+* **ui:** 删除无用蓝色加载动画并修复i18n按钮暗色模式配色 ([93a33dd](https://github.com/WittF/bilibili-qr-login/commit/93a33dd48a4e6e87d430e8f8fecb44ce39f9be1e))
+* **ui:** 增强QR码过期模糊效果，优化刷新按钮暗色主题配色 ([ce37d56](https://github.com/WittF/bilibili-qr-login/commit/ce37d56c5e512da66409f3972bdbb4f8d7971dc7))
+* **ui:** 完全统一GitHub按钮与I18n按钮的配色体系 ([4b31549](https://github.com/WittF/bilibili-qr-login/commit/4b315499dcf22436284391aec1fe6fbc35ae7574))
+* **ui:** 完善RefreshBtn统一配色系统 ([ac67b42](https://github.com/WittF/bilibili-qr-login/commit/ac67b420fd6fc4b61e5d81572c71f8c2b367b2d6))
+* **ui:** 完善暗色主题下GitHub按钮边框显示 ([d26d717](https://github.com/WittF/bilibili-qr-login/commit/d26d71703337477e74a383f50fd4f59c0c2b1e6d))
+* **ui:** 强制修复成功图标居中定位，使用!important确保样式优先级 ([13d5bc1](https://github.com/WittF/bilibili-qr-login/commit/13d5bc15cd047ac7522529dde56a8cb43eaee12b))
+* **ui:** 强制显示垂直滚动条，避免页面跳动 ([945c463](https://github.com/WittF/bilibili-qr-login/commit/945c463cdbd6381d6fd0b7298eef41520ee588ee))
+* **ui:** 彻底修复成功图标居中显示问题 ([8516453](https://github.com/WittF/bilibili-qr-login/commit/851645357fc3837b33e3e18203896d367e692d81))
+* **ui:** 恢复GitHub按钮的边框和背景样式 ([7dda699](https://github.com/WittF/bilibili-qr-login/commit/7dda6993eedf8f03aaabb57f6b9dbd646a8b4b65))
+* **ui:** 恢复语言切换按钮半透明样式 ([ebe140a](https://github.com/WittF/bilibili-qr-login/commit/ebe140a33281d2a29165f31f8cd040918098e409))
+* **ui:** 正确修复SVG图标尺寸和对齐问题，使用容器+内部svg双重控制 ([68102ae](https://github.com/WittF/bilibili-qr-login/commit/68102ae2981f546ddcefe311e9b655c7ba7bdc38))
+* **ui:** 移除RefreshBtn重复样式，统一使用CSS变量 ([88288c1](https://github.com/WittF/bilibili-qr-login/commit/88288c1ea0f26b8ddc72f4ff949bcf53f3be7586))
+* **ui:** 简化载入动画为淡入效果，彻底解决滚动条跳动 ([86d140e](https://github.com/WittF/bilibili-qr-login/commit/86d140e68f74841ea0ecc5656cde590555ea1084))
+* **ui:** 统一GitHub按钮暗色主题配色，与I18n按钮保持一致 ([1023041](https://github.com/WittF/bilibili-qr-login/commit/10230415e0c28a0ba0342b17f555f3ab2f6c491f))
+* **ui:** 补充修复CookieDisplay中copy-icon的垂直居中 ([5e0101d](https://github.com/WittF/bilibili-qr-login/commit/5e0101d89cfa98ab075d65bd9eb09441c11f8ea3))
+* **ui:** 过期状态时刷新按钮始终可见，无需悬停 ([780589d](https://github.com/WittF/bilibili-qr-login/commit/780589d68e34f7abe7ee76d248c6a4c678e4ca13))
+* **ui:** 重构成功图标定位，使用flex布局完美居中 ([900c048](https://github.com/WittF/bilibili-qr-login/commit/900c048edbb994f16c882940654dbf243d829d7f))
+* 修复所有ESLint警告和代码规范问题 ([99d8f13](https://github.com/WittF/bilibili-qr-login/commit/99d8f1325841014d337b9acbb1f06a56a5141842))
+* 修复日志系统 - info级别日志应该始终显示 ([8a3355d](https://github.com/WittF/bilibili-qr-login/commit/8a3355de1f14f404eab5f04334a6af4a5f6d8bff))
+* 修复日志级别配置 - 将重要日志从debug改为info级别 ([29044aa](https://github.com/WittF/bilibili-qr-login/commit/29044aaac748a75645aff1ada1e9b8dc8b7579e6))
+* 修复日志输出undefined问题 - 只在有数据时才传递给console ([20d6345](https://github.com/WittF/bilibili-qr-login/commit/20d6345a456f1aa7adeb57a58f0947ab4e5b4627))
+* 修复构建错误 - 添加缺失的logger.warn方法和修正国际化键 ([39e855f](https://github.com/WittF/bilibili-qr-login/commit/39e855fe726adf921a1c95db751f32b43a022689))
+
+
+### 💄 样式优化
+
+* **cookie:** 优化卡片圆角和背景样式 ([44e24a9](https://github.com/WittF/bilibili-qr-login/commit/44e24a9e3f80ecc2b1d7a7eeb489b9427fd86fd2))
+* **ui:** 恢复GitHub按钮粉色配色，符合品牌调性 ([e007cbc](https://github.com/WittF/bilibili-qr-login/commit/e007cbc597719f3c6b6a98b2df838afc42d7ac57))
+* **ui:** 暗色模式下提亮Github链接颜色显示 ([86c52cc](https://github.com/WittF/bilibili-qr-login/commit/86c52ccf27ec4d7989004a3a65d15a7fb6d17439))
+* **ui:** 移除cookie结果卡片的绿色左边框 ([1c045f5](https://github.com/WittF/bilibili-qr-login/commit/1c045f5f757d23243b09e9cd74a2e6bd424479c7))
+
+
+### ♻️ 代码重构
+
+* **css:** 移除冗余的成功图标样式，由CheckIcon组件自管理 ([d79f74e](https://github.com/WittF/bilibili-qr-login/commit/d79f74e3fd0de49b000e4468dedc87a4f9a04cd2))
+* **theme:** 删除调试工具并优化日志输出 ([8b77dfe](https://github.com/WittF/bilibili-qr-login/commit/8b77dfe17c523cd1838b7589f5790188822e3ba7))
+* **ui:** 简化动画效果 ([48b8423](https://github.com/WittF/bilibili-qr-login/commit/48b8423e5e008de9c9a1df43fc6e9b6d61da22c3))
+* **ui:** 重构cookie转换卡片和按钮，采用简洁清晰的设计风格 ([c29bdd4](https://github.com/WittF/bilibili-qr-login/commit/c29bdd408d230ad4843747f54d8cde3ce9fec229))
+* **ui:** 重构Cookie转换结果卡片，优化UI设计和交互体验 ([df753dc](https://github.com/WittF/bilibili-qr-login/commit/df753dcf2ce19870e12ea422d2b2a96fb2c833e6))
+* 简化项目复杂度，移除过度设计 ([be263f4](https://github.com/WittF/bilibili-qr-login/commit/be263f43d96f75cf0b77b1ae4f9634de9cc05921))
+
+
+### 👷 CI/CD
+
+* 修复semantic-release触发条件，支持main分支push触发 ([3f10f46](https://github.com/WittF/bilibili-qr-login/commit/3f10f4641717ddd9ee7e1c51786b8a5554d00842))
+
+
+### 🔧 其他更改
+
+* **ci:** 更新 GitHub Actions 工作流，替换传统的 changelog 生成步骤为 semantic-release，优化版本管理和发布流程 ([0fc4dee](https://github.com/WittF/bilibili-qr-login/commit/0fc4deeac30852656bdeea3d4470389a9e015d25))
+* 撤销版本号更新，回滚至1.1.0 ([998b021](https://github.com/WittF/bilibili-qr-login/commit/998b021bf06193685071a16c6ea39842ab898dd0))
+* 更新版本号至1.1.1 ([26c2f39](https://github.com/WittF/bilibili-qr-login/commit/26c2f39180f8d0800c5a8dcea2d11d58ce12ecae))
+* 更新版本号至1.1.1 ([2aa87e0](https://github.com/WittF/bilibili-qr-login/commit/2aa87e0c52494dc911a7b8bf4b61b34bfab174b9))
+* 更新版本号至1.1.2 ([9f135d3](https://github.com/WittF/bilibili-qr-login/commit/9f135d35069888aa098669229f9a3da3af06ff5c))
+* 重置版本号为semantic-release全自动管理 ([c1839a0](https://github.com/WittF/bilibili-qr-login/commit/c1839a0eeeb31c32df8e5b976a22346e1ec1bb2d))
+* 重置版本号为semantic-release管理 ([18c3a10](https://github.com/WittF/bilibili-qr-login/commit/18c3a10cf9ceb468d2c4efbe488e27a468741d08))
+
 ## 1.0.0 (2025-06-24)
 
 
