@@ -5,6 +5,24 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.7.0](https://github.com/WittF/bilibili-qr-login/compare/v1.6.0...v1.7.0) (2025-06-25)
+
+
+### ✨ 新功能
+
+* **security:** 增强跨域消息处理和本地环境支持 ([56984d1](https://github.com/WittF/bilibili-qr-login/commit/56984d18d639a7120fcbd6fb2fab4a8bee91a07b))
+
+
+### 🐛 Bug修复
+
+* 修复嵌入模式跨域问题 ([7cbb077](https://github.com/WittF/bilibili-qr-login/commit/7cbb077b6125e97fa5dcb8bf691235b931dea980))
+* 支持file协议CORS访问 ([0618377](https://github.com/WittF/bilibili-qr-login/commit/06183777251e83f028724970b99522cfb7554ef3))
+
+
+### 📚 文档更新
+
+* 完善API文档URL参数说明，简化README结构 ([ab6a0ba](https://github.com/WittF/bilibili-qr-login/commit/ab6a0badb6eb60f5335eb5ead39b5d73dfc850a3))
+
 ## [1.6.0](https://github.com/WittF/bilibili-qr-login/compare/v1.5.0...v1.6.0) (2025-06-25)
 
 
