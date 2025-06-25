@@ -5,6 +5,19 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.6.0](https://github.com/WittF/bilibili-qr-login/compare/v1.5.0...v1.6.0) (2025-06-25)
+
+
+### ✨ 新功能
+
+* **demo:** 精简并优化demo示例页面 ([e44803b](https://github.com/WittF/bilibili-qr-login/commit/e44803b8f6ba33aa0fcdda452d88d50250c0cea6))
+* **security:** 增强跨域安全机制和用户隐私保护 ([8bf3678](https://github.com/WittF/bilibili-qr-login/commit/8bf367897b6393dcda6d1ee33717b0d76fc6453b))
+
+
+### 📚 文档更新
+
+* 简化README安全配置说明，详细信息移至API文档 ([dc5af9b](https://github.com/WittF/bilibili-qr-login/commit/dc5af9b4c05e5f8c86b2570d81d1ac276ef03f5e))
+
 ## [1.5.0](https://github.com/WittF/bilibili-qr-login/compare/v1.4.4...v1.5.0) (2025-06-25)
 
 
