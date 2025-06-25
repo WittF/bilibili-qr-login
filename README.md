@@ -17,14 +17,17 @@
 - 🍪 **获取Cookie**：自动获取登录后的Cookie信息
 - 🔄 **Cookie转换**：支持将Cookie转换为JSON格式
 - 💾 **一键下载**：快捷下载转换后的JSON文件
+- 🌗 **明暗主题**：自动适配系统主题，支持手动切换明暗模式
+- 🌐 **多语言支持**：支持简体中文、繁体中文、英文、日文等多种语言
+- 🔗 **嵌入模式**：支持iframe和window模式，方便集成到其他网站
 
 ---
 
 ## 使用截图
 
 <div style="display: flex; justify-content: center; gap: 20px;">
-  <img src="https://github.com/user-attachments/assets/29151f9f-4ffe-4b57-a1d1-4c5d942dfdb7" width="48%" />
-  <img src="https://github.com/user-attachments/assets/13b0ce07-5926-4082-ae70-e21c0abae3f6" width="50%" />
+  <img src="https://github.com/user-attachments/assets/6557a39a-6190-4960-bc6b-b9a691e65851" width="49%" />
+  <img src="https://github.com/user-attachments/assets/ecc415ff-dd7a-4e06-98b3-62414127a9de" width="49%" />
 </div>
 
 ---
@@ -63,4 +66,72 @@ docker run -d \
 ### 在 Vercel 部署
 
 [![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/WittF/bilibili-qr-login)
+
+---
+
+## 🔗 嵌入模式集成
+
+本工具支持通过iframe或弹窗的方式嵌入到其他网站中，实现无缝的登录体验。
+
+### 功能特性
+
+- 🪟 **Window模式**：在新窗口中打开登录页面
+- 🖼️ **iframe模式**：在当前页面内嵌iframe登录
+- 📡 **postMessage通信**：通过标准的postMessage API传递登录结果
+- 🔒 **安全防护**：内置origin验证，防止跨域攻击
+
+### 快速开始
+
+#### iframe模式
+
+```html
+<iframe 
+  src="https://login.bilibili.bi/?mode=iframe" 
+  width="380" 
+  height="340" 
+  style="border: none;">
+</iframe>
+
+<script>
+window.addEventListener('message', (event) => {
+  if (event.origin !== 'https://login.bilibili.bi') return;
+  
+  const { type, mode, data } = event.data;
+  if (type === 'success' && mode === 'iframe') {
+    console.log('登录成功，Cookie:', data);
+    // 处理登录成功逻辑
+  }
+});
+</script>
+```
+
+#### Window模式
+
+```javascript
+function openLoginWindow() {
+  const popup = window.open(
+    'https://login.bilibili.bi/?mode=window',
+    '_blank',
+    'width=380,height=340'
+  );
+}
+
+window.addEventListener('message', (event) => {
+  if (event.origin !== 'https://login.bilibili.bi') return;
+  
+  const { type, mode, data } = event.data;
+  if (type === 'success' && mode === 'window') {
+    console.log('登录成功，Cookie:', data);
+    // 处理登录成功逻辑
+  }
+});
+```
+
+### 详细文档
+
+完整的集成指南、Vue/React示例、安全配置等，请查看：
+
+📖 **[嵌入模式集成指南](./docs/INTEGRATION.md)**
+
+---
 
