@@ -294,7 +294,9 @@ app.post('/api/convert', async c => {
 
     return c.json(result);
   } catch (error) {
-    console.error('转换cookie时出错:', error);
+    // 使用统一的日志格式，这里使用简单的console.error因为无法获取sessionId
+    const timestamp = getCSTTimestamp();
+    console.error(`[${timestamp}] [COOKIE-CONVERT] ERROR: 转换cookie时出错`, error);
     return c.json({ error: '处理cookie时出错' }, 500);
   }
 });
