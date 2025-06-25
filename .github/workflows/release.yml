@@ -4,8 +4,11 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*.*.*'
+    paths-ignore:
+      - 'demo/**'
+      - 'docs/**'
+      - '**.md'
+      - 'LICENSE'
   workflow_dispatch:
 
 jobs:
@@ -34,8 +37,16 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Check for release conditions
+        run: |
+          echo "🔍 检查发布条件..."
+          echo "📦 当前分支: ${{ github.ref_name }}"
+          echo "📋 最近提交: $(git log -1 --oneline)"
+          echo "🏷️  现有标签: $(git tag -l | tail -5 | tr '\n' ' ')"
+
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
+        id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -46,4 +57,16 @@ jobs:
             @semantic-release/changelog@6
             @semantic-release/git@10
             @semantic-release/github@9
-            conventional-changelog-conventionalcommits@7 
+            conventional-changelog-conventionalcommits@7
+
+      - name: Release results
+        if: always()
+        run: |
+          if [[ "${{ steps.semantic.outputs.new_release_published }}" == "true" ]]; then
+            echo "🎉 新版本发布成功！"
+            echo "🏷️  版本号: ${{ steps.semantic.outputs.new_release_version }}"
+            echo "📋 发布说明: ${{ steps.semantic.outputs.new_release_notes }}"
+          else
+            echo "ℹ️  没有满足发布条件的更改"
+            echo "💡 请确保提交信息遵循 Conventional Commits 规范"
+          fi 
