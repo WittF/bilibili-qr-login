@@ -177,7 +177,7 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: calc(var(--spacing-xs) + 1px) var(--spacing-sm);
     background-color: transparent;
     border: none;
     border-radius: var(--radius-md);
@@ -190,6 +190,7 @@ onUnmounted(() => {
     color: var(--text-secondary);
     font-size: 0.9rem;
     min-width: 110px;
+    min-height: 20px;
     font-family: inherit;
     will-change: width, transform, background-color;
 
@@ -238,12 +239,12 @@ onUnmounted(() => {
     font-weight: 500;
     display: flex;
     align-items: center;
-    height: 16px;
-    line-height: 1;
+    min-height: 18px;
+    line-height: 1.2;
     transition:
       all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
+    overflow: visible;
     white-space: nowrap;
     will-change: width;
   }
@@ -327,8 +328,8 @@ onUnmounted(() => {
     flex: 1;
     display: flex;
     align-items: center;
-    height: 16px;
-    line-height: 1;
+    min-height: 18px;
+    line-height: 1.2;
   }
 
   &__check {
@@ -402,8 +403,9 @@ onUnmounted(() => {
   .language-switcher {
     &__current {
       min-width: 90px;
-      padding: var(--spacing-xs);
+      padding: calc(var(--spacing-xs) + 1px);
       font-size: 0.85rem;
+      min-height: 18px;
     }
 
     &__dropdown {

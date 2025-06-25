@@ -2,6 +2,9 @@ import { loggers } from './logger';
 
 export const IS_DEV = process.env.NODE_ENV === 'development';
 
+// 应用版本号
+export const APP_VERSION = __APP_VERSION__;
+
 // 模式检测
 export const PARAM_MODE = (new URL(window.location.href).searchParams.get('mode') || '') as 'window' | 'iframe' | '';
 

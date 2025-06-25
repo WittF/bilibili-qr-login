@@ -63,6 +63,10 @@
               </div>
             </a>
           </div>
+
+          <div class="version-info">
+            <span class="version-text">v{{ APP_VERSION }}</span>
+          </div>
         </div>
 
         <div v-if="!PARAM_MODE" class="cookie-container">
@@ -86,7 +90,7 @@ import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import CheckIcon from './components/CheckIcon.vue';
 import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
-import { PARAM_MODE } from './utils/const';
+import { PARAM_MODE, APP_VERSION } from './utils/const';
 import { themeManager } from './utils/theme';
 
 import GithubIcon from './assets/icons/github.svg';
@@ -564,6 +568,15 @@ onBeforeUnmount(stop);
     margin-top: var(--spacing-sm);
   }
 
+  .version-info {
+    padding: 0 var(--spacing-xs) var(--spacing-xs);
+    margin-top: 0;
+  }
+
+  .version-text {
+    font-size: 0.7rem;
+  }
+
   .github-link {
     font-size: 0.8rem;
     padding: var(--spacing-sm) var(--spacing-md);
@@ -611,7 +624,16 @@ onBeforeUnmount(stop);
 
   .footer-links {
     margin-top: var(--spacing-xs);
-    padding: var(--spacing-xs) 0;
+    padding: var(--spacing-xs) 0 0;
+  }
+
+  .version-info {
+    padding: 0 0 var(--spacing-xs);
+    margin-top: 0;
+  }
+
+  .version-text {
+    font-size: 0.65rem;
   }
 
   .github-link {
@@ -671,7 +693,16 @@ onBeforeUnmount(stop);
 
   .footer-links {
     margin-top: var(--spacing-xs);
-    padding: var(--spacing-xs) 0;
+    padding: var(--spacing-xs) 0 0;
+  }
+
+  .version-info {
+    padding: 0 0 var(--spacing-xs);
+    margin-top: 0;
+  }
+
+  .version-text {
+    font-size: 0.65rem;
   }
 
   .github-link {
@@ -711,7 +742,16 @@ onBeforeUnmount(stop);
 
   .footer-links {
     margin-top: 0;
-    padding: var(--spacing-xs) 0;
+    padding: var(--spacing-xs) 0 0;
+  }
+
+  .version-info {
+    padding: 0 0 var(--spacing-xs);
+    margin-top: 0;
+  }
+
+  .version-text {
+    font-size: 0.6rem;
   }
 
   .github-link {
@@ -807,10 +847,32 @@ onBeforeUnmount(stop);
   justify-content: center;
   align-items: center;
   margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-sm) 0;
   width: 100%;
   min-height: auto;
   overflow: visible;
+}
+
+.version-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0 var(--spacing-sm) var(--spacing-sm);
+  margin-top: 0;
+}
+
+.version-text {
+  font-size: 0.75rem;
+  color: var(--text-quaternary);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .github-link {
