@@ -22,24 +22,44 @@ class Logger {
 
   public debug(message: string, data?: any): void {
     if (!isDebugMode()) return;
-    console.log(this.formatMessage('debug', message), data);
+    if (data !== undefined) {
+      console.log(this.formatMessage('debug', message), data);
+    } else {
+      console.log(this.formatMessage('debug', message));
+    }
   }
 
   public info(message: string, data?: any): void {
-    console.log(this.formatMessage('info', message), data);
+    if (data !== undefined) {
+      console.log(this.formatMessage('info', message), data);
+    } else {
+      console.log(this.formatMessage('info', message));
+    }
   }
 
   public warn(message: string, data?: any): void {
-    console.warn(this.formatMessage('warn', message), data);
+    if (data !== undefined) {
+      console.warn(this.formatMessage('warn', message), data);
+    } else {
+      console.warn(this.formatMessage('warn', message));
+    }
   }
 
   public error(message: string, error?: any): void {
-    console.error(this.formatMessage('error', message), error);
+    if (error !== undefined) {
+      console.error(this.formatMessage('error', message), error);
+    } else {
+      console.error(this.formatMessage('error', message));
+    }
   }
 
   // 重要信息始终显示
   public important(message: string, data?: any): void {
-    console.log(this.formatMessage('info', message), data);
+    if (data !== undefined) {
+      console.log(this.formatMessage('info', message), data);
+    } else {
+      console.log(this.formatMessage('info', message));
+    }
   }
 
   private formatMessage(level: LogLevel, message: string): string {
