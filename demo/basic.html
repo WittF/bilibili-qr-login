@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B站登录集成 - 基础示例</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background: #00a1d6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #0084b3;
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            min-height: 60px;
+        }
+        .status {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+        .status.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .status.info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        .iframe-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        iframe {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .cookie-preview {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            word-break: break-all;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍪 B站登录集成 - 基础示例</h1>
+    
+    <div class="section">
+        <h2>🖼️ iframe模式</h2>
+        <p>在当前页面内嵌iframe，适合无缝集成：</p>
+        <button class="btn" onclick="toggleIframe()">
+            <span id="iframe-btn-text">打开iframe登录</span>
+        </button>
+        <button class="btn secondary" onclick="clearResult()">清除结果</button>
+        <div id="iframe-container" class="iframe-container"></div>
+    </div>
+
+    <div class="section">
+        <h2>🪟 Window模式</h2>
+        <p>在新窗口打开登录页面，适合桌面端：</p>
+        <button class="btn" onclick="openWindow()">打开登录窗口</button>
+        <button class="btn" onclick="openWindow('en')">English Window</button>
+        <button class="btn secondary" onclick="clearResult()">清除结果</button>
+    </div>
+
+    <div class="section">
+        <h2>📊 登录结果</h2>
+        <div id="status"></div>
+        <div id="result" class="result">
+            等待登录...
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📝 消息格式</h2>
+        <p>登录成功后会收到以下格式的postMessage：</p>
+        <pre><code>{
+  "type": "success",
+  "mode": "iframe" | "window", 
+  "data": "SESSDATA=xxx; bili_jct=xxx; ..."
+}</code></pre>
+    </div>
+
+    <script>
+        let isIframeOpen = false;
+
+        // 状态显示函数
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => statusDiv.innerHTML = '', 5000);
+        }
+
+        // 消息处理函数
+        function handleMessage(event) {
+            // 安全检查：验证消息来源
+            if (event.origin !== 'https://login.bilibili.bi') {
+                console.warn('收到来自未信任源的消息，已忽略:', event.origin);
+                return;
+            }
+
+            const { type, mode, data } = event.data;
+            
+            if (type === 'success') {
+                console.log(`${mode}模式登录成功`, data);
+                
+                showStatus(`✅ ${mode.toUpperCase()}模式登录成功！`, 'success');
+                
+                // 显示详细结果
+                document.getElementById('result').innerHTML = `
+                    <div class="status success">
+                        <strong>🎉 登录成功 (${mode.toUpperCase()}模式)</strong>
+                    </div>
+                    <p><strong>Cookie长度:</strong> ${data.length} 字符</p>
+                    <p><strong>获取时间:</strong> ${new Date().toLocaleString()}</p>
+                    <details>
+                        <summary><strong>Cookie内容预览</strong> (点击展开)</summary>
+                        <div class="cookie-preview">${data.substring(0, 200)}...</div>
+                    </details>
+                    <small>💡 完整Cookie已在浏览器控制台输出</small>
+                `;
+                
+                // 根据模式执行后续操作
+                if (mode === 'iframe') {
+                    setTimeout(() => toggleIframe(), 2000); // 2秒后自动关闭iframe
+                }
+                
+                // 触发自定义事件
+                window.dispatchEvent(new CustomEvent('biliLoginSuccess', {
+                    detail: { cookie: data, mode, timestamp: Date.now() }
+                }));
+            }
+        }
+
+        // iframe模式
+        function toggleIframe(lang = 'zh-CN') {
+            const container = document.getElementById('iframe-container');
+            const btnText = document.getElementById('iframe-btn-text');
+            
+            if (!isIframeOpen) {
+                const url = `https://login.bilibili.bi/?mode=iframe&lang=${lang}`;
+                container.innerHTML = `
+                    <iframe 
+                        src="${url}" 
+                        width="380" 
+                        height="340"
+                        title="B站登录">
+                    </iframe>
+                `;
+                btnText.textContent = '关闭iframe登录';
+                showStatus('🖼️ iframe登录已打开', 'info');
+                document.getElementById('result').innerHTML = '🖼️ 等待iframe登录...';
+                isIframeOpen = true;
+            } else {
+                container.innerHTML = '';
+                btnText.textContent = '打开iframe登录';
+                isIframeOpen = false;
+                showStatus('iframe已关闭', 'info');
+            }
+        }
+
+        // Window模式
+        function openWindow(lang = 'zh-CN') {
+            const width = 380;
+            const height = 340;
+            const left = Math.round((window.screen.width - width) / 2);
+            const top = Math.round((window.screen.height - height) / 2);
+            
+            const features = [
+                `width=${width}`,
+                `height=${height}`,
+                `left=${left}`,
+                `top=${top}`,
+                'resizable=no',
+                'scrollbars=no',
+                'status=no',
+                'toolbar=no',
+                'menubar=no',
+                'location=no'
+            ].join(',');
+            
+            const url = `https://login.bilibili.bi/?mode=window&lang=${lang}`;
+            const popup = window.open(url, 'bili_login', features);
+            
+            if (!popup) {
+                showStatus('❌ 弹窗被阻止，请允许弹窗后重试', 'error');
+                return;
+            }
+            
+            showStatus(`🪟 登录窗口已打开 (${lang === 'en' ? 'English' : '中文'})`, 'info');
+            document.getElementById('result').innerHTML = '🪟 等待窗口登录...';
+        }
+
+        // 清除结果
+        function clearResult() {
+            document.getElementById('result').innerHTML = '等待登录...';
+            document.getElementById('status').innerHTML = '';
+        }
+
+        // 注册消息监听器
+        window.addEventListener('message', handleMessage);
+
+        // 监听自定义登录成功事件
+        window.addEventListener('biliLoginSuccess', (event) => {
+            const { cookie, mode, timestamp } = event.detail;
+            console.log('收到登录成功事件:', { 
+                cookieLength: cookie.length, 
+                mode, 
+                time: new Date(timestamp).toLocaleString() 
+            });
+        });
+
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', () => {
+            showStatus('📖 页面加载完成，请选择登录方式进行测试', 'info');
+        });
+    </script>
+</body>
+</html> 
