@@ -32,11 +32,16 @@ const corsMiddleware = async (c: any, next: any) => {
 
   // 设置CORS头
   if (ALLOW_ALL_ORIGINS) {
-    // 开发模式或明确配置为*时，允许所有来源（包括null origin）
+    // 开发模式或明确配置为*时，允许所有来源
     if (origin === null || origin === 'null') {
       c.header('Access-Control-Allow-Origin', 'null');
+    } else if (origin) {
+      // 有具体origin时，使用该origin（不能用*与credentials同时使用）
+      c.header('Access-Control-Allow-Origin', origin);
+      c.header('Vary', 'Origin');
     } else {
-      c.header('Access-Control-Allow-Origin', '*');
+      // 无origin时，不设置任何Allow-Origin头
+      return;
     }
   } else if (origin && allowedOrigins.includes(origin)) {
     // 生产模式下，只允许配置的域名
@@ -45,9 +50,12 @@ const corsMiddleware = async (c: any, next: any) => {
   } else if ((origin === null || origin === 'null') && process.env.NODE_ENV === 'development') {
     // 特殊处理：开发环境下允许null origin
     c.header('Access-Control-Allow-Origin', 'null');
+  } else {
+    // 不匹配的origin，不设置CORS头
+    return;
   }
 
-  // 设置其他CORS头
+  // 设置其他CORS头（只有在允许origin的情况下才设置）
   c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   c.header('Access-Control-Allow-Credentials', 'true');
@@ -59,11 +67,16 @@ const handlePreflight = (c: any) => {
   const origin = c.req.header('Origin');
 
   if (ALLOW_ALL_ORIGINS) {
-    // 开发模式或明确配置为*时，允许所有来源（包括null origin）
+    // 开发模式或明确配置为*时，允许所有来源
     if (origin === null || origin === 'null') {
       c.header('Access-Control-Allow-Origin', 'null');
+    } else if (origin) {
+      // 有具体origin时，使用该origin（不能用*与credentials同时使用）
+      c.header('Access-Control-Allow-Origin', origin);
+      c.header('Vary', 'Origin');
     } else {
-      c.header('Access-Control-Allow-Origin', '*');
+      // 无origin时，返回403
+      return new Response(null, { status: 403 });
     }
   } else if (origin && allowedOrigins.includes(origin)) {
     c.header('Access-Control-Allow-Origin', origin);
@@ -71,6 +84,9 @@ const handlePreflight = (c: any) => {
   } else if ((origin === null || origin === 'null') && process.env.NODE_ENV === 'development') {
     // 特殊处理：开发环境下允许null origin
     c.header('Access-Control-Allow-Origin', 'null');
+  } else {
+    // 不匹配的origin，返回403
+    return new Response(null, { status: 403 });
   }
 
   c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
