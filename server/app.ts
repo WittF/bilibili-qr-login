@@ -230,17 +230,8 @@ app.post('/api/convert', async c => {
 });
 
 // 获取真实客户端IP的函数
-const getRealClientIP = (c: { req: { header: (name: string) => string | undefined } }): string => {
-  // 在开发环境下，优先尝试获取实际的连接IP
-  if (process.env.NODE_ENV === 'development') {
-    // 开发环境下，如果是本地访问，显示localhost而不是unknown
-    const remoteAddr = c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'localhost';
-    if (remoteAddr === 'localhost' || remoteAddr.includes('127.0.0.1') || remoteAddr.includes('::1')) {
-      return 'localhost';
-    }
-  }
-
-  // 检查各种代理头部，按优先级排序
+const getRealClientIP = (c: any): string => {
+  // 第一优先级：检查各种代理头部，按优先级排序
   const headers = [
     'CF-Connecting-IP', // Cloudflare
     'True-Client-IP', // Cloudflare Enterprise
@@ -259,7 +250,7 @@ const getRealClientIP = (c: { req: { header: (name: string) => string | undefine
       // 处理包含多个IP的情况（如 X-Forwarded-For）
       if (header === 'X-Forwarded-For' || header === 'Forwarded-For') {
         // X-Forwarded-For 格式: "client, proxy1, proxy2"
-        const ips = value.split(',').map(ip => ip.trim());
+        const ips = value.split(',').map((ip: string) => ip.trim());
         const clientIP = ips[0];
         if (clientIP && isValidIP(clientIP)) {
           return clientIP;
@@ -282,11 +273,57 @@ const getRealClientIP = (c: { req: { header: (name: string) => string | undefine
     }
   }
 
+  // 第二优先级：尝试获取直连客户端IP（用于公网IP直接访问）
+  try {
+    // 检查Hono环境变量中的连接信息
+    if (c.env && c.env.REMOTE_ADDR) {
+      const remoteIP = c.env.REMOTE_ADDR;
+      if (isValidIP(remoteIP)) {
+        return remoteIP;
+      }
+    }
+
+    // 检查Node.js环境下的socket连接信息
+    if (c.req.raw && c.req.raw.socket && c.req.raw.socket.remoteAddress) {
+      const remoteAddr = c.req.raw.socket.remoteAddress;
+      if (remoteAddr && isValidIP(remoteAddr)) {
+        return remoteAddr;
+      }
+    }
+
+    // 检查其他可能的连接信息来源
+    if (c.req.raw && c.req.raw.connection && c.req.raw.connection.remoteAddress) {
+      const remoteAddr = c.req.raw.connection.remoteAddress;
+      if (remoteAddr && isValidIP(remoteAddr)) {
+        return remoteAddr;
+      }
+    }
+  } catch (error) {
+    // 忽略获取连接信息时的错误
+  }
+
+  // 第三优先级：本地环境处理
+  if (process.env.NODE_ENV === 'development') {
+    // 开发环境下，如果没有获取到IP，返回localhost
+    return 'localhost';
+  }
+
+  // 最后：检查是否为直接IP访问模式
+  try {
+    const hostHeader = c.req.header('host');
+    if (hostHeader && /^\d+\.\d+\.\d+\.\d+/.test(hostHeader)) {
+      // 直接IP访问但无法获取客户端IP
+      return 'direct-connection';
+    }
+  } catch (error) {
+    // 忽略解析host头部时的错误
+  }
+
   return 'unknown';
 };
 
 // 验证IP格式的简单函数
-const isValidIP = (ip: string): boolean => {
+const isValidIP = (ip: string | undefined | null): boolean => {
   if (!ip || ip === 'unknown') return false;
 
   // 移除端口号
@@ -471,9 +508,18 @@ app.get('/api/qr', c => {
       Forwarded: c.req.header('Forwarded'),
     };
 
-    logger.debug(sessionId, 'IP头部调试信息', {
+    const connectionInfo = {
+      host: c.req.header('host'),
+      userAgent: c.req.header('User-Agent')?.substring(0, 50),
+      socketRemoteAddress: (c.req.raw as any)?.socket?.remoteAddress,
+      connectionRemoteAddress: (c.req.raw as any)?.connection?.remoteAddress,
+      envRemoteAddr: c.env?.REMOTE_ADDR,
+    };
+
+    logger.debug(sessionId, 'IP获取调试信息', {
       finalIP: clientIP,
-      headers: Object.fromEntries(Object.entries(debugHeaders).filter(([, v]) => v)),
+      proxyHeaders: Object.fromEntries(Object.entries(debugHeaders).filter(([, v]) => v)),
+      connectionInfo: Object.fromEntries(Object.entries(connectionInfo).filter(([, v]) => v)),
     });
   }
 

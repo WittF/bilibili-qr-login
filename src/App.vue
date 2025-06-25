@@ -25,8 +25,18 @@
         <div class="qrcode-container" :class="{ 'qrcode-container--with-cookie': state.cookie && !PARAM_MODE }">
           <div class="qrcode flex no-select card" :class="{ 'qrcode--scanned': showCheckIcon }">
             <transition name="fade" mode="out-in">
-              <QrCode v-if="state.url" :value="state.url" :options="qrCodeOption" />
-              <div v-else class="qrcode__placeholder"></div>
+              <QrCode
+                v-if="state.url"
+                :value="state.url"
+                :options="qrCodeOption"
+                :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
+                class="qrcode__content"
+              />
+              <div
+                v-else
+                class="qrcode__placeholder"
+                :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
+              ></div>
             </transition>
             <div v-if="state.status !== QrStatus.WAIT" class="qrcode__mask flex">
               <LoadingIcon v-if="state.status === QrStatus.LOADING" />
@@ -98,20 +108,44 @@ import type { QRCodeRenderersOptions } from 'qrcode';
 
 const { t, updatePageTitle } = useI18n();
 
-// 初始化页面标题和主题
-onMounted(() => {
-  updatePageTitle();
-  // 确保主题管理器正确初始化
-  themeManager.reinitialize();
-});
+// 响应式二维码尺寸和缩放
+const getQrCodeScale = () => {
+  const width = window.innerWidth;
+  if (width >= 768) {
+    return 1; // 大屏：196px (基准尺寸)
+  } else if (width >= 480) {
+    return 188 / 196; // 中屏：188px
+  } else {
+    return 180 / 196; // 小屏：180px
+  }
+};
 
+const qrCodeScale = ref(getQrCodeScale());
+
+// 固定的二维码配置，避免重新渲染
 const qrCodeOption: QRCodeRenderersOptions = {
   margin: 0,
-  width: 196,
+  width: 196, // 固定为大屏尺寸
   color: {
     dark: '#18191C',
     light: '#FFFFFF',
   },
+};
+
+// 防抖函数
+let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+
+// 监听窗口大小变化
+const handleResize = () => {
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
+  }
+  resizeTimer = setTimeout(() => {
+    const newScale = getQrCodeScale();
+    if (Math.abs(newScale - qrCodeScale.value) > 0.001) {
+      qrCodeScale.value = newScale;
+    }
+  }, 150); // 150ms防抖延迟
 };
 
 const { state, getters, restart, stop } = useQrSSE();
@@ -154,7 +188,20 @@ const handleRestart = () => {
   }
 };
 
-onBeforeUnmount(stop);
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  updatePageTitle();
+  // 确保主题管理器正确初始化
+  themeManager.reinitialize();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
+  }
+  stop();
+});
 </script>
 
 <style scoped lang="less">
@@ -310,7 +357,13 @@ onBeforeUnmount(stop);
     justify-content: center;
     background-color: var(--qr-placeholder-bg);
     border-radius: 4px;
-    transition: background-color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__content {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &__actions {
@@ -554,6 +607,20 @@ onBeforeUnmount(stop);
   transform: scale(1.02);
 }
 
+// 中屏设备优化 (768px以下但480px以上)
+@media (max-width: 768px) and (min-width: 481px) {
+  .qrcode {
+    width: 220px;
+    height: 220px;
+    padding: var(--spacing-md);
+
+    &__placeholder {
+      width: 196px;
+      height: 196px;
+    }
+  }
+}
+
 // 响应式布局优化
 @media (max-width: 768px) {
   .container {
@@ -580,17 +647,6 @@ onBeforeUnmount(stop);
   .github-link {
     font-size: 0.8rem;
     padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .qrcode {
-    width: 196px;
-    height: 196px;
-    padding: var(--spacing-sm);
-
-    &__placeholder {
-      width: 180px;
-      height: 180px;
-    }
   }
 
   .cookie-placeholder {
@@ -665,12 +721,12 @@ onBeforeUnmount(stop);
   }
 
   .qrcode {
-    width: 180px;
-    height: 180px;
+    width: 207px;
+    height: 207px;
 
     &__placeholder {
-      width: 164px;
-      height: 164px;
+      width: 196px;
+      height: 196px;
     }
   }
 }
