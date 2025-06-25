@@ -98,20 +98,38 @@ import type { QRCodeRenderersOptions } from 'qrcode';
 
 const { t, updatePageTitle } = useI18n();
 
-// 初始化页面标题和主题
-onMounted(() => {
-  updatePageTitle();
-  // 确保主题管理器正确初始化
-  themeManager.reinitialize();
-});
+// 响应式二维码尺寸
+const getQrCodeSize = () => {
+  const width = window.innerWidth;
+  if (width >= 768) {
+    return 196; // 大屏
+  } else if (width >= 480) {
+    return 188; // 中屏
+  } else {
+    return 180; // 小屏
+  }
+};
 
-const qrCodeOption: QRCodeRenderersOptions = {
-  margin: 0,
-  width: 191,
-  color: {
-    dark: '#18191C',
-    light: '#FFFFFF',
-  },
+const qrCodeSize = ref(getQrCodeSize());
+
+// 响应式二维码配置
+const qrCodeOption = computed(
+  (): QRCodeRenderersOptions => ({
+    margin: 0,
+    width: qrCodeSize.value,
+    color: {
+      dark: '#18191C',
+      light: '#FFFFFF',
+    },
+  }),
+);
+
+// 监听窗口大小变化
+const handleResize = () => {
+  const newSize = getQrCodeSize();
+  if (newSize !== qrCodeSize.value) {
+    qrCodeSize.value = newSize;
+  }
 };
 
 const { state, getters, restart, stop } = useQrSSE();
@@ -154,7 +172,17 @@ const handleRestart = () => {
   }
 };
 
-onBeforeUnmount(stop);
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  updatePageTitle();
+  // 确保主题管理器正确初始化
+  themeManager.reinitialize();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+  stop();
+});
 </script>
 
 <style scoped lang="less">
@@ -303,8 +331,8 @@ onBeforeUnmount(stop);
   }
 
   &__placeholder {
-    width: 191px;
-    height: 191px;
+    width: 196px;
+    height: 196px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -554,6 +582,20 @@ onBeforeUnmount(stop);
   transform: scale(1.02);
 }
 
+// 中屏设备优化 (768px以下但480px以上)
+@media (max-width: 768px) and (min-width: 481px) {
+  .qrcode {
+    width: 220px;
+    height: 220px;
+    padding: var(--spacing-md);
+
+    &__placeholder {
+      width: 188px;
+      height: 188px;
+    }
+  }
+}
+
 // 响应式布局优化
 @media (max-width: 768px) {
   .container {
@@ -580,17 +622,6 @@ onBeforeUnmount(stop);
   .github-link {
     font-size: 0.8rem;
     padding: var(--spacing-sm) var(--spacing-md);
-  }
-
-  .qrcode {
-    width: 196px;
-    height: 196px;
-    padding: var(--spacing-sm);
-
-    &__placeholder {
-      width: 175px;
-      height: 175px;
-    }
   }
 
   .cookie-placeholder {
@@ -665,12 +696,12 @@ onBeforeUnmount(stop);
   }
 
   .qrcode {
-    width: 180px;
-    height: 180px;
+    width: 212px;
+    height: 212px;
 
     &__placeholder {
-      width: 159px;
-      height: 159px;
+      width: 180px;
+      height: 180px;
     }
   }
 }
