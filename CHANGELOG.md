@@ -5,6 +5,18 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.8.2](https://github.com/WittF/bilibili-qr-login/compare/v1.8.1...v1.8.2) (2025-06-25)
+
+
+### 🐛 Bug修复
+
+* **ui:** 调整语言选择器宽度确保文字完整显示 ([aadff66](https://github.com/WittF/bilibili-qr-login/commit/aadff660e9a5b56ba7701b2918684b8ee4a32102))
+
+
+### 💄 样式优化
+
+* **ui:** 优化语言选择器布局，图标和文字居中对齐 ([bcf3535](https://github.com/WittF/bilibili-qr-login/commit/bcf353570493ee8837a4f334a447a9ac7d5b45f4))
+
 ## [1.8.1](https://github.com/WittF/bilibili-qr-login/compare/v1.8.0...v1.8.1) (2025-06-25)
 
 
