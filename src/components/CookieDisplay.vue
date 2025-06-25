@@ -181,13 +181,11 @@ const convert = async () => {
   transition: all 0.2s ease;
 
   &--result {
-    border-left: 3px solid var(--bilibili-blue);
-    background: linear-gradient(135deg, var(--card-background) 0%, rgba(0, 161, 214, 0.02) 100%);
+    // 移除左边框，保持简洁风格
   }
 
   &--error {
     border-left: 3px solid var(--error);
-    background: linear-gradient(135deg, var(--card-background) 0%, rgba(247, 98, 96, 0.02) 100%);
   }
 
   &__header {
@@ -227,20 +225,18 @@ const convert = async () => {
     padding: var(--spacing-xs) var(--spacing-md);
     border-radius: var(--radius-md);
     border: 1px solid var(--divider);
-    box-shadow: var(--shadow-lg);
-    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-md);
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.2s ease;
     z-index: 10;
 
     &--visible {
       opacity: 1;
       visibility: visible;
-      transform: translate(-50%, -50%) scale(1.05);
     }
   }
 
@@ -272,6 +268,8 @@ const convert = async () => {
     overflow-y: auto;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -292,12 +290,8 @@ const convert = async () => {
     }
 
     &--result {
-      background-color: rgba(0, 161, 214, 0.03);
+      background-color: var(--background);
       cursor: text;
-
-      &:hover {
-        background-color: rgba(0, 161, 214, 0.05);
-      }
     }
   }
 
