@@ -107,7 +107,7 @@ onMounted(() => {
 
 const qrCodeOption: QRCodeRenderersOptions = {
   margin: 0,
-  width: 196,
+  width: 191,
   color: {
     dark: '#18191C',
     light: '#FFFFFF',
@@ -303,8 +303,8 @@ onBeforeUnmount(stop);
   }
 
   &__placeholder {
-    width: 196px;
-    height: 196px;
+    width: 191px;
+    height: 191px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -588,8 +588,8 @@ onBeforeUnmount(stop);
     padding: var(--spacing-sm);
 
     &__placeholder {
-      width: 180px;
-      height: 180px;
+      width: 175px;
+      height: 175px;
     }
   }
 
@@ -669,8 +669,8 @@ onBeforeUnmount(stop);
     height: 180px;
 
     &__placeholder {
-      width: 164px;
-      height: 164px;
+      width: 159px;
+      height: 159px;
     }
   }
 }
