@@ -177,6 +177,38 @@ response = requests.post(
 result = response.json()
 ```
 
+## 跨域安全配置
+
+### TRUST_ORIGIN 环境变量
+
+控制哪些域名可以接收登录Cookie信息：
+
+| 配置 | 说明 | 示例 |
+|------|------|------|
+| `TRUST_ORIGIN="*"` | 允许所有域名（开发环境默认） | 开发测试使用 |
+| `TRUST_ORIGIN=""` | 仅允许同域名（生产环境默认） | 最高安全级别 |
+| `TRUST_ORIGIN="https://app.com"` | 指定单个信任域名 | 生产环境推荐 |
+| `TRUST_ORIGIN="https://a.com,https://b.com"` | 多个信任域名，逗号分隔 | 多站点集成 |
+
+### 部署示例
+
+```bash
+# 开发环境
+TRUST_ORIGIN="*" yarn dev
+
+# 生产环境 - 指定域名
+docker run -e TRUST_ORIGIN="https://yourdomain.com" wittf/bilibili-qr-login
+
+# 多域名支持
+docker run -e TRUST_ORIGIN="https://app.com,https://admin.app.com" wittf/bilibili-qr-login
+```
+
+### 安全提示
+
+- ✅ 嵌入时会显示"登录信息将发送至：xxx.com"提示
+- ✅ 用户明确知道Cookie发送目标
+- ⚠️ 生产环境建议配置具体域名，避免使用 `*`
+
 ## 注意事项
 
 1. **跨域限制** - 嵌入式登录需要正确处理跨域消息
