@@ -5,6 +5,25 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.4.4](https://github.com/WittF/bilibili-qr-login/compare/v1.4.3...v1.4.4) (2025-06-25)
+
+
+### 🐛 Bug修复
+
+* **ci:** 修复semantic-release workflow，添加发布条件检查和结果反馈 ([61bf66c](https://github.com/WittF/bilibili-qr-login/commit/61bf66ce28dd754aa4404d123c455a81da9a9c1c))
+* **ci:** 修复semantic-release自动触发Docker构建问题 ([3b64d02](https://github.com/WittF/bilibili-qr-login/commit/3b64d023fde6a1c8cdbe15a3185bf96e7de1fbcd))
+* **ci:** 修复webhook健康检查404错误，改进错误处理和状态反馈 ([53c9e43](https://github.com/WittF/bilibili-qr-login/commit/53c9e4377dbe276fe5e42b364822bb2ea702ce45))
+
+
+### ♻️ 代码重构
+
+* **ci:** 大幅简化Docker构建流程，仅保留正式发版功能 ([aea0829](https://github.com/WittF/bilibili-qr-login/commit/aea082925bfedd19bee8ae66955d126b9386b5c4))
+
+
+### 🔧 其他更改
+
+* **release:** 发布版本 v1.4.3 ([cd62b70](https://github.com/WittF/bilibili-qr-login/commit/cd62b70df49737c407e9234d96124d8d18b0b9ef))
+
 ## [1.4.3](https://github.com/WittF/bilibili-qr-login/compare/v1.4.2...v1.4.3) (2025-06-25)
 
 
