@@ -181,11 +181,13 @@ const convert = async () => {
   transition: all 0.2s ease;
 
   &--result {
-    // 移除左边框，保持简洁风格
+    border-left: 3px solid var(--bilibili-blue);
+    background: linear-gradient(135deg, var(--card-background) 0%, rgba(0, 161, 214, 0.02) 100%);
   }
 
   &--error {
     border-left: 3px solid var(--error);
+    background: linear-gradient(135deg, var(--card-background) 0%, rgba(247, 98, 96, 0.02) 100%);
   }
 
   &__header {
@@ -193,8 +195,9 @@ const convert = async () => {
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-md);
-    background-color: var(--background);
+    background-color: var(--card-background);
     border-bottom: 1px solid var(--divider);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
   &__title {
@@ -210,6 +213,8 @@ const convert = async () => {
 
   &__content {
     position: relative;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    overflow: hidden;
   }
 
   &__copy-indicator {
@@ -222,18 +227,20 @@ const convert = async () => {
     padding: var(--spacing-xs) var(--spacing-md);
     border-radius: var(--radius-md);
     border: 1px solid var(--divider);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     z-index: 10;
 
     &--visible {
       opacity: 1;
       visibility: visible;
+      transform: translate(-50%, -50%) scale(1.05);
     }
   }
 
@@ -285,8 +292,12 @@ const convert = async () => {
     }
 
     &--result {
-      background-color: var(--background);
+      background-color: rgba(0, 161, 214, 0.03);
       cursor: text;
+
+      &:hover {
+        background-color: rgba(0, 161, 214, 0.05);
+      }
     }
   }
 
