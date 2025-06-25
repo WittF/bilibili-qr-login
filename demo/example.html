@@ -331,9 +331,13 @@
     </div>
 
     <script>
-        // 配置 - 使用线上服务
-        const SERVICE_URL = 'https://login.bilibili.bi';
-        const API_URL = 'https://login.bilibili.bi/api/convert';
+        // 配置 - 自动检测环境
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' || 
+                           window.location.hostname.includes('localhost');
+        
+        const SERVICE_URL = isLocalhost ? 'http://localhost:5174' : 'https://login.bilibili.bi';
+        const API_URL = isLocalhost ? 'http://localhost:3000/api/convert' : 'https://login.bilibili.bi/api/convert';
         
         let isIframeOpen = false;
 
