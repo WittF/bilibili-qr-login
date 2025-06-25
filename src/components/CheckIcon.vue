@@ -1,5 +1,5 @@
 <template>
-  <div class="check-icon">
+  <div class="check-icon" :class="{ 'check-icon--success': true }">
     <CheckIconGreen v-if="!isDarkTheme" />
     <CheckIconWhite v-else />
   </div>
@@ -18,26 +18,77 @@ const isDarkTheme = computed(() => {
 
 <style scoped lang="less">
 .check-icon {
-  display: block !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   width: 64px !important;
   height: 64px !important;
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
   transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  // 防止任何调试信息显示
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
+  }
 
   svg {
-    width: 100% !important;
-    height: 100% !important;
+    width: 64px !important;
+    height: 64px !important;
     display: block !important;
     transition: transform 0.3s ease;
-    position: static !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+
+    // 防止SVG上的调试信息
+    &::before,
+    &::after {
+      display: none !important;
+      content: none !important;
+    }
+  }
+
+  // 确保成功状态下的样式
+  &--success {
+    z-index: 1;
+
+    svg {
+      filter: drop-shadow(0 2px 8px rgba(68, 194, 133, 0.3));
+    }
   }
 
   // 响应式调整
   @media (max-width: 768px) {
     width: 56px !important;
     height: 56px !important;
+
+    svg {
+      width: 56px !important;
+      height: 56px !important;
+    }
+  }
+}
+
+// 清除任何可能的调试样式
+.check-icon * {
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
   }
 }
 </style>

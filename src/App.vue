@@ -347,6 +347,12 @@ onBeforeUnmount(stop);
       .icon--success {
         transform: translate(-50%, -50%) translateY(-30px) !important;
         opacity: 0.7;
+
+        .check-icon {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
       }
 
       .icon--refresh {
@@ -428,13 +434,78 @@ onBeforeUnmount(stop);
 }
 
 // 确保成功图标正确居中的全局样式
-.qrcode__actions .icon--success,
-.qrcode__actions .icon--success .check-icon {
+.qrcode__actions .icon--success {
   position: absolute !important;
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2 !important;
+
+  // 清除任何调试信息或工具提示
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
+    visibility: hidden !important;
+  }
+}
+
+// CheckIcon内部保持flex布局以居中SVG
+.qrcode__actions .icon--success .check-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 64px !important;
+  height: 64px !important;
+
+  // 清除任何伪元素
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
+    visibility: hidden !important;
+  }
+}
+
+// 确保SVG元素本身也正确居中
+.qrcode__actions .icon--success .check-icon svg {
   display: block !important;
+  margin: 0 !important;
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  width: 64px !important;
+  height: 64px !important;
+
+  // 清除SVG上的任何调试信息
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
+    visibility: hidden !important;
+  }
+}
+
+// 全局清除可能的调试样式
+.qrcode__actions .icon--success *,
+.qrcode__actions .icon--success *::before,
+.qrcode__actions .icon--success *::after {
+  &::before,
+  &::after {
+    display: none !important;
+    content: none !important;
+    visibility: hidden !important;
+  }
 }
 
 // 高度过渡动画
