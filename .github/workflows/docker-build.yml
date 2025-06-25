@@ -127,13 +127,32 @@ jobs:
           repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           readme-filepath: ./README.md
 
+      - name: Test webhook connectivity
+        if: env.WEBHOOK_IP != ''
+        run: |
+          echo "Testing webhook connectivity to ${{ env.WEBHOOK_IP }}:9000"
+          curl -f --connect-timeout 10 --max-time 30 \
+            -H "User-Agent: GitHub-Actions-Test" \
+            http://${{ env.WEBHOOK_IP }}:9000/health || echo "⚠️ Webhook endpoint not responding"
+
       - name: Wait before webhook
-        if: needs.prepare.outputs.is_release == 'true'
-        run: sleep 5
+        if: env.WEBHOOK_IP != ''
+        run: sleep 3
 
       - name: Trigger k3s pods update webhook
-        if: needs.prepare.outputs.is_release == 'true'
+        if: env.WEBHOOK_IP != ''
         run: |
+          # 设置镜像标签
+          if [[ "${{ needs.prepare.outputs.is_release }}" == "true" ]]; then
+            IMAGE_TAG="v${{ needs.prepare.outputs.version }}"
+            DEPLOY_ENV="production"
+          else
+            IMAGE_TAG="dev-${{ needs.prepare.outputs.short_sha }}"
+            DEPLOY_ENV="development"
+          fi
+          
+          echo "Triggering webhook for $DEPLOY_ENV environment with tag: $IMAGE_TAG"
+          
           curl -X POST \
             -H "Content-Type: application/json" \
             -H "User-Agent: GitHub-Actions" \
@@ -142,10 +161,14 @@ jobs:
                 "repo_name": "${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
               },
               "version": "${{ needs.prepare.outputs.version }}",
-              "tag": "v${{ needs.prepare.outputs.version }}",
-              "sha": "${{ github.sha }}"
+              "tag": "'$IMAGE_TAG'",
+              "sha": "${{ github.sha }}",
+              "environment": "'$DEPLOY_ENV'",
+              "is_release": ${{ needs.prepare.outputs.is_release }},
+              "commit_message": "${{ github.event.head_commit.message }}",
+              "pusher": "${{ github.actor }}"
             }' \
-            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push
+            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push || echo "Webhook failed, but continuing..."
 
   # 构建验证任务
   verify:
