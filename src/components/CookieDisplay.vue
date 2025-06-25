@@ -139,81 +139,25 @@ const convert = async () => {
   isConverting.value = true;
 
   try {
-    // 添加超时控制
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
     const response = await fetch('/api/convert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ cookies: props.value }),
-      signal: controller.signal,
     });
 
-    clearTimeout(timeoutId);
-
     if (!response.ok) {
-      // 根据HTTP状态码提供更详细的错误信息
-      switch (response.status) {
-        case 400:
-          throw new Error('Cookie数据格式错误');
-        case 403:
-          throw new Error('请求被服务器拒绝');
-        case 429:
-          throw new Error('请求过于频繁，请稍后重试');
-        case 500:
-          throw new Error('服务器内部错误');
-        case 502:
-        case 503:
-        case 504:
-          throw new Error('服务器暂时不可用');
-        default:
-          throw new Error(`${t.value.cookie.serverError} (${response.status})`);
-      }
+      throw new Error(`${t.value.cookie.serverError} (${response.status})`);
     }
 
     const result = await response.json();
     convertedData.value = JSON.stringify(result, null, 2);
   } catch (error) {
-    let userErrorMsg = '';
+    const errorMessage = error instanceof Error ? error.message : t.value.cookie.unknownError;
+    errorMsg.value = `${t.value.cookie.convertError}: ${errorMessage}`;
 
-    if (error instanceof Error) {
-      switch (error.name) {
-        case 'AbortError':
-          userErrorMsg = '请求超时，请检查网络连接';
-          break;
-        case 'TypeError':
-          // TypeError 通常表示网络连接问题
-          userErrorMsg = '网络连接失败，请检查网络状态';
-          break;
-        case 'NetworkError':
-          userErrorMsg = '网络连接失败，请检查网络状态';
-          break;
-        default:
-          // 检查是否是fetch相关的网络错误
-          if (
-            error.message.includes('Failed to fetch') ||
-            error.message.includes('Network request failed') ||
-            error.message.includes('fetch')
-          ) {
-            userErrorMsg = '网络连接失败，请检查网络状态';
-          } else {
-            userErrorMsg = error.message;
-          }
-      }
-      errorMsg.value = `${t.value.cookie.convertError}: ${userErrorMsg}`;
-    } else {
-      errorMsg.value = `${t.value.cookie.convertError}: ${t.value.cookie.unknownError}`;
-    }
-
-    // 记录详细错误信息
-    loggers.cookie.error('Cookie转换失败', {
-      errorType: error instanceof Error ? error.name : typeof error,
-      errorMessage: error instanceof Error ? error.message : String(error),
-      isOnline: navigator.onLine,
-    });
+    loggers.cookie.error('Cookie转换失败', error);
   } finally {
     isConverting.value = false;
   }

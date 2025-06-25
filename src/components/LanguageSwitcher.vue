@@ -67,11 +67,11 @@ const selectLanguage = (lang: SupportedLanguage) => {
   setLanguage(lang);
   isOpen.value = false;
   currentFocusIndex.value = -1;
-  // 使用focusManager智能管理焦点
+  // 重新聚焦按钮
   nextTick(() => {
     const button = document.querySelector('.language-switcher__current') as HTMLElement;
     if (button) {
-      focusManager.handleLanguageSwitcherFocus(button, true);
+      button.focus();
     }
   });
 };
@@ -139,11 +139,11 @@ const handleOptionKeyDown = (event: KeyboardEvent, index: number) => {
       event.preventDefault();
       isOpen.value = false;
       currentFocusIndex.value = -1;
-      // 使用focusManager智能返回焦点
+      // 返回焦点到按钮
       nextTick(() => {
         const button = document.querySelector('.language-switcher__current') as HTMLElement;
         if (button) {
-          focusManager.handleLanguageSwitcherFocus(button, true);
+          button.focus();
         }
       });
       break;
@@ -156,11 +156,6 @@ const closeDropdown = (event: MouseEvent) => {
   if (!target.closest('.language-switcher')) {
     isOpen.value = false;
     currentFocusIndex.value = -1;
-    // 使用focusManager智能处理焦点
-    const button = document.querySelector('.language-switcher__current') as HTMLElement;
-    if (button && document.activeElement === button) {
-      focusManager.smartBlur(button);
-    }
   }
 };
 
