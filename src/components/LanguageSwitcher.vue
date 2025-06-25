@@ -281,7 +281,6 @@ onUnmounted(() => {
     bottom: auto;
     left: 100%;
     right: auto;
-    margin-left: var(--spacing-xs);
     background-color: var(--card-background);
     border: 1px solid var(--divider);
     border-radius: var(--radius-md);
@@ -428,7 +427,7 @@ onUnmounted(() => {
     }
 
     &__dropdown {
-      min-width: 95px;
+      min-width: 85px;
     }
 
     &__option {
