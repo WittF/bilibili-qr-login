@@ -1,70 +1,58 @@
 <template>
   <div class="cookie-converter">
-    <!-- 原始Cookie卡片 -->
     <div class="cookie-card">
       <div class="cookie-card__header">
-        <h3 class="cookie-card__title">{{ t.cookie.info }}</h3>
-        <button class="action-btn action-btn--primary" :disabled="isConverting" @click="convert">
-          <ConvertIcon class="action-btn__icon" />
-          <span class="action-btn__text">
-            {{ isConverting ? t.cookie.converting : t.cookie.convert }}
-          </span>
-        </button>
+        <div class="cookie-card__title">
+          <span>{{ t.cookie.info }}</span>
+        </div>
+        <div class="cookie-card__actions">
+          <button class="cookie-btn cookie-btn--convert" :disabled="isConverting" @click="convert">
+            <ConvertIcon class="cookie-btn__icon" />
+            <span class="cookie-btn__text">
+              {{ isConverting ? t.cookie.converting : t.cookie.convert }}
+            </span>
+          </button>
+        </div>
       </div>
 
       <div class="cookie-card__content">
-        <pre ref="pre" class="cookie-display" @click="copy">{{ value }}</pre>
+        <pre ref="pre" class="cookie-card__pre" @click="copy">{{ value }}</pre>
 
-        <transition name="fade-bounce">
-          <div v-if="copied" class="copy-tooltip">
-            <CheckCopyIcon class="copy-tooltip__icon" />
-            <span>{{ t.cookie.copied }}</span>
-          </div>
-        </transition>
+        <div class="cookie-card__copy-indicator" :class="{ 'cookie-card__copy-indicator--visible': copied }">
+          <CheckCopyIcon class="cookie-card__copy-icon" />
+          <span>{{ t.cookie.copied }}</span>
+        </div>
       </div>
     </div>
 
-    <!-- 转换结果卡片 -->
-    <transition name="slide-up">
-      <div v-if="convertedData" class="result-card">
-        <div class="result-card__header">
-          <div class="result-indicator">
-            <div class="result-indicator__dot"></div>
-            <h3 class="result-indicator__title">{{ t.cookie.result }}</h3>
-          </div>
-
-          <div class="result-actions">
-            <button class="action-btn action-btn--secondary" @click="copyConverted">
-              <ContentCopyIcon class="action-btn__icon" />
-              <span class="action-btn__text">{{ convertedCopyText }}</span>
-            </button>
-            <button class="action-btn action-btn--success" @click="downloadConverted">
-              <DownloadIcon class="action-btn__icon" />
-              <span class="action-btn__text">{{ t.cookie.download }}</span>
-            </button>
-          </div>
+    <div v-if="convertedData" class="cookie-card cookie-card--result">
+      <div class="cookie-card__header">
+        <div class="cookie-card__title">
+          <span>{{ t.cookie.result }}</span>
         </div>
-
-        <div class="result-card__content">
-          <div class="json-preview">
-            <pre ref="convertedPre" class="json-display">{{ convertedData }}</pre>
-          </div>
+        <div class="cookie-card__actions">
+          <button class="cookie-btn cookie-btn--copy" @click="copyConverted">
+            <ContentCopyIcon class="cookie-btn__icon" />
+            <span class="cookie-btn__text">{{ convertedCopyText }}</span>
+          </button>
+          <button class="cookie-btn cookie-btn--download" @click="downloadConverted">
+            <DownloadIcon class="cookie-btn__icon" />
+            <span class="cookie-btn__text">{{ t.cookie.download }}</span>
+          </button>
         </div>
       </div>
-    </transition>
 
-    <!-- 错误提示 -->
-    <transition name="slide-up">
-      <div v-if="errorMsg" class="error-card">
-        <div class="error-content">
-          <ErrorIcon class="error-content__icon" />
-          <div class="error-content__message">
-            <h4 class="error-content__title">转换失败</h4>
-            <p class="error-content__text">{{ errorMsg }}</p>
-          </div>
-        </div>
+      <div class="cookie-card__content">
+        <pre ref="convertedPre" class="cookie-card__pre cookie-card__pre--result">{{ convertedData }}</pre>
       </div>
-    </transition>
+    </div>
+
+    <div v-if="errorMsg" class="cookie-card cookie-card--error">
+      <div class="cookie-card__error">
+        <ErrorIcon class="cookie-card__error-icon" />
+        <span>{{ errorMsg }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -237,401 +225,265 @@ const convert = async () => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
-// 基础卡片样式
 .cookie-card {
-  background: var(--card-background);
+  width: 100%;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--divider);
+  background-color: var(--card-background);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition: all 0.3s ease;
+  border: 1px solid var(--divider);
+  transition: all 0.2s ease;
 
-  &:hover {
-    box-shadow: var(--shadow-md);
+  &--result {
+    border-left: 3px solid var(--success);
+  }
+
+  &--error {
+    border-left: 3px solid var(--error);
   }
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-lg);
-    background: linear-gradient(135deg, var(--background) 0%, var(--card-background) 100%);
-    border-bottom: 1px solid var(--divider);
-  }
-
-  &__title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  &__content {
-    position: relative;
-    padding: var(--spacing-lg);
-  }
-}
-
-// 转换结果卡片
-.result-card {
-  background: var(--card-background);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--bilibili-blue);
-  box-shadow:
-    var(--shadow-md),
-    0 0 0 1px rgba(0, 161, 214, 0.1);
-  overflow: hidden;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--bilibili-blue) 0%, var(--bilibili-pink) 100%);
-  }
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-lg);
-    background: linear-gradient(135deg, var(--bilibili-blue-light) 0%, transparent 100%);
+    padding: var(--spacing-md);
     background-color: var(--background);
     border-bottom: 1px solid var(--divider);
   }
 
-  &__content {
-    padding: var(--spacing-lg);
-  }
-}
-
-// 结果指示器
-.result-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-
-  &__dot {
-    width: 8px;
-    height: 8px;
-    background: var(--success);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
   &__title {
-    margin: 0;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
   }
+
+  &__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+  }
+
+  &__content {
+    position: relative;
+  }
+
+  &__copy-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--card-background);
+    color: var(--text-primary);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--divider);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 10;
+
+    &--visible {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  &__copy-icon {
+    color: var(--success);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+  }
+
+  &__pre {
+    margin: 0;
+    padding: var(--spacing-md);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--card-background);
+    text-wrap: wrap;
+    word-break: break-all;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--background);
+      border-radius: var(--radius-sm);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--text-tertiary);
+      border-radius: var(--radius-sm);
+    }
+
+    &:hover {
+      background-color: var(--hover-background);
+    }
+
+    &--result {
+      background-color: var(--background);
+      cursor: text;
+    }
+  }
+
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    color: var(--error);
+    font-size: 0.95rem;
+  }
+
+  &__error-icon {
+    color: var(--error);
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+    }
+  }
 }
 
-// 操作按钮组
-.result-actions {
+// 简洁的按钮样式
+.cookie-btn {
   display: flex;
-  gap: var(--spacing-sm);
-}
-
-// 统一的按钮样式
-.action-btn {
-  display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: none;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--divider);
   border-radius: var(--radius-md);
+  background-color: var(--card-background);
+  color: var(--text-primary);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
+  transition: all 0.2s ease;
   white-space: nowrap;
+
+  &:hover {
+    background-color: var(--hover-background);
+    border-color: var(--text-tertiary);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    transform: none !important;
+    transform: none;
   }
 
-  &:not(:disabled):hover {
-    transform: translateY(-2px);
-  }
+  &--convert {
+    color: var(--bilibili-pink);
+    border-color: var(--bilibili-pink);
 
-  &:not(:disabled):active {
-    transform: translateY(0);
-  }
-
-  &--primary {
-    background: var(--bilibili-pink);
-    color: white;
-    box-shadow: 0 2px 8px rgba(251, 114, 153, 0.3);
-
-    &:not(:disabled):hover {
-      background: #ff5a8a;
-      box-shadow: 0 4px 16px rgba(251, 114, 153, 0.4);
+    &:hover:not(:disabled) {
+      background-color: var(--bilibili-pink-light);
+      border-color: var(--bilibili-pink);
     }
   }
 
-  &--secondary {
-    background: var(--bilibili-blue);
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 161, 214, 0.3);
-
-    &:not(:disabled):hover {
-      background: #0090c7;
-      box-shadow: 0 4px 16px rgba(0, 161, 214, 0.4);
-    }
-  }
-
-  &--success {
-    background: var(--success);
-    color: white;
-    box-shadow: 0 2px 8px rgba(68, 194, 133, 0.3);
-
-    &:not(:disabled):hover {
-      background: #39b876;
-      box-shadow: 0 4px 16px rgba(68, 194, 133, 0.4);
-    }
-  }
-
-  &__icon {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-
-    svg {
-      width: 100%;
-      height: 100%;
-    }
-  }
-
-  &__text {
-    font-weight: 500;
-  }
-}
-
-// 数据显示区域
-.cookie-display,
-.json-display {
-  width: 100%;
-  margin: 0;
-  padding: var(--spacing-md);
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-  background: var(--background);
-  border: 1px solid var(--divider);
-  border-radius: var(--radius-md);
-  white-space: pre-wrap;
-  word-break: break-all;
-  overflow: auto;
-  transition: all 0.3s ease;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--background);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--text-tertiary);
-    border-radius: 3px;
-  }
-}
-
-.cookie-display {
-  max-height: 120px;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--hover-background);
+  &--copy {
+    color: var(--bilibili-blue);
     border-color: var(--bilibili-blue);
+
+    &:hover {
+      background-color: rgba(0, 161, 214, 0.08);
+      border-color: var(--bilibili-blue);
+    }
   }
-}
 
-.json-preview {
-  position: relative;
-}
+  &--download {
+    color: var(--success);
+    border-color: var(--success);
 
-.json-display {
-  max-height: 240px;
-  background: var(--bilibili-pink-light);
-  border-color: var(--bilibili-pink-border);
-}
-
-// 复制提示
-.copy-tooltip {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--success);
-  color: white;
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  font-weight: 500;
-  box-shadow: var(--shadow-md);
-  z-index: 10;
+    &:hover {
+      background-color: rgba(68, 194, 133, 0.08);
+      border-color: var(--success);
+    }
+  }
 
   &__icon {
     width: 16px;
     height: 16px;
-
-    svg {
-      width: 100%;
-      height: 100%;
-    }
-  }
-}
-
-// 错误卡片
-.error-card {
-  background: var(--card-background);
-  border: 1px solid var(--error);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow:
-    var(--shadow-sm),
-    0 0 0 1px rgba(247, 98, 96, 0.1);
-}
-
-.error-content {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-
-  &__icon {
-    width: 20px;
-    height: 20px;
-    color: var(--error);
     flex-shrink: 0;
-    margin-top: 2px;
 
     svg {
-      width: 100%;
-      height: 100%;
+      width: 16px;
+      height: 16px;
+      display: block;
     }
-  }
-
-  &__message {
-    flex: 1;
-  }
-
-  &__title {
-    margin: 0 0 var(--spacing-xs) 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--error);
   }
 
   &__text {
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: var(--text-secondary);
-  }
-}
-
-// 动画
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-}
-
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.slide-up-enter-from,
-.slide-up-leave-to {
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
-}
-
-.fade-bounce-enter-active {
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.fade-bounce-leave-active {
-  transition: all 0.2s ease-out;
-}
-
-.fade-bounce-enter-from,
-.fade-bounce-leave-to {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.8);
-}
-
-// 响应式设计
-@media (max-width: 768px) {
-  .cookie-card__header,
-  .result-card__header {
-    flex-direction: column;
-    gap: var(--spacing-md);
-    align-items: stretch;
-  }
-
-  .result-actions {
-    justify-content: center;
-  }
-
-  .action-btn {
     flex: 1;
-    justify-content: center;
-  }
-
-  .cookie-display,
-  .json-display {
-    font-size: 0.8rem;
-  }
-
-  .error-content {
-    flex-direction: column;
-    text-align: center;
   }
 }
 
-@media (max-width: 480px) {
-  .cookie-converter {
-    gap: var(--spacing-md);
+// 响应式优化
+@media (max-width: 768px) {
+  .cookie-card {
+    &__header {
+      padding: var(--spacing-sm) var(--spacing-md);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+    }
+
+    &__actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+
+    &__pre {
+      padding: var(--spacing-sm) var(--spacing-md);
+      max-height: 150px;
+      font-size: 0.85rem;
+    }
   }
 
-  .cookie-card__content,
-  .result-card__content {
-    padding: var(--spacing-md);
+  .cookie-btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.85rem;
   }
+}
 
-  .cookie-card__header,
-  .result-card__header {
-    padding: var(--spacing-md);
-  }
+// 简单的过渡动画
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease;
+}
 
-  .result-actions {
-    flex-direction: column;
-  }
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
