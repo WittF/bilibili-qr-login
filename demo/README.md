@@ -5,6 +5,7 @@
 ## 📁 文件说明
 
 - **`basic.html`** - 原生HTML/JavaScript实现，包含iframe和window两种模式
+- **`json-convert-example.html`** - JSON转换API在线演示和测试页面
 - **`vue-example.vue`** - Vue 3单文件组件示例
 - **`react-example.jsx`** - React函数组件示例
 - **`README.md`** - 本说明文件
@@ -17,7 +18,18 @@
 open demo/basic.html
 ```
 
-### 2. Vue 3项目集成
+### 2. JSON转换API测试
+```bash
+# 在本地服务器环境下打开
+open demo/json-convert-example.html
+
+# 或者直接测试API
+curl -X POST /api/convert \
+  -H "Content-Type: application/json" \
+  -d '{"cookies": "SESSDATA=xxx; bili_jct=yyy"}'
+```
+
+### 3. Vue 3项目集成
 ```bash
 # 复制组件到你的Vue项目
 cp demo/vue-example.vue src/components/BiliLogin.vue
@@ -28,7 +40,7 @@ cp demo/vue-example.vue src/components/BiliLogin.vue
 </template>
 ```
 
-### 3. React项目集成
+### 4. React项目集成
 ```bash
 # 复制组件到你的React项目
 cp demo/react-example.jsx src/components/BiliLogin.jsx

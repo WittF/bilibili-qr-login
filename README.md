@@ -16,6 +16,7 @@
 - 🎯 **扫码登录**：扫描二维码快速登录B站账户
 - 🍪 **获取Cookie**：自动获取登录后的Cookie信息
 - 🔄 **Cookie转换**：支持将Cookie转换为JSON格式
+- 📡 **转换API**：提供RESTful API接口，支持程序化调用
 - 💾 **一键下载**：快捷下载转换后的JSON文件
 - 🌗 **明暗主题**：自动适配系统主题，支持手动切换明暗模式
 - 🌐 **多语言支持**：支持简体中文、繁体中文、英文、日文等多种语言
@@ -83,5 +84,29 @@ docker run -d \
 完整的集成指南、Vue/React示例、安全配置等，请查看：
 
 📖 **[嵌入模式集成指南](./docs/INTEGRATION.md)**
+
+## 🔌 JSON转换API
+
+本工具提供独立的JSON转换API，支持将B站Cookie转换为TinyDB格式的JSON数据。
+
+### API特性
+
+- 🚀 **RESTful接口**：标准的HTTP POST API
+- 🧠 **智能转换**：自动域名推测和安全属性设置
+- 📁 **标准格式**：输出符合TinyDB标准的JSON格式
+- 🔒 **安全可靠**：完善的输入验证和错误处理
+
+### 快速示例
+
+```bash
+# API调用示例
+curl -X POST https://login.bilibili.bi/api/convert \
+  -H "Content-Type: application/json" \
+  -d '{"cookies": "SESSDATA=xxx; bili_jct=yyy; DedeUserID=zzz"}'
+```
+
+完整的API文档、多语言示例代码、在线测试工具，请查看：
+
+🔄 **[JSON转换API文档](./docs/INTEGRATION.md#json转换api)** | 🧪 **[在线API测试](./demo/json-convert-example.html)**
 
 ---
