@@ -23,14 +23,14 @@ if (PARAM_MODE) {
     trustedOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins,
   });
 } else {
-  loggers.app.debug('标准模式运行', {
+  loggers.app.info('标准模式运行', {
     currentUrl: window.location.href,
     hasUrlParams: !!new URL(window.location.href).search,
   });
 }
 
 // 记录环境配置
-loggers.app.debug('常量配置加载完成', {
+loggers.app.info('常量配置加载完成', {
   mode: PARAM_MODE || 'standard',
   trustAllOrigin: TRUST_ALL_ORIGIN,
   trustedOriginsCount: trustOrigins.length,

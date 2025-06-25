@@ -103,7 +103,7 @@ class QrSSE {
       this.es.addEventListener(SSEEvent.END, this.handleEnd);
       this.es.addEventListener('error', this.handleConnectionError);
 
-      loggers.qrSSE.debug('SSE连接已创建');
+      loggers.qrSSE.info('SSE连接已创建');
     } catch (error) {
       loggers.qrSSE.error('创建SSE连接失败', error);
       this.handleError('连接服务器失败，请检查网络连接');
@@ -112,11 +112,11 @@ class QrSSE {
 
   private handleMessage = ({ type, data }: MessageEvent<string>) => {
     const obj = JSON.parse(data);
-    loggers.qrSSE.debug('收到SSE消息', { type, data: obj });
+    loggers.qrSSE.info('收到SSE消息', { type, data: obj });
 
     // 收到消息说明连接正常，重置重连计数器
     if (this.reconnectAttempts > 0) {
-      loggers.qrSSE.debug('连接已恢复，重置重连计数器', {
+      loggers.qrSSE.info('连接已恢复，重置重连计数器', {
         previousAttempts: this.reconnectAttempts,
       });
       this.reconnectAttempts = 0;

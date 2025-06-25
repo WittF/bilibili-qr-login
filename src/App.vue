@@ -26,9 +26,7 @@
           <div class="qrcode flex no-select card" :class="{ 'qrcode--scanned': showCheckIcon }">
             <transition name="fade" mode="out-in">
               <QrCode v-if="state.url" :value="state.url" :options="qrCodeOption" />
-              <div v-else class="qrcode__placeholder">
-                <!-- 移除无用的加载动画 -->
-              </div>
+              <div v-else class="qrcode__placeholder"></div>
             </transition>
             <div v-if="state.status !== QrStatus.WAIT" class="qrcode__mask flex">
               <LoadingIcon v-if="state.status === QrStatus.LOADING" />
@@ -101,8 +99,6 @@ onMounted(() => {
   updatePageTitle();
   // 确保主题管理器正确初始化
   themeManager.reinitialize();
-  // 初始化聚焦管理器（自动开始管理全局聚焦状态）
-  // focusManager已在模块导入时自动初始化
 });
 
 const qrCodeOption: QRCodeRenderersOptions = {
