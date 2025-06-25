@@ -32,7 +32,7 @@
             </transition>
             <div v-if="state.status !== QrStatus.WAIT" class="qrcode__mask flex">
               <LoadingIcon v-if="state.status === QrStatus.LOADING" />
-              <div v-else class="qrcode__actions flex">
+              <div v-else class="qrcode__actions">
                 <CheckIcon v-if="showCheckIcon" class="icon--success" />
                 <RefreshBtn
                   class="icon--refresh"
@@ -324,10 +324,10 @@ onBeforeUnmount(stop);
     transition: all 0.3s ease;
 
     .icon--success {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
       transition:
         transform 0.3s ease,
         opacity 0.3s ease;
@@ -345,7 +345,7 @@ onBeforeUnmount(stop);
 
     &:hover {
       .icon--success {
-        transform: translate(-50%, -50%) translateY(-30px);
+        transform: translate(-50%, -50%) translateY(-30px) !important;
         opacity: 0.7;
       }
 
@@ -366,11 +366,11 @@ onBeforeUnmount(stop);
 
 @keyframes successSlideIn {
   0% {
-    transform: translate(-50%, -50%) translateY(20px);
+    transform: translate(-50%, -50%) translateY(20px) !important;
     opacity: 0;
   }
   100% {
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) !important;
     opacity: 1;
   }
 }
@@ -425,6 +425,16 @@ onBeforeUnmount(stop);
     width: 42px;
     height: 42px;
   }
+}
+
+// 确保成功图标正确居中的全局样式
+.qrcode__actions .icon--success,
+.qrcode__actions .icon--success .check-icon {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  display: block !important;
 }
 
 // 高度过渡动画
