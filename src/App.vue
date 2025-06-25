@@ -125,15 +125,39 @@ const embedOrigin = computed(() => {
   try {
     // iframe模式：检查是否被嵌入
     if (PARAM_MODE === 'iframe' && window.parent !== window) {
-      return document.referrer ? new URL(document.referrer).origin : '未知来源';
+      if (document.referrer) {
+        const referrerOrigin = new URL(document.referrer).origin;
+        return referrerOrigin;
+      }
+      // 尝试获取父窗口的origin（可能因跨域限制失败）
+      try {
+        return window.parent.location.origin;
+      } catch {
+        return '未知来源';
+      }
     }
     // window模式：检查opener
     if (PARAM_MODE === 'window' && window.opener) {
-      return window.opener.location?.origin || '未知来源';
+      try {
+        return window.opener.location.origin;
+      } catch {
+        // 跨域限制时，尝试从referrer获取
+        if (document.referrer) {
+          return new URL(document.referrer).origin;
+        }
+        return '未知来源';
+      }
     }
   } catch (error) {
     // 跨域访问限制时返回referrer
-    return document.referrer ? new URL(document.referrer).origin : '未知来源';
+    if (document.referrer) {
+      try {
+        return new URL(document.referrer).origin;
+      } catch {
+        return '未知来源';
+      }
+    }
+    return '未知来源';
   }
 
   return null;
@@ -350,6 +374,7 @@ onBeforeUnmount(() => {
 .embed-notice__content {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-xs);
   font-size: 0.875rem;
   color: var(--text-primary);

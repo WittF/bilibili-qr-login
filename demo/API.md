@@ -20,6 +20,23 @@ https://login.bilibili.bi/
 |------|------|------|------|------|
 | mode | string | 否 | 登录模式，`iframe`或`window` | `?mode=iframe` |
 | lang | string | 否 | 界面语言，默认`zh-CN` | `?lang=en` |
+| theme | string | 否 | 明暗模式，`light`/`dark`/`auto`，默认`auto` | `?theme=dark` |
+
+#### 主题模式说明
+
+- **`light`** - 强制使用浅色主题
+- **`dark`** - 强制使用深色主题  
+- **`auto`** - 自动跟随系统主题设置（默认）
+
+#### 多参数组合示例
+
+```
+# iframe模式 + 英文界面 + 深色主题
+https://login.bilibili.bi/?mode=iframe&lang=en&theme=dark
+
+# 弹窗模式 + 浅色主题
+https://login.bilibili.bi/?mode=window&theme=light
+```
 
 ### 消息通信格式
 

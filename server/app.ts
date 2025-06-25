@@ -32,12 +32,19 @@ const corsMiddleware = async (c: any, next: any) => {
 
   // 设置CORS头
   if (ALLOW_ALL_ORIGINS) {
-    // 开发模式或明确配置为*时，允许所有来源
-    c.header('Access-Control-Allow-Origin', '*');
+    // 开发模式或明确配置为*时，允许所有来源（包括null origin）
+    if (origin === null || origin === 'null') {
+      c.header('Access-Control-Allow-Origin', 'null');
+    } else {
+      c.header('Access-Control-Allow-Origin', '*');
+    }
   } else if (origin && allowedOrigins.includes(origin)) {
     // 生产模式下，只允许配置的域名
     c.header('Access-Control-Allow-Origin', origin);
     c.header('Vary', 'Origin');
+  } else if ((origin === null || origin === 'null') && process.env.NODE_ENV === 'development') {
+    // 特殊处理：开发环境下允许null origin
+    c.header('Access-Control-Allow-Origin', 'null');
   }
 
   // 设置其他CORS头
@@ -52,10 +59,18 @@ const handlePreflight = (c: any) => {
   const origin = c.req.header('Origin');
 
   if (ALLOW_ALL_ORIGINS) {
-    c.header('Access-Control-Allow-Origin', '*');
+    // 开发模式或明确配置为*时，允许所有来源（包括null origin）
+    if (origin === null || origin === 'null') {
+      c.header('Access-Control-Allow-Origin', 'null');
+    } else {
+      c.header('Access-Control-Allow-Origin', '*');
+    }
   } else if (origin && allowedOrigins.includes(origin)) {
     c.header('Access-Control-Allow-Origin', origin);
     c.header('Vary', 'Origin');
+  } else if ((origin === null || origin === 'null') && process.env.NODE_ENV === 'development') {
+    // 特殊处理：开发环境下允许null origin
+    c.header('Access-Control-Allow-Origin', 'null');
   }
 
   c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
