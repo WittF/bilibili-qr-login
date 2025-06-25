@@ -314,11 +314,9 @@ onBeforeUnmount(stop);
   }
 
   &__actions {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -326,30 +324,34 @@ onBeforeUnmount(stop);
     transition: all 0.3s ease;
 
     .icon--success {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       transition:
         transform 0.3s ease,
         opacity 0.3s ease;
       animation: successSlideIn 0.4s ease-out;
+      z-index: 1;
     }
 
     .icon--refresh {
       position: absolute;
       bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(10px);
       opacity: 0;
+      transform: translateY(10px);
       transition: all 0.3s ease;
     }
 
     &:hover {
       .icon--success {
-        transform: translateY(-30px);
+        transform: translate(-50%, -50%) translateY(-30px);
         opacity: 0.7;
       }
 
       .icon--refresh {
         opacity: 1;
-        transform: translateX(-50%) translateY(0);
+        transform: translateY(0);
       }
     }
   }
@@ -364,11 +366,11 @@ onBeforeUnmount(stop);
 
 @keyframes successSlideIn {
   0% {
-    transform: translateY(20px);
+    transform: translate(-50%, -50%) translateY(20px);
     opacity: 0;
   }
   100% {
-    transform: translateY(0);
+    transform: translate(-50%, -50%);
     opacity: 1;
   }
 }

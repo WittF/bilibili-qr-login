@@ -18,22 +18,21 @@ const isDarkTheme = computed(() => {
 
 <style scoped lang="less">
 .check-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  width: 64px;
+  height: 64px;
 
   svg {
-    width: 64px;
-    height: 64px;
+    width: 100%;
+    height: 100%;
+    display: block;
     transition: transform 0.3s ease;
   }
 
   // 响应式调整
   @media (max-width: 768px) {
-    svg {
-      width: 56px;
-      height: 56px;
-    }
+    width: 56px;
+    height: 56px;
   }
 }
 </style>
