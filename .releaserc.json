@@ -31,7 +31,7 @@
         "preset": "conventionalcommits",
         "presetConfig": {
           "types": [
-            { "type": "feat", "section": "✨ 新功能" },
+            { "type": "feat", "section": "✨ 功能更新" },
             { "type": "fix", "section": "🐛 Bug修复" },
             { "type": "docs", "section": "📚 文档更新" },
             { "type": "style", "section": "💄 样式优化" },
