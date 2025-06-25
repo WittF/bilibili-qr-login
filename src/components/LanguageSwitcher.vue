@@ -408,17 +408,24 @@ onUnmounted(() => {
       min-height: 18px;
     }
 
-    &__dropdown {
-      left: auto;
-      right: 0;
-      margin-left: 0;
-      margin-right: 0;
-      min-width: 100px;
-    }
-
     &__option {
       padding: var(--spacing-sm);
       font-size: 0.85rem;
+    }
+  }
+}
+
+// 超小屏幕：向上展开
+@media (max-width: 480px) {
+  .language-switcher {
+    &__dropdown {
+      top: auto;
+      bottom: 100%;
+      left: 0;
+      right: auto;
+      margin-left: 0;
+      margin-bottom: var(--spacing-xs);
+      min-width: 100px;
     }
   }
 }
