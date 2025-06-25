@@ -78,7 +78,7 @@ const handlePreflight = (c: any) => {
   c.header('Access-Control-Allow-Credentials', 'true');
   c.header('Access-Control-Max-Age', '86400');
 
-  return c.text('', 204);
+  return new Response(null, { status: 204 });
 };
 
 enum SSEEvent {
