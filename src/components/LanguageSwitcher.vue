@@ -319,6 +319,12 @@ onUnmounted(() => {
       background-color: var(--overlay-light);
       color: var(--text-primary);
       font-weight: 500;
+
+      // 确保激活状态的聚焦效果能够正确显示
+      &:focus-visible {
+        background-color: rgba(251, 114, 153, 0.2) !important;
+        box-shadow: inset 0 0 0 2px rgba(251, 114, 153, 0.9) !important;
+      }
     }
   }
 
@@ -386,6 +392,12 @@ onUnmounted(() => {
 
     &--active {
       color: var(--text-primary);
+
+      // 暗色主题下激活状态的聚焦效果
+      &:focus-visible {
+        background-color: rgba(255, 126, 185, 0.25) !important;
+        box-shadow: inset 0 0 0 2px rgba(255, 126, 185, 1) !important;
+      }
     }
   }
 }
