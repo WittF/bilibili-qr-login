@@ -322,6 +322,9 @@ onBeforeUnmount(stop);
 
     .icon--success {
       position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       transition:
         transform 0.3s ease,
         opacity 0.3s ease;
@@ -338,7 +341,7 @@ onBeforeUnmount(stop);
 
     &:hover {
       .icon--success {
-        transform: translateY(-30px);
+        transform: translate(-50%, -50%) translateY(-30px);
         opacity: 0.7;
       }
 
@@ -359,11 +362,11 @@ onBeforeUnmount(stop);
 
 @keyframes successSlideIn {
   0% {
-    transform: translateY(20px);
+    transform: translate(-50%, -50%) translateY(20px);
     opacity: 0;
   }
   100% {
-    transform: translateY(0);
+    transform: translate(-50%, -50%);
     opacity: 1;
   }
 }
