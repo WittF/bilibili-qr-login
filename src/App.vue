@@ -374,6 +374,7 @@ onBeforeUnmount(() => {
 .embed-notice__content {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-xs);
   font-size: 0.875rem;
   color: var(--text-primary);
