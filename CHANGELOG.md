@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.3.0](https://github.com/WittF/bilibili-qr-login/compare/v1.2.0...v1.3.0) (2025-06-25)
+
+
+### ✨ 新功能
+
+* **ci:** 优化Docker构建流程支持版本号传递和多平台构建 ([9661600](https://github.com/WittF/bilibili-qr-login/commit/9661600c718dc49fb1ae553ec14112ad8481b564))
+
 ## [1.2.0](https://github.com/WittF/bilibili-qr-login/compare/v1.1.1...v1.2.0) (2025-06-25)
 
 
