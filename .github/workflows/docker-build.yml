@@ -48,6 +48,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Check Docker credentials
+        run: |
+          echo "🔍 检查Docker构建环境..."
+          echo "📦 版本: ${{ needs.prepare.outputs.version }}"
+          if [[ -n "${{ env.DOCKER_USERNAME }}" ]]; then
+            echo "✅ Docker用户名已配置: ${{ env.DOCKER_USERNAME }}"
+          else
+            echo "❌ Docker用户名未配置"
+          fi
+          
+          if [[ -n "${{ env.DOCKER_PASSWORD }}" ]]; then
+            echo "✅ Docker密码已配置"
+          else
+            echo "❌ Docker密码未配置"
+          fi
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -63,7 +79,7 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
 
       - name: Login to Docker Hub
-        if: env.DOCKER_PASSWORD != ''
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -71,7 +87,7 @@ jobs:
           password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Build and push
-        if: env.DOCKER_PASSWORD != ''
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -87,7 +103,7 @@ jobs:
 
       - name: Update Docker Hub description
         uses: peter-evans/dockerhub-description@v3
-        if: env.DOCKER_PASSWORD != ''
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
         with:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
@@ -95,7 +111,7 @@ jobs:
           readme-filepath: ./README.md
 
       - name: Trigger deployment webhook
-        if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != ''
+        if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
         run: |
           echo "📡 触发生产环境部署 (镜像: v${{ needs.prepare.outputs.version }})"
           
@@ -131,7 +147,7 @@ jobs:
           rm -f /tmp/webhook_response.json
 
       - name: Verify published image
-        if: env.DOCKER_PASSWORD != '' && vars.DOCKER_USERNAME != ''
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
           echo "🧪 验证发布的镜像..."
