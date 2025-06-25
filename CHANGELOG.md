@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.4.2](https://github.com/WittF/bilibili-qr-login/compare/v1.4.1...v1.4.2) (2025-06-25)
+
+
+### 🐛 Bug修复
+
+* **ci:** 修复Docker构建workflow中的标签配置和依赖问题 ([23ceb2a](https://github.com/WittF/bilibili-qr-login/commit/23ceb2a3af9dbdb3f65c925dd18ad9fd4244270a))
+
 ## [1.4.1](https://github.com/WittF/bilibili-qr-login/compare/v1.4.0...v1.4.1) (2025-06-25)
 
 
