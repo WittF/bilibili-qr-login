@@ -42,17 +42,26 @@ const isDarkTheme = computed(() => {
   }
 
   svg {
-    width: 64px !important;
-    height: 64px !important;
+    width: 24px !important; // 保持原始尺寸
+    height: 24px !important; // 保持原始尺寸
     display: block !important;
-    transition: transform 0.3s ease;
     position: relative !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
     border: none !important;
     background: none !important;
     box-shadow: none !important;
     outline: none !important;
+
+    // 从24px缩放到64px
+    transform: scale(2.67) !important;
+    transform-origin: center center !important;
+
+    // 确保SVG正确填充和对齐
+    object-fit: contain !important;
+    object-position: center !important;
+
+    transition: transform 0.3s ease;
 
     // 防止SVG上的调试信息
     &::before,
@@ -77,8 +86,9 @@ const isDarkTheme = computed(() => {
     height: 56px !important;
 
     svg {
-      width: 56px !important;
-      height: 56px !important;
+      width: 24px !important; // 保持原始尺寸
+      height: 24px !important; // 保持原始尺寸
+      transform: scale(2.33) !important; // 从24px缩放到56px (56/24=2.33)
     }
   }
 }

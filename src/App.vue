@@ -476,16 +476,21 @@ onBeforeUnmount(stop);
   }
 }
 
-// 确保SVG元素本身也正确居中
+// 确保SVG元素本身也正确居中和缩放
 .qrcode__actions .icon--success .check-icon svg {
   display: block !important;
-  margin: 0 !important;
+  margin: 0 auto !important;
   position: relative !important;
   top: 0 !important;
   left: 0 !important;
-  transform: none !important;
-  width: 64px !important;
-  height: 64px !important;
+  transform: scale(2.67) !important; // 从24px缩放到64px (64/24=2.67)
+  transform-origin: center center !important;
+  width: 24px !important; // 保持原始尺寸
+  height: 24px !important; // 保持原始尺寸
+
+  // 确保SVG正确填充和对齐
+  object-fit: contain !important;
+  object-position: center !important;
 
   // 清除SVG上的任何调试信息
   &::before,
@@ -493,6 +498,13 @@ onBeforeUnmount(stop);
     display: none !important;
     content: none !important;
     visibility: hidden !important;
+  }
+}
+
+// 在小屏幕上调整缩放
+@media (max-width: 768px) {
+  .qrcode__actions .icon--success .check-icon svg {
+    transform: scale(2.33) !important; // 从24px缩放到56px (56/24=2.33)
   }
 }
 
