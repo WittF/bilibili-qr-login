@@ -5,6 +5,24 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.4.0](https://github.com/WittF/bilibili-qr-login/compare/v1.3.0...v1.4.0) (2025-06-25)
+
+
+### ✨ 新功能
+
+* **demo:** 创建集成示例demo文件并精简文档 ([e807686](https://github.com/WittF/bilibili-qr-login/commit/e8076866ac296debcd9da8cc93aedf2cb5f4e6b8))
+
+
+### 🐛 Bug修复
+
+* **ci:** 修复webhook触发条件，确保开发和生产环境都能自动更新 ([949a1e4](https://github.com/WittF/bilibili-qr-login/commit/949a1e447243f35e392562823930c9fac732b704))
+
+
+### 📚 文档更新
+
+* **readme:** 移除README文档中的多余内容 ([6ad9772](https://github.com/WittF/bilibili-qr-login/commit/6ad97726f4e0ace212fa8c3de9e295b7d6a04add))
+* **readme:** 重构README文档结构，新增独立集成指南 ([d7932be](https://github.com/WittF/bilibili-qr-login/commit/d7932be620227031954e14cb2f35bb9855c8a09a))
+
 ## [1.3.0](https://github.com/WittF/bilibili-qr-login/compare/v1.2.0...v1.3.0) (2025-06-25)
 
 
