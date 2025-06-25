@@ -12,12 +12,12 @@
 
   // 聚焦效果变量
   --focus-ring-color: var(--bilibili-pink);
-  --focus-ring-shadow: 0 0 0 3px rgba(251, 114, 153, 0.25);
-  --focus-ring-shadow-strong: 0 0 0 4px rgba(251, 114, 153, 0.3);
-  --focus-ring-shadow-inset: 0 0 0 2px rgba(251, 114, 153, 0.4);
-  --focus-ring-glow: 0 0 12px rgba(251, 114, 153, 0.15);
-  --focus-ring-transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --focus-ring-transition-fast: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --focus-ring-shadow: 0 0 0 2px rgba(251, 114, 153, 0.6);
+  --focus-ring-shadow-strong: 0 0 0 3px rgba(251, 114, 153, 0.7);
+  --focus-ring-shadow-inset: 0 0 0 2px rgba(251, 114, 153, 0.8);
+  --focus-ring-glow: 0 0 8px rgba(251, 114, 153, 0.2);
+  --focus-ring-transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --focus-ring-transition-fast: all 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   // 中性色 - 浅色主题
   --text-primary: #18191c;
@@ -70,10 +70,10 @@
 // 暗色主题
 [data-theme='dark'] {
   // 聚焦效果变量 - 暗色主题
-  --focus-ring-shadow: 0 0 0 3px rgba(255, 126, 185, 0.35);
-  --focus-ring-shadow-strong: 0 0 0 4px rgba(255, 126, 185, 0.4);
-  --focus-ring-shadow-inset: 0 0 0 2px rgba(255, 126, 185, 0.5);
-  --focus-ring-glow: 0 0 15px rgba(255, 126, 185, 0.2);
+  --focus-ring-shadow: 0 0 0 2px rgba(255, 126, 185, 0.8);
+  --focus-ring-shadow-strong: 0 0 0 3px rgba(255, 126, 185, 0.9);
+  --focus-ring-shadow-inset: 0 0 0 2px rgba(255, 126, 185, 0.9);
+  --focus-ring-glow: 0 0 10px rgba(255, 126, 185, 0.3);
 
   // 中性色 - 暗色主题
   --text-primary: #e1e3e6;
@@ -267,11 +267,11 @@ body {
   outline: none;
 }
 
-// 通用按钮聚焦效果 - 丝滑过渡
+// 通用按钮聚焦效果 - 清晰可见
 button:focus-visible,
 [role='button']:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow);
+  box-shadow: var(--focus-ring-shadow);
   transform: translateY(-1px);
   transition: var(--focus-ring-transition);
   z-index: 1;
@@ -282,7 +282,7 @@ button:focus-visible,
 .btn:focus-visible,
 .refresh-btn:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-shadow-strong), var(--focus-ring-glow);
+  box-shadow: var(--focus-ring-shadow-strong);
   transform: translateY(-2px) scale(1.02);
   transition: var(--focus-ring-transition);
   z-index: 2;
@@ -292,7 +292,7 @@ button:focus-visible,
 // 语言切换器主按钮特殊聚焦效果
 .language-switcher__current:focus-visible {
   outline: none !important;
-  box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow) !important;
+  box-shadow: var(--focus-ring-shadow) !important;
   background-color: var(--overlay-light) !important;
   transform: translateY(-1px) scale(1.01) !important;
   transition: var(--focus-ring-transition) !important;
@@ -322,10 +322,11 @@ a:focus-visible {
 // 内嵌聚焦效果（用于下拉选项等）
 .focus-inset:focus-visible {
   outline: none !important;
-  box-shadow: var(--focus-ring-shadow-inset) !important;
-  background-color: var(--background) !important;
+  box-shadow: inset 0 0 0 2px rgba(251, 114, 153, 0.8) !important;
+  background-color: var(--bilibili-pink-light) !important;
+  border-radius: 4px !important;
   transition: var(--focus-ring-transition-fast) !important;
-  transform: translateY(-1px) !important;
+  transform: none !important;
   z-index: 1 !important;
   position: relative !important;
 }
@@ -352,21 +353,24 @@ button:active:focus,
   }
 
   .focus-inset:focus-visible {
-    background-color: var(--overlay-dark) !important;
+    box-shadow: inset 0 0 0 2px rgba(255, 126, 185, 0.9) !important;
+    background-color: rgba(255, 126, 185, 0.15) !important;
   }
 }
 
 // 确保语言切换器选项的聚焦效果不被覆盖
 .language-switcher__option.focus-inset:focus-visible {
   outline: none !important;
-  box-shadow: var(--focus-ring-shadow-inset) !important;
-  background-color: var(--background) !important;
-  transform: translateY(-1px) !important;
+  box-shadow: inset 0 0 0 2px rgba(251, 114, 153, 0.8) !important;
+  background-color: var(--bilibili-pink-light) !important;
+  border-radius: 4px !important;
+  transform: none !important;
   transition: var(--focus-ring-transition-fast) !important;
-  z-index: 2 !important;
+  z-index: 1 !important;
   position: relative !important;
 }
 
 [data-theme='dark'] .language-switcher__option.focus-inset:focus-visible {
-  background-color: var(--overlay-dark) !important;
+  box-shadow: inset 0 0 0 2px rgba(255, 126, 185, 0.9) !important;
+  background-color: rgba(255, 126, 185, 0.15) !important;
 }

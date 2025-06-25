@@ -754,7 +754,7 @@ onBeforeUnmount(stop);
     background-color: var(--overlay-light);
     border-color: var(--bilibili-pink-border);
     transform: translateY(-1px) scale(1.02);
-    box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow), var(--bilibili-pink-medium);
+    box-shadow: var(--focus-ring-shadow), var(--bilibili-pink-medium);
     z-index: 1;
     position: relative;
   }
@@ -816,7 +816,7 @@ onBeforeUnmount(stop);
       color: var(--bilibili-pink);
       background-color: var(--overlay-dark);
       border-color: var(--bilibili-pink-border);
-      box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow), var(--bilibili-pink-medium);
+      box-shadow: var(--focus-ring-shadow), var(--bilibili-pink-medium);
     }
   }
 }
