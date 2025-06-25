@@ -3,7 +3,7 @@
     class="refresh-btn btn flex"
     tabindex="0"
     role="button"
-    :aria-label="t.common.refresh"
+    :aria-label="t.common.refreshQR"
     @keydown="handleKeyDown"
     @click="handleClick"
   >

@@ -22,6 +22,10 @@ const createDevLogger = (module: string) => ({
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] [${module}] INFO: ${message}`, data || '');
   },
+  warn: (message: string, data?: any) => {
+    const timestamp = new Date().toISOString();
+    console.warn(`[${timestamp}] [${module}] WARN: ${message}`, data || '');
+  },
   error: (message: string, data?: any) => {
     const timestamp = new Date().toISOString();
     console.error(`[${timestamp}] [${module}] ERROR: ${message}`, data || '');
