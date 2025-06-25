@@ -746,6 +746,18 @@ onBeforeUnmount(stop);
     transform: translateY(-1px);
     box-shadow: var(--bilibili-pink-medium);
   }
+
+  // 专门的聚焦效果
+  &:focus-visible {
+    outline: none !important;
+    color: var(--bilibili-pink);
+    background-color: var(--overlay-light);
+    border-color: var(--bilibili-pink-border);
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow), var(--bilibili-pink-medium);
+    z-index: 1;
+    position: relative;
+  }
 }
 
 .github-icon {
@@ -798,6 +810,13 @@ onBeforeUnmount(stop);
       background-color: var(--overlay-dark);
       border-color: var(--bilibili-pink-border);
       box-shadow: var(--bilibili-pink-medium);
+    }
+
+    &:focus-visible {
+      color: var(--bilibili-pink);
+      background-color: var(--overlay-dark);
+      border-color: var(--bilibili-pink-border);
+      box-shadow: var(--focus-ring-shadow), var(--focus-ring-glow), var(--bilibili-pink-medium);
     }
   }
 }

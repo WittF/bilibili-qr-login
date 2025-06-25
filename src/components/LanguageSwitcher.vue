@@ -300,7 +300,7 @@ onUnmounted(() => {
     justify-content: space-between;
     padding: var(--spacing-sm) var(--spacing-md);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: var(--focus-ring-transition-fast);
     font-size: 0.9rem;
     background-color: transparent;
     border: none;
@@ -312,9 +312,8 @@ onUnmounted(() => {
       background-color: var(--background);
     }
 
-    &:focus-visible {
-      background-color: var(--background);
-    }
+    // 移除内部的 focus-visible 样式，使用全局的聚焦效果
+    // 全局的 .focus-inset:focus-visible 会自动应用
 
     &--active {
       background-color: var(--overlay-light);
@@ -383,9 +382,7 @@ onUnmounted(() => {
       background-color: var(--overlay-dark);
     }
 
-    &:focus-visible {
-      background-color: var(--overlay-dark);
-    }
+    // 移除内部的 focus-visible 样式，使用全局的聚焦效果
 
     &--active {
       color: var(--text-primary);
