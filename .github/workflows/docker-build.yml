@@ -202,13 +202,13 @@ jobs:
           readme-filepath: ./README.md
 
       # ===== 📡 部署触发阶段 =====
-      - name: Test webhook connectivity
+      - name: Prepare webhook
         if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != ''
         run: |
-          echo "🔗 测试Webhook连接性..."
-          curl -f --connect-timeout 10 --max-time 30 \
-            -H "User-Agent: GitHub-Actions-Test" \
-            http://${{ env.WEBHOOK_IP }}:9000/health || echo "⚠️ Webhook端点无响应，但将继续尝试"
+          echo "📡 准备触发部署Webhook..."
+          echo "🎯 目标服务器: ${{ env.WEBHOOK_IP }}:9000"
+          echo "🔄 等待镜像推送完成..."
+          sleep 3
 
       - name: Trigger deployment webhook
         if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != ''
@@ -217,39 +217,60 @@ jobs:
           if [[ "${{ needs.prepare.outputs.is_release }}" == "true" ]]; then
             IMAGE_TAG="v${{ needs.prepare.outputs.version }}"
             DEPLOY_ENV="production"
-            echo "🏷️  准备触发生产环境部署"
+            echo "🏷️ 准备触发生产环境部署"
           else
             IMAGE_TAG="dev-${{ needs.prepare.outputs.short_sha }}"
             DEPLOY_ENV="development"
-            echo "🏷️  准备触发开发环境部署"
+            echo "🏷️ 准备触发开发环境部署"
           fi
           
-          echo "📡 正在触发 $DEPLOY_ENV 环境部署，镜像标签: $IMAGE_TAG"
+          echo "📡 触发 $DEPLOY_ENV 环境部署，镜像标签: $IMAGE_TAG"
           
-          # 等待推送完成
-          sleep 3
+          # 构建webhook payload
+          WEBHOOK_PAYLOAD=$(cat <<EOF
+          {
+            "repository": {
+              "repo_name": "${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
+            },
+            "version": "${{ needs.prepare.outputs.version }}",
+            "tag": "$IMAGE_TAG",
+            "sha": "${{ github.sha }}",
+            "environment": "$DEPLOY_ENV",
+            "is_release": ${{ needs.prepare.outputs.is_release }},
+            "commit_message": "${{ github.event.head_commit.message }}",
+            "pusher": "${{ github.actor }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          }
+          EOF
+          )
           
-          # 发送webhook
-          if curl -X POST \
+          # 发送webhook请求
+          echo "📤 发送部署请求..."
+          HTTP_STATUS=$(curl -s -o /tmp/webhook_response.json -w "%{http_code}" \
+            -X POST \
             -H "Content-Type: application/json" \
-            -H "User-Agent: GitHub-Actions" \
-            -d '{
-              "repository": {
-                "repo_name": "${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
-              },
-              "version": "${{ needs.prepare.outputs.version }}",
-              "tag": "'$IMAGE_TAG'",
-              "sha": "${{ github.sha }}",
-              "environment": "'$DEPLOY_ENV'",
-              "is_release": ${{ needs.prepare.outputs.is_release }},
-              "commit_message": "${{ github.event.head_commit.message }}",
-              "pusher": "${{ github.actor }}"
-            }' \
-            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push; then
-            echo "✅ 部署Webhook触发成功！"
+            -H "User-Agent: GitHub-Actions/${{ github.run_id }}" \
+            -d "$WEBHOOK_PAYLOAD" \
+            --connect-timeout 10 \
+            --max-time 30 \
+            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push)
+          
+          # 检查响应状态
+          if [[ "$HTTP_STATUS" -ge 200 && "$HTTP_STATUS" -lt 300 ]]; then
+            echo "✅ 部署Webhook触发成功！(HTTP $HTTP_STATUS)"
+            if [[ -f /tmp/webhook_response.json ]]; then
+              echo "📄 服务器响应: $(cat /tmp/webhook_response.json)"
+            fi
           else
-            echo "❌ 部署Webhook触发失败，但构建流程继续"
+            echo "❌ 部署Webhook触发失败 (HTTP $HTTP_STATUS)"
+            if [[ -f /tmp/webhook_response.json ]]; then
+              echo "📄 错误响应: $(cat /tmp/webhook_response.json)"
+            fi
+            echo "🔄 构建流程继续执行..."
           fi
+          
+          # 清理临时文件
+          rm -f /tmp/webhook_response.json
 
       - name: Webhook skipped notification
         if: env.WEBHOOK_IP == '' || env.DOCKER_PASSWORD == ''
