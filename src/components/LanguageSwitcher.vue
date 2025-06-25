@@ -9,8 +9,10 @@
       @click="toggleDropdown"
       @keydown="handleKeyDown"
     >
-      <LanguageIcon class="language-switcher__icon" />
-      <span class="language-switcher__label">{{ getLanguageDisplayName(currentLanguage) }}</span>
+      <div class="language-switcher__content">
+        <LanguageIcon class="language-switcher__icon" />
+        <span class="language-switcher__label">{{ getLanguageDisplayName(currentLanguage) }}</span>
+      </div>
       <ArrowDownIcon class="language-switcher__arrow" :class="{ 'language-switcher__arrow--open': isOpen }" />
     </button>
 
@@ -176,23 +178,21 @@ onUnmounted(() => {
   &__current {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    justify-content: space-between;
     padding: calc(var(--spacing-xs) + 1px) var(--spacing-sm);
     background-color: transparent;
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
     transition:
-      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
       transform 0.15s ease;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    min-width: 95px;
+    width: 113px;
     min-height: 20px;
     font-family: inherit;
-    will-change: width, transform, background-color;
+    will-change: transform, background-color;
 
     // 重置button默认样式
     appearance: none;
@@ -211,6 +211,15 @@ onUnmounted(() => {
       background-color: var(--overlay-light);
       color: var(--text-primary);
     }
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex: 1;
+    justify-content: center;
+    margin-right: var(--spacing-xs);
   }
 
   &__icon {
@@ -235,19 +244,12 @@ onUnmounted(() => {
   }
 
   &__label {
-    flex: 0 1 auto;
     font-weight: 500;
     display: flex;
     align-items: center;
     min-height: 18px;
     line-height: 1.2;
-    transition:
-      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: visible;
     white-space: nowrap;
-    will-change: width;
-    max-width: fit-content;
   }
 
   &__arrow {
@@ -287,7 +289,8 @@ onUnmounted(() => {
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     z-index: 2000;
-    min-width: 105px;
+    min-width: 110px;
+    width: 110px;
   }
 
   &__option {
@@ -402,17 +405,15 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .language-switcher {
     &__current {
-      min-width: 85px;
+      width: 100px;
       padding: var(--spacing-xs) calc(var(--spacing-xs) + 2px);
       font-size: 0.85rem;
       min-height: 32px;
-      gap: calc(var(--spacing-xs) - 1px);
+    }
 
-      // 让label不要过度拉伸
-      .language-switcher__label {
-        flex: 0 1 auto;
-        max-width: fit-content;
-      }
+    &__content {
+      margin-right: calc(var(--spacing-xs) - 1px);
+      gap: calc(var(--spacing-xs) - 1px);
     }
 
     &__icon,
@@ -427,7 +428,8 @@ onUnmounted(() => {
     }
 
     &__dropdown {
-      min-width: 85px;
+      min-width: 111px;
+      width: 111px;
     }
 
     &__option {
@@ -457,7 +459,8 @@ onUnmounted(() => {
       right: auto;
       margin-left: 0;
       margin-bottom: var(--spacing-xs);
-      min-width: 100px;
+      min-width: 111px;
+      width: 111px;
     }
   }
 }
