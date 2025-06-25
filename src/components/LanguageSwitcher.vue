@@ -402,15 +402,41 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .language-switcher {
     &__current {
-      min-width: 90px;
-      padding: calc(var(--spacing-xs) + 1px);
+      min-width: 100px;
+      padding: var(--spacing-xs) calc(var(--spacing-sm) - 2px);
       font-size: 0.85rem;
-      min-height: 18px;
+      min-height: 32px;
+      gap: calc(var(--spacing-xs) - 1px);
+    }
+
+    &__icon,
+    &__arrow {
+      width: 14px;
+      height: 14px;
+
+      svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
+    }
+
+    &__dropdown {
+      min-width: 110px;
     }
 
     &__option {
-      padding: var(--spacing-sm);
+      padding: calc(var(--spacing-sm) + 1px) var(--spacing-sm);
       font-size: 0.85rem;
+    }
+
+    &__check {
+      width: 14px;
+      height: 14px;
+
+      svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
     }
   }
 }
