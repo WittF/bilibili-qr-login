@@ -5,6 +5,25 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.8.0](https://github.com/WittF/bilibili-qr-login/compare/v1.7.0...v1.8.0) (2025-06-25)
+
+
+### ✨ 新功能
+
+* **demo:** 自动检测环境使用对应API服务 ([31e00d2](https://github.com/WittF/bilibili-qr-login/commit/31e00d28956b97b6287c37799c4de64a4afd5946))
+* **ui:** 小屏幕语言切换器向上展开 ([7ce1952](https://github.com/WittF/bilibili-qr-login/commit/7ce1952229bf7b3acb09459c62bfd6ab279f8cc0))
+
+
+### 🐛 Bug修复
+
+* **cors:** 修复Access-Control-Allow-Origin与Credentials冲突 ([60b21e4](https://github.com/WittF/bilibili-qr-login/commit/60b21e45c4706f1b4a5988a15adba0e6156fbc90))
+* **server:** 修复CORS预检请求204状态码错误 ([92325ee](https://github.com/WittF/bilibili-qr-login/commit/92325ee849a8f01895160a8b9c2d536f743fbea3))
+
+
+### ♻️ 代码重构
+
+* **config:** 统一代码风格和TypeScript配置 ([7541b4c](https://github.com/WittF/bilibili-qr-login/commit/7541b4c8fb6bfab5ae914a3e4232bc67827f5336))
+
 ## [1.7.0](https://github.com/WittF/bilibili-qr-login/compare/v1.6.0...v1.7.0) (2025-06-25)
 
 
