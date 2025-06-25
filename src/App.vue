@@ -25,8 +25,18 @@
         <div class="qrcode-container" :class="{ 'qrcode-container--with-cookie': state.cookie && !PARAM_MODE }">
           <div class="qrcode flex no-select card" :class="{ 'qrcode--scanned': showCheckIcon }">
             <transition name="fade" mode="out-in">
-              <QrCode v-if="state.url" :value="state.url" :options="qrCodeOption" />
-              <div v-else class="qrcode__placeholder"></div>
+              <QrCode
+                v-if="state.url"
+                :value="state.url"
+                :options="qrCodeOption"
+                :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
+                class="qrcode__content"
+              />
+              <div
+                v-else
+                class="qrcode__placeholder"
+                :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
+              ></div>
             </transition>
             <div v-if="state.status !== QrStatus.WAIT" class="qrcode__mask flex">
               <LoadingIcon v-if="state.status === QrStatus.LOADING" />
@@ -98,38 +108,44 @@ import type { QRCodeRenderersOptions } from 'qrcode';
 
 const { t, updatePageTitle } = useI18n();
 
-// 响应式二维码尺寸
-const getQrCodeSize = () => {
+// 响应式二维码尺寸和缩放
+const getQrCodeScale = () => {
   const width = window.innerWidth;
   if (width >= 768) {
-    return 196; // 大屏
+    return 1; // 大屏：196px (基准尺寸)
   } else if (width >= 480) {
-    return 188; // 中屏
+    return 188 / 196; // 中屏：188px
   } else {
-    return 180; // 小屏
+    return 180 / 196; // 小屏：180px
   }
 };
 
-const qrCodeSize = ref(getQrCodeSize());
+const qrCodeScale = ref(getQrCodeScale());
 
-// 响应式二维码配置
-const qrCodeOption = computed(
-  (): QRCodeRenderersOptions => ({
-    margin: 0,
-    width: qrCodeSize.value,
-    color: {
-      dark: '#18191C',
-      light: '#FFFFFF',
-    },
-  }),
-);
+// 固定的二维码配置，避免重新渲染
+const qrCodeOption: QRCodeRenderersOptions = {
+  margin: 0,
+  width: 196, // 固定为大屏尺寸
+  color: {
+    dark: '#18191C',
+    light: '#FFFFFF',
+  },
+};
+
+// 防抖函数
+let resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
 // 监听窗口大小变化
 const handleResize = () => {
-  const newSize = getQrCodeSize();
-  if (newSize !== qrCodeSize.value) {
-    qrCodeSize.value = newSize;
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
   }
+  resizeTimer = setTimeout(() => {
+    const newScale = getQrCodeScale();
+    if (Math.abs(newScale - qrCodeScale.value) > 0.001) {
+      qrCodeScale.value = newScale;
+    }
+  }, 150); // 150ms防抖延迟
 };
 
 const { state, getters, restart, stop } = useQrSSE();
@@ -181,6 +197,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
+  }
   stop();
 });
 </script>
@@ -338,7 +357,13 @@ onBeforeUnmount(() => {
     justify-content: center;
     background-color: var(--qr-placeholder-bg);
     border-radius: 4px;
-    transition: background-color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__content {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   &__actions {
@@ -590,8 +615,8 @@ onBeforeUnmount(() => {
     padding: var(--spacing-md);
 
     &__placeholder {
-      width: 188px;
-      height: 188px;
+      width: 196px;
+      height: 196px;
     }
   }
 }
@@ -696,12 +721,12 @@ onBeforeUnmount(() => {
   }
 
   .qrcode {
-    width: 212px;
-    height: 212px;
+    width: 207px;
+    height: 207px;
 
     &__placeholder {
-      width: 180px;
-      height: 180px;
+      width: 196px;
+      height: 196px;
     }
   }
 }
