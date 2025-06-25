@@ -189,7 +189,7 @@ onUnmounted(() => {
       transform 0.15s ease;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    min-width: 110px;
+    min-width: 95px;
     min-height: 20px;
     font-family: inherit;
     will-change: width, transform, background-color;
@@ -235,7 +235,7 @@ onUnmounted(() => {
   }
 
   &__label {
-    flex: 1;
+    flex: 0 1 auto;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -247,6 +247,7 @@ onUnmounted(() => {
     overflow: visible;
     white-space: nowrap;
     will-change: width;
+    max-width: fit-content;
   }
 
   &__arrow {
@@ -287,7 +288,7 @@ onUnmounted(() => {
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     z-index: 2000;
-    min-width: 120px;
+    min-width: 105px;
   }
 
   &__option {
@@ -402,11 +403,17 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .language-switcher {
     &__current {
-      min-width: 100px;
-      padding: var(--spacing-xs) calc(var(--spacing-sm) - 2px);
+      min-width: 85px;
+      padding: var(--spacing-xs) calc(var(--spacing-xs) + 2px);
       font-size: 0.85rem;
       min-height: 32px;
       gap: calc(var(--spacing-xs) - 1px);
+
+      // 让label不要过度拉伸
+      .language-switcher__label {
+        flex: 0 1 auto;
+        max-width: fit-content;
+      }
     }
 
     &__icon,
@@ -421,7 +428,7 @@ onUnmounted(() => {
     }
 
     &__dropdown {
-      min-width: 110px;
+      min-width: 95px;
     }
 
     &__option {
