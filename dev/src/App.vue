@@ -1,7 +1,7 @@
 <template>
   <button class="test-btn" @click="openWindow">打开新窗口</button>
   <button class="test-btn" @click="toggleIframe">{{ showIframe ? '关闭' : '打开' }} iframe</button>
-  <iframe v-if="showIframe" src="/?mode=iframe" width="380" height="340" style="border: none" />
+  <iframe v-if="showIframe" src="/?mode=iframe" width="420" height="610" style="border: none" />
   <div class="cookie-box">
     <CookieDisplay v-if="cookieResult" :value="cookieResult" />
   </div>

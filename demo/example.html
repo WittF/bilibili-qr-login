@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B站登录服务集成示例</title>
+    <style>
+        :root {
+            --bilibili-pink: #fb7299;
+            --bilibili-blue: #00a1d6;
+            --text-primary: #18191c;
+            --text-secondary: #61666d;
+            --text-tertiary: #9499a0;
+            --background: #f6f7f8;
+            --card-background: #ffffff;
+            --border: #e3e5e7;
+            --success: #44c285;
+            --error: #f76260;
+            --radius: 8px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .demo-card {
+            background: var(--card-background);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .demo-card h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--bilibili-pink);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.625rem 1rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--bilibili-pink);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e85a89;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bilibili-blue);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #0091c6;
+            transform: translateY(-1px);
+        }
+
+        .iframe-container {
+            width: 420px;
+            height: 610px;
+            max-width: 100%;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: none;
+            margin: 1rem auto 0;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .input-group {
+            margin: 1rem 0;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.8125rem;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--bilibili-pink);
+            box-shadow: 0 0 0 3px rgba(251, 114, 153, 0.1);
+        }
+
+        .result-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.75rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .result-box.success {
+            background: #f0f9ff;
+            border: 1px solid var(--success);
+            color: #0f5132;
+        }
+
+        .result-box.error {
+            background: #fef2f2;
+            border: 1px solid var(--error);
+            color: #721c24;
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #f0f9ff;
+            color: var(--success);
+            border: 1px solid #b3ecf2;
+        }
+
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid var(--bilibili-pink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                margin-bottom: 2rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .demo-card {
+                padding: 1rem;
+            }
+
+            .button-group {
+                gap: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8125rem;
+            }
+
+            .iframe-container {
+                width: 100%;
+                height: 500px;
+                margin: 1rem 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍪 B站登录服务集成示例</h1>
+            <p>演示嵌入式登录和Cookie JSON转换功能</p>
+        </div>
+
+        <div class="demo-grid">
+            <!-- 嵌入式登录 -->
+            <div class="demo-card">
+                <h2>🔑 嵌入式登录</h2>
+                <p>支持iframe和window两种模式，通过postMessage安全传递登录结果</p>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="openIframe()">
+                        📱 iframe模式
+                    </button>
+                    <button class="btn btn-secondary" onclick="openWindow()">
+                        🪟 弹窗模式
+                    </button>
+                </div>
+
+                <div id="iframeContainer" class="iframe-container"></div>
+                <div id="loginStatus" class="status"></div>
+            </div>
+
+            <!-- JSON转换 -->
+            <div class="demo-card">
+                <h2>🔄 Cookie JSON转换</h2>
+                <p>将Cookie字符串转换为TinyDB格式的JSON数据</p>
+                
+                <div class="input-group">
+                    <textarea 
+                        id="cookieInput" 
+                        class="textarea" 
+                        placeholder="SESSDATA=xxx; bili_jct=yyy; DedeUserID=zzz"
+                        rows="5"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="convertCookies()">
+                        ⚡ 转换为JSON
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadSample()">
+                        📝 加载示例
+                    </button>
+                </div>
+
+                <div id="convertResult" class="result-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const SERVICE_URL = 'https://login.bilibili.bi';
+        const API_URL = 'https://login.bilibili.bi/api/convert';
+        
+        let isIframeOpen = false;
+
+        // 嵌入式登录 - iframe模式
+        function openIframe() {
+            const container = document.getElementById('iframeContainer');
+            const btn = event.target;
+            
+            if (!isIframeOpen) {
+                container.innerHTML = '';
+                container.style.display = 'block';
+                
+                const iframe = document.createElement('iframe');
+                iframe.src = `${SERVICE_URL}/?mode=iframe`;
+                container.appendChild(iframe);
+                
+                btn.textContent = '❌ 关闭iframe';
+                isIframeOpen = true;
+                
+                showStatus('iframe登录已打开，请扫码登录', 'info');
+            } else {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                btn.textContent = '📱 iframe模式';
+                isIframeOpen = false;
+                hideStatus();
+            }
+        }
+
+        // 嵌入式登录 - 弹窗模式
+        function openWindow() {
+            const popup = window.open(
+                `${SERVICE_URL}/?mode=window`,
+                'bili_login',
+                'width=420,height=610,resizable=no,scrollbars=no'
+            );
+            
+            if (!popup) {
+                showStatus('弹窗被阻止，请允许弹窗后重试', 'error');
+                return;
+            }
+            
+            showStatus('登录窗口已打开，请在弹窗中完成登录', 'info');
+        }
+
+        // 监听登录消息
+        window.addEventListener('message', (event) => {
+            if (event.origin !== SERVICE_URL) return;
+            
+            const { type, mode, data } = event.data;
+            if (type === 'success') {
+                showStatus(`✅ ${mode}模式登录成功！Cookie已获取`, 'success');
+                
+                // 自动填充到转换输入框
+                document.getElementById('cookieInput').value = data;
+                
+                // 如果是iframe模式，2秒后自动关闭
+                if (mode === 'iframe') {
+                    setTimeout(() => {
+                        const container = document.getElementById('iframeContainer');
+                        container.style.display = 'none';
+                        document.querySelector('[onclick="openIframe()"]').textContent = '📱 iframe模式';
+                        isIframeOpen = false;
+                    }, 2000);
+                }
+            }
+        });
+
+        // Cookie转换
+        async function convertCookies() {
+            const input = document.getElementById('cookieInput').value.trim();
+            const resultBox = document.getElementById('convertResult');
+            const btn = event.target;
+            
+            if (!input) {
+                showResult('请输入Cookie数据', 'error');
+                return;
+            }
+
+            // 显示加载状态
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> 转换中...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookies: input })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                const formattedJson = JSON.stringify(result, null, 2);
+                const cookieCount = result._default['1'].value.length;
+                
+                showResult(`✅ 转换成功！(${cookieCount}个Cookie)\n\n${formattedJson}`, 'success');
+            } catch (error) {
+                showResult(`❌ 转换失败: ${error.message}`, 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // 加载示例数据
+        function loadSample() {
+            document.getElementById('cookieInput').value = 
+                'SESSDATA=cb06b5c2%2C1641234567%2Cb1a2c*31; bili_jct=abc123def456; DedeUserID=12345678';
+        }
+
+        // 显示状态信息
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('loginStatus');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            if (type === 'info') {
+                setTimeout(hideStatus, 3000);
+            }
+        }
+
+        // 隐藏状态信息
+        function hideStatus() {
+            const status = document.getElementById('loginStatus');
+            status.style.display = 'none';
+        }
+
+        // 显示结果
+        function showResult(message, type) {
+            const resultBox = document.getElementById('convertResult');
+            resultBox.textContent = message;
+            resultBox.className = `result-box ${type}`;
+            resultBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

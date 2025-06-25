@@ -53,8 +53,8 @@ const getFeaturesStr = (features: Record<string, any>) => {
 };
 
 export const openQrWindow = (url: string) => {
-  const width = 380;
-  const height = 340;
+  const width = 420;
+  const height = 610;
 
   logger.info('准备打开QR登录窗口', {
     targetUrl: url,

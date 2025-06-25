@@ -45,7 +45,7 @@ window.addEventListener('message', (event) => {
 // 2. iframe模式
 document.getElementById('container').innerHTML = `
     <iframe src="https://login.bilibili.bi/?mode=iframe" 
-            width="380" height="340" style="border: none;">
+            width="420" height="610" style="border: none;">
     </iframe>
 `;
 
@@ -53,7 +53,7 @@ document.getElementById('container').innerHTML = `
 window.open(
     'https://login.bilibili.bi/?mode=window',
     'bili_login',
-    'width=380,height=340,resizable=no'
+    'width=420,height=610,resizable=no'
 );
 ```
 
