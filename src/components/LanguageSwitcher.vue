@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useI18n } from '../utils/i18n';
-import { focusManager } from '../utils/focusManager';
+
 import LanguageIcon from '../assets/icons/language.svg';
 import ArrowDownIcon from '../assets/icons/arrow_down.svg';
 import CheckSmallIcon from '../assets/icons/check_small.svg';

@@ -4,7 +4,7 @@
 export class FocusManager {
   private static instance: FocusManager;
 
-  static getInstance(): FocusManager {
+  public static getInstance(): FocusManager {
     if (!FocusManager.instance) {
       FocusManager.instance = new FocusManager();
     }

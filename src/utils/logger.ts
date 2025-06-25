@@ -16,35 +16,35 @@ const isDebugMode = (): boolean => {
 class Logger {
   private module: string;
 
-  constructor(module: string) {
+  public constructor(module: string) {
     this.module = module;
   }
 
-  private formatMessage(level: LogLevel, message: string): string {
-    return `[${new Date().toLocaleTimeString()}] [${this.module}] ${level.toUpperCase()}: ${message}`;
-  }
-
-  debug(message: string, data?: any): void {
+  public debug(message: string, data?: any): void {
     if (!isDebugMode()) return;
     console.log(this.formatMessage('debug', message), data);
   }
 
-  info(message: string, data?: any): void {
+  public info(message: string, data?: any): void {
     if (!isDebugMode()) return;
     console.log(this.formatMessage('info', message), data);
   }
 
-  warn(message: string, data?: any): void {
+  public warn(message: string, data?: any): void {
     console.warn(this.formatMessage('warn', message), data);
   }
 
-  error(message: string, error?: any): void {
+  public error(message: string, error?: any): void {
     console.error(this.formatMessage('error', message), error);
   }
 
   // 重要信息始终显示
-  important(message: string, data?: any): void {
+  public important(message: string, data?: any): void {
     console.log(this.formatMessage('info', message), data);
+  }
+
+  private formatMessage(level: LogLevel, message: string): string {
+    return `[${new Date().toLocaleTimeString()}] [${this.module}] ${level.toUpperCase()}: ${message}`;
   }
 }
 

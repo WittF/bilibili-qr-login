@@ -473,7 +473,7 @@ app.get('/api/qr', c => {
 
     logger.debug(sessionId, 'IP头部调试信息', {
       finalIP: clientIP,
-      headers: Object.fromEntries(Object.entries(debugHeaders).filter(([_key, v]) => v)),
+      headers: Object.fromEntries(Object.entries(debugHeaders).filter(([, v]) => v)),
     });
   }
 

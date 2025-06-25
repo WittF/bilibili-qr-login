@@ -1,5 +1,3 @@
-import { loggers } from './logger';
-
 export type Theme = 'light' | 'dark' | 'auto';
 
 let currentTheme: Theme = 'auto';

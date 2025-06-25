@@ -90,7 +90,7 @@ import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
 import { PARAM_MODE } from './utils/const';
 import { themeManager } from './utils/theme';
-import { focusManager } from './utils/focusManager';
+
 import GithubIcon from './assets/icons/github.svg';
 import type { QRCodeRenderersOptions } from 'qrcode';
 
