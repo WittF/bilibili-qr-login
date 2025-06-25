@@ -5,6 +5,30 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.5.0](https://github.com/WittF/bilibili-qr-login/compare/v1.4.4...v1.5.0) (2025-06-25)
+
+
+### ✨ 新功能
+
+* **ui:** 优化二维码响应式缩放，实现丝滑尺寸变化动画 ([7ac804a](https://github.com/WittF/bilibili-qr-login/commit/7ac804abc6717b96ef4105172d6cfe8ed1227198))
+* **ui:** 添加响应式二维码尺寸和配置，优化窗口大小变化处理 ([6891c80](https://github.com/WittF/bilibili-qr-login/commit/6891c803466cb39317ede6b6332c306d310e54ac))
+
+
+### 🐛 Bug修复
+
+* **ci:** 修复Docker构建条件判断和添加调试信息 ([8010db0](https://github.com/WittF/bilibili-qr-login/commit/8010db0adaf2909c3f06c0b76cac07f2d56d5284))
+* **ui:** 小屏幕下二维码遮罩边框问题 ([ab3b0bc](https://github.com/WittF/bilibili-qr-login/commit/ab3b0bce213b31e7ad0e15bd6c2c652921d60dd4))
+
+
+### 📚 文档更新
+
+* **api:** 完善JSON转换API文档说明和演示页面 ([64754a5](https://github.com/WittF/bilibili-qr-login/commit/64754a5c69953445ecb1ab06570a48109d3f4068))
+
+
+### ♻️ 代码重构
+
+* **app:** 优化获取真实客户端IP的逻辑，增强错误处理和环境适配性 ([67f0f8b](https://github.com/WittF/bilibili-qr-login/commit/67f0f8b8e3047b2fbc6d378c660f1784a9f6dcdc))
+
 ## [1.4.4](https://github.com/WittF/bilibili-qr-login/compare/v1.4.3...v1.4.4) (2025-06-25)
 
 
