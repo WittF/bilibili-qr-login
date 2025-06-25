@@ -7,9 +7,7 @@
 
 ![Contributors](https://contrib.rocks/image?repo=WittF/bilibili-qr-login)
 
----
-
-## 🚀 在线服务地址
+## 在线服务地址 🚀
 
 [https://login.bilibili.bi/](https://login.bilibili.bi/)
 
@@ -28,7 +26,7 @@
 
 ---
 
-## 使用截图
+## 展示截图
 
 <div style="display: flex; justify-content: center; gap: 20px;">
   <img src="https://github.com/user-attachments/assets/6557a39a-6190-4960-bc6b-b9a691e65851" width="49%" />
@@ -85,3 +83,8 @@ docker run -d \
 
 📖 **[Demo示例](./demo/example.html)** | 📚 **[API文档](./demo/API.md)**
 
+## 贡献者 
+
+![Contributors](https://contrib.rocks/image?repo=WittF/bilibili-qr-login)
+
+---
