@@ -44,13 +44,15 @@ export const postQrMessage = (data: Omit<QrMessage, 'mode'>) => {
 
   try {
     if (TRUST_ALL_ORIGIN) {
+      // 开发模式：发送到任意域名
       targetWindow.postMessage(message, '*');
-      loggers.postMessage.important('消息已发送到父窗口', {
+      loggers.postMessage.important('消息已发送到所有域名', {
         mode: PARAM_MODE,
         targetOrigin: '*',
         messageType: message.type,
       });
-    } else {
+    } else if (trustOrigins.length > 0) {
+      // 配置了特定域名：发送到指定域名
       trustOrigins.forEach(origin => {
         targetWindow.postMessage(message, origin);
         loggers.postMessage.debug('消息已发送到指定域', {
@@ -59,9 +61,18 @@ export const postQrMessage = (data: Omit<QrMessage, 'mode'>) => {
           messageType: message.type,
         });
       });
-      loggers.postMessage.important('消息已发送到所有信任域', {
+      loggers.postMessage.important('消息已发送到配置的信任域', {
         mode: PARAM_MODE,
         trustedOriginsCount: trustOrigins.length,
+        messageType: message.type,
+      });
+    } else {
+      // 生产模式默认：发送到当前域名
+      const currentOrigin = window.location.origin;
+      targetWindow.postMessage(message, currentOrigin);
+      loggers.postMessage.important('消息已发送到当前域名', {
+        mode: PARAM_MODE,
+        targetOrigin: currentOrigin,
         messageType: message.type,
       });
     }

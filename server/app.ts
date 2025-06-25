@@ -17,6 +17,55 @@ import { streamSSE } from 'hono/streaming';
  * - DEBUG模式：显示详细过程（API调用、Cookie解析、错误分析等）
  */
 
+// CORS配置
+const TRUST_ORIGIN = process.env.TRUST_ORIGIN || (process.env.NODE_ENV === 'development' ? '*' : '');
+const allowedOrigins = TRUST_ORIGIN.split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const ALLOW_ALL_ORIGINS = allowedOrigins.includes('*');
+
+// CORS中间件
+const corsMiddleware = async (c: any, next: any) => {
+  await next();
+
+  const origin = c.req.header('Origin');
+
+  // 设置CORS头
+  if (ALLOW_ALL_ORIGINS) {
+    // 开发模式或明确配置为*时，允许所有来源
+    c.header('Access-Control-Allow-Origin', '*');
+  } else if (origin && allowedOrigins.includes(origin)) {
+    // 生产模式下，只允许配置的域名
+    c.header('Access-Control-Allow-Origin', origin);
+    c.header('Vary', 'Origin');
+  }
+
+  // 设置其他CORS头
+  c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  c.header('Access-Control-Allow-Credentials', 'true');
+  c.header('Access-Control-Max-Age', '86400'); // 24小时
+};
+
+// 处理预检请求
+const handlePreflight = (c: any) => {
+  const origin = c.req.header('Origin');
+
+  if (ALLOW_ALL_ORIGINS) {
+    c.header('Access-Control-Allow-Origin', '*');
+  } else if (origin && allowedOrigins.includes(origin)) {
+    c.header('Access-Control-Allow-Origin', origin);
+    c.header('Vary', 'Origin');
+  }
+
+  c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  c.header('Access-Control-Allow-Credentials', 'true');
+  c.header('Access-Control-Max-Age', '86400');
+
+  return c.text('', 204);
+};
+
 enum SSEEvent {
   GENERATE = 'generate',
   POLL = 'poll',
@@ -107,6 +156,12 @@ const logger = {
 };
 
 export const app = new Hono();
+
+// 应用CORS中间件到所有路由
+app.use('*', corsMiddleware);
+
+// 处理所有API路由的预检请求
+app.options('/api/*', handlePreflight);
 
 // 添加cookie转换接口
 app.post('/api/convert', async c => {

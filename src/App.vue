@@ -19,6 +19,16 @@
             </p>
           </transition>
         </div>
+
+        <!-- 嵌入源安全提示 -->
+        <div v-if="PARAM_MODE && embedOrigin" class="embed-notice">
+          <div class="embed-notice__content">
+            <span class="embed-notice__icon">🔒</span>
+            <span class="embed-notice__text">
+              {{ t.security.embedNotice }}: <strong>{{ embedOrigin }}</strong>
+            </span>
+          </div>
+        </div>
       </div>
 
       <div class="main-content">
@@ -107,6 +117,27 @@ import GithubIcon from './assets/icons/github.svg';
 import type { QRCodeRenderersOptions } from 'qrcode';
 
 const { t, updatePageTitle } = useI18n();
+
+// 检测嵌入源
+const embedOrigin = computed(() => {
+  if (!PARAM_MODE) return null;
+
+  try {
+    // iframe模式：检查是否被嵌入
+    if (PARAM_MODE === 'iframe' && window.parent !== window) {
+      return document.referrer ? new URL(document.referrer).origin : '未知来源';
+    }
+    // window模式：检查opener
+    if (PARAM_MODE === 'window' && window.opener) {
+      return window.opener.location?.origin || '未知来源';
+    }
+  } catch (error) {
+    // 跨域访问限制时返回referrer
+    return document.referrer ? new URL(document.referrer).origin : '未知来源';
+  }
+
+  return null;
+});
 
 // 响应式二维码尺寸和缩放
 const getQrCodeScale = () => {
@@ -304,6 +335,36 @@ onBeforeUnmount(() => {
   text-align: center;
   white-space: nowrap;
   max-width: 100%;
+}
+
+.embed-notice {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(251, 114, 153, 0.1);
+  border: 1px solid rgba(251, 114, 153, 0.3);
+  border-radius: var(--radius-md);
+  width: 100%;
+  max-width: 400px;
+}
+
+.embed-notice__content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.embed-notice__icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.embed-notice__text {
+  strong {
+    color: var(--bilibili-pink);
+    font-weight: 600;
+  }
 }
 
 .qrcode-container {

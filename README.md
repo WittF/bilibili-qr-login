@@ -80,4 +80,28 @@ docker run -d \
 
 📖 **[在线示例](./demo/example.html)** | 📚 **[API文档](./demo/API.md)**
 
+### 🛡️ 安全与隐私保护
+
+**透明化原则**：当服务被嵌入到其他网站时，会显示**登录信息发送目标**，确保用户知情。
+
+**跨域访问控制**：通过 `TRUST_ORIGIN` 环境变量控制授权域名：
+
+| 环境 | 配置 | 说明 |
+|------|------|------|
+| **开发环境** | `TRUST_ORIGIN="*"` | 允许所有域名（默认） |
+| **生产部署** | `TRUST_ORIGIN=""` | 仅允许同域名（默认） |
+| **指定域名** | `TRUST_ORIGIN="https://yourdomain.com"` | 只允许特定域名 |
+| **多域名** | `TRUST_ORIGIN="https://a.com,https://b.com"` | 多个域名，逗号分隔 |
+
+**安全提示**：
+- ✅ 登录页面会显示当前嵌入源域名
+- ✅ 用户明确知道Cookie发送目标  
+- ✅ 支持一键部署私有实例
+- ⚠️ 建议生产环境配置特定域名
+
+```bash
+# 私有部署示例
+docker run -e TRUST_ORIGIN="https://yourdomain.com" wittf/bilibili-qr-login
+```
+
 ---
