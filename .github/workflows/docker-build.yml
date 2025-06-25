@@ -67,22 +67,44 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Workflow overview
+        run: |
+          echo "🚀 B站登录工具 Docker 构建与发布流程"
+          echo "=================================================="
+          echo ""
+          echo "📋 工作流程概览:"
+          echo "  1. 🏗️  构建阶段 - 编译Docker镜像"
+          echo "  2. 🚀 发布阶段 - 推送到Docker Hub (条件性)"
+          echo "  3. 📡 触发阶段 - 发送部署webhook (条件性)"
+          echo "  4. 🧪 验证阶段 - 测试发布的镜像"
+          echo ""
+
       - name: Check build environment
         run: |
-          if [[ "${{ env.DOCKER_PASSWORD }}" == "" ]]; then
-            echo "⚠️ Docker secrets not available (likely Dependabot commit)"
-            echo "📦 Will build image but skip Docker Hub push and webhook"
+          echo "🔍 检查构建环境..."
+          echo "📦 构建模式: ${{ needs.prepare.outputs.is_release == 'true' && '正式发布' || '开发构建' }}"
+          echo "🏷️  版本信息: ${{ needs.prepare.outputs.version }}"
+          echo "🏗️  构建平台: ${{ needs.prepare.outputs.is_release == 'true' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}"
+          echo ""
+          
+          echo "📋 执行计划:"
+          echo "  ✅ 构建镜像 - 总是执行"
+          
+          if [[ "${{ env.DOCKER_PASSWORD }}" != "" ]]; then
+            echo "  ✅ 推送到Docker Hub - 将执行"
+            echo "  ✅ 更新仓库描述 - ${{ needs.prepare.outputs.is_release == 'true' && '将执行 (正式发布)' || '跳过 (开发构建)' }}"
           else
-            echo "✅ Docker secrets available, will build and push to Docker Hub"
+            echo "  ⏭️  推送到Docker Hub - 跳过 (凭据不可用)"
           fi
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        if: env.DOCKER_PASSWORD != ''
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          
+          if [[ "${{ env.WEBHOOK_IP }}" != "" && "${{ env.DOCKER_PASSWORD }}" != "" ]]; then
+            echo "  ✅ 触发部署 - 将执行"
+          else
+            echo "  ⏭️  触发部署 - 跳过 (Webhook未配置或镜像未推送)"
+          fi
+          
+          echo "  ✅ 镜像验证 - ${{ vars.DOCKER_USERNAME != '' && '将执行' || '跳过 (无Docker用户名)' }}"
+          echo ""
 
       - name: Extract metadata
         id: meta
@@ -114,12 +136,13 @@ jobs:
             echo "Building AMD64 only for development"
           fi
 
-      - name: Build and push Docker image
+      # ===== 🏗️ 构建阶段 =====
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           platforms: ${{ steps.platforms.outputs.platforms }}
-          push: ${{ env.DOCKER_PASSWORD != '' }}
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -127,6 +150,47 @@ jobs:
           build-args: |
             TRUST_ORIGIN=${{ env.TRUST_ORIGIN }}
             APP_VERSION=${{ needs.prepare.outputs.version }}
+
+      - name: Build success notification
+        run: |
+          echo "🎉 Docker镜像构建成功！"
+          echo "📦 镜像标签: ${{ steps.meta.outputs.tags }}"
+          echo "🏗️  构建平台: ${{ steps.platforms.outputs.platforms }}"
+
+      # ===== 🚀 发布阶段 =====
+      - name: Login to Docker Hub
+        if: env.DOCKER_PASSWORD != ''
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Push to Docker Hub
+        if: env.DOCKER_PASSWORD != ''
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: ${{ steps.platforms.outputs.platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          build-args: |
+            TRUST_ORIGIN=${{ env.TRUST_ORIGIN }}
+            APP_VERSION=${{ needs.prepare.outputs.version }}
+
+      - name: Push success notification
+        if: env.DOCKER_PASSWORD != ''
+        run: |
+          echo "🚀 镜像已成功推送到Docker Hub！"
+          echo "🔗 查看镜像: https://hub.docker.com/r/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
+
+      - name: Push skipped notification
+        if: env.DOCKER_PASSWORD == ''
+        run: |
+          echo "⏭️ 跳过Docker Hub推送 (凭据不可用)"
+          echo "💡 这通常发生在Dependabot提交或未配置Docker凭据时"
 
       - name: Update Docker Hub description
         uses: peter-evans/dockerhub-description@v3
@@ -137,33 +201,36 @@ jobs:
           repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           readme-filepath: ./README.md
 
+      # ===== 📡 部署触发阶段 =====
       - name: Test webhook connectivity
-        if: env.WEBHOOK_IP != ''
-        run: |
-          echo "Testing webhook connectivity to ${{ env.WEBHOOK_IP }}:9000"
-          curl -f --connect-timeout 10 --max-time 30 \
-            -H "User-Agent: GitHub-Actions-Test" \
-            http://${{ env.WEBHOOK_IP }}:9000/health || echo "⚠️ Webhook endpoint not responding"
-
-      - name: Wait before webhook
-        if: env.WEBHOOK_IP != ''
-        run: sleep 3
-
-      - name: Trigger k3s pods update webhook
         if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != ''
         run: |
-          # 设置镜像标签
+          echo "🔗 测试Webhook连接性..."
+          curl -f --connect-timeout 10 --max-time 30 \
+            -H "User-Agent: GitHub-Actions-Test" \
+            http://${{ env.WEBHOOK_IP }}:9000/health || echo "⚠️ Webhook端点无响应，但将继续尝试"
+
+      - name: Trigger deployment webhook
+        if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != ''
+        run: |
+          # 设置部署参数
           if [[ "${{ needs.prepare.outputs.is_release }}" == "true" ]]; then
             IMAGE_TAG="v${{ needs.prepare.outputs.version }}"
             DEPLOY_ENV="production"
+            echo "🏷️  准备触发生产环境部署"
           else
             IMAGE_TAG="dev-${{ needs.prepare.outputs.short_sha }}"
             DEPLOY_ENV="development"
+            echo "🏷️  准备触发开发环境部署"
           fi
           
-          echo "Triggering webhook for $DEPLOY_ENV environment with tag: $IMAGE_TAG"
+          echo "📡 正在触发 $DEPLOY_ENV 环境部署，镜像标签: $IMAGE_TAG"
           
-          curl -X POST \
+          # 等待推送完成
+          sleep 3
+          
+          # 发送webhook
+          if curl -X POST \
             -H "Content-Type: application/json" \
             -H "User-Agent: GitHub-Actions" \
             -d '{
@@ -178,9 +245,23 @@ jobs:
               "commit_message": "${{ github.event.head_commit.message }}",
               "pusher": "${{ github.actor }}"
             }' \
-            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push || echo "Webhook failed, but continuing..."
+            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push; then
+            echo "✅ 部署Webhook触发成功！"
+          else
+            echo "❌ 部署Webhook触发失败，但构建流程继续"
+          fi
 
-  # 构建验证任务
+      - name: Webhook skipped notification
+        if: env.WEBHOOK_IP == '' || env.DOCKER_PASSWORD == ''
+        run: |
+          if [[ "${{ env.WEBHOOK_IP }}" == "" ]]; then
+            echo "⏭️ 跳过Webhook触发 (未配置服务器地址)"
+          elif [[ "${{ env.DOCKER_PASSWORD }}" == "" ]]; then
+            echo "⏭️ 跳过Webhook触发 (镜像未推送到Hub)"
+          fi
+          echo "💡 如需自动部署，请配置WEBHOOK_IP和Docker凭据"
+
+  # ===== 🧪 镜像验证任务 =====
   verify:
     runs-on: ubuntu-latest
     needs: [prepare, build]
@@ -189,46 +270,74 @@ jobs:
       DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
 
     steps:
-      - name: Test Docker image
+      - name: Verify published image
         run: |
           IMAGE="${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
           if [[ "${{ needs.prepare.outputs.is_release }}" == "true" ]]; then
             TAG="v${{ needs.prepare.outputs.version }}"
+            ENV_TYPE="生产版本"
           else
             TAG="dev-${{ needs.prepare.outputs.short_sha }}"
+            ENV_TYPE="开发版本"
           fi
           
-          echo "Testing image: $IMAGE:$TAG"
+          echo "🧪 开始验证 $ENV_TYPE 镜像..."
+          echo "📦 镜像地址: $IMAGE:$TAG"
           
-          # 拉取并运行容器进行基本验证
-          docker run --rm -d --name test-container -p 3001:3000 "$IMAGE:$TAG"
-          sleep 10
-          
-          # 检查容器是否在运行
-          if docker ps | grep -q test-container; then
-            echo "✅ Container is running successfully"
-            # 简单的健康检查
-            if curl -f http://localhost:3001/ --connect-timeout 5; then
-              echo "✅ Application is responding"
-            else
-              echo "⚠️  Application might not be fully ready yet"
-            fi
+          # 拉取镜像
+          echo "📥 正在拉取镜像..."
+          if docker pull "$IMAGE:$TAG"; then
+            echo "✅ 镜像拉取成功"
           else
-            echo "❌ Container failed to start"
-            docker logs test-container
+            echo "❌ 镜像拉取失败，可能是推送过程中的延迟"
             exit 1
           fi
           
-          # 清理
+          # 运行容器测试
+          echo "🚀 启动测试容器..."
+          docker run --rm -d --name test-container -p 3001:3000 "$IMAGE:$TAG"
+          
+          # 等待容器启动
+          echo "⏳ 等待应用启动..."
+          sleep 10
+          
+          # 检查容器状态
+          if docker ps | grep -q test-container; then
+            echo "✅ 容器运行正常"
+            
+            # 健康检查
+            echo "🔍 执行健康检查..."
+            if curl -f http://localhost:3001/ --connect-timeout 5 --max-time 10; then
+              echo "✅ 应用响应正常"
+              echo "🎉 镜像验证通过！"
+            else
+              echo "⚠️  应用可能还在启动中，但容器运行正常"
+            fi
+          else
+            echo "❌ 容器启动失败"
+            echo "📋 容器日志:"
+            docker logs test-container || true
+            exit 1
+          fi
+          
+          # 清理资源
+          echo "🧹 清理测试资源..."
           docker stop test-container || true
+          docker rmi "$IMAGE:$TAG" || true
 
-  # 清理缓存任务（可选）
+  # ===== 🧹 发布后清理任务 =====
   cleanup:
     runs-on: ubuntu-latest
     needs: [prepare, build, verify]
     if: always() && needs.prepare.outputs.is_release == 'true'
     steps:
-      - name: Clean up old caches
+      - name: Post-release cleanup
         run: |
-          echo "Release completed, cache cleanup can be implemented here if needed"
-          # 可以在这里添加清理旧的构建缓存的逻辑 
+          echo "🎉 版本 v${{ needs.prepare.outputs.version }} 发布完成！"
+          echo "📦 镜像已推送到: docker.io/${{ vars.DOCKER_USERNAME || 'your-username' }}/bilibili-qr-login"
+          echo "🏷️  可用标签: latest, v${{ needs.prepare.outputs.version }}, ${{ needs.prepare.outputs.version }}"
+          echo ""
+          echo "🧹 执行发布后清理..."
+          # 这里可以添加清理旧的构建缓存的逻辑
+          # 例如：清理超过30天的workflow缓存等
+          echo "✅ 发布流程全部完成！" 
