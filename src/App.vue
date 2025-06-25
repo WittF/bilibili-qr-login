@@ -314,17 +314,18 @@ onBeforeUnmount(stop);
   }
 
   &__actions {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
 
     .icon--success {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       transition:
         transform 0.3s ease,
         opacity 0.3s ease;
@@ -334,20 +335,21 @@ onBeforeUnmount(stop);
     .icon--refresh {
       position: absolute;
       bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
       opacity: 0;
-      transform: translateY(10px);
       transition: all 0.3s ease;
     }
 
     &:hover {
       .icon--success {
-        transform: translate(-50%, -50%) translateY(-30px);
+        transform: translateY(-30px);
         opacity: 0.7;
       }
 
       .icon--refresh {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(-50%) translateY(0);
       }
     }
   }
@@ -362,11 +364,11 @@ onBeforeUnmount(stop);
 
 @keyframes successSlideIn {
   0% {
-    transform: translate(-50%, -50%) translateY(20px);
+    transform: translateY(20px);
     opacity: 0;
   }
   100% {
-    transform: translate(-50%, -50%);
+    transform: translateY(0);
     opacity: 1;
   }
 }
