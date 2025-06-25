@@ -903,6 +903,7 @@ onBeforeUnmount(stop);
 // 暗色主题下的github链接
 [data-theme='dark'] {
   .github-link {
+    color: #9499a0; // 提亮基础颜色
     border-color: var(--divider);
 
     &:hover {
