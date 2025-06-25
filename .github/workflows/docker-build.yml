@@ -67,8 +67,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Check build environment
+        run: |
+          if [[ "${{ env.DOCKER_PASSWORD }}" == "" ]]; then
+            echo "⚠️ Docker secrets not available (likely Dependabot commit)"
+            echo "📦 Will build image but skip Docker Hub push and webhook"
+          else
+            echo "✅ Docker secrets available, will build and push to Docker Hub"
+          fi
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
+        if: env.DOCKER_PASSWORD != ''
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.DOCKER_USERNAME }}
@@ -109,7 +119,7 @@ jobs:
         with:
           context: .
           platforms: ${{ steps.platforms.outputs.platforms }}
-          push: true
+          push: ${{ env.DOCKER_PASSWORD != '' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -120,7 +130,7 @@ jobs:
 
       - name: Update Docker Hub description
         uses: peter-evans/dockerhub-description@v3
-        if: needs.prepare.outputs.is_release == 'true'
+        if: needs.prepare.outputs.is_release == 'true' && env.DOCKER_PASSWORD != ''
         with:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
@@ -140,7 +150,7 @@ jobs:
         run: sleep 3
 
       - name: Trigger k3s pods update webhook
-        if: env.WEBHOOK_IP != ''
+        if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != ''
         run: |
           # 设置镜像标签
           if [[ "${{ needs.prepare.outputs.is_release }}" == "true" ]]; then
@@ -174,7 +184,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     needs: [prepare, build]
-    if: always() && needs.build.result == 'success'
+    if: always() && needs.build.result == 'success' && vars.DOCKER_USERNAME != ''
     env:
       DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
 
