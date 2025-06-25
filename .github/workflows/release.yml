@@ -4,11 +4,8 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'demo/**'
-      - 'docs/**'
-      - '**.md'
-      - 'LICENSE'
+    tags:
+      - 'v*.*.*'
   workflow_dispatch:
 
 jobs:
@@ -20,13 +17,16 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -37,18 +37,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Check for release conditions
-        run: |
-          echo "🔍 检查发布条件..."
-          echo "📦 当前分支: ${{ github.ref_name }}"
-          echo "📋 最近提交: $(git log -1 --oneline)"
-          echo "🏷️  现有标签: $(git tag -l | tail -5 | tr '\n' ' ')"
-
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v4
         id: semantic
+        uses: cycjimmy/semantic-release-action@v4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         with:
           semantic_version: 22
           extra_plugins: |
@@ -59,14 +52,37 @@ jobs:
             @semantic-release/github@9
             conventional-changelog-conventionalcommits@7
 
-      - name: Release results
-        if: always()
+  # ===== 🚀 触发Docker构建 =====
+  trigger-docker-build:
+    name: Trigger Docker Build
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.new_release_published == 'true'
+    steps:
+      - name: Trigger Docker Build Workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = `v${{ needs.release.outputs.new_release_version }}`;
+            console.log(`🏷️ 触发Docker构建，版本标签: ${tag}`);
+            
+            // 创建repository_dispatch事件来触发Docker构建
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'semantic-release',
+              client_payload: {
+                version: '${{ needs.release.outputs.new_release_version }}',
+                tag: tag,
+                sha: context.sha
+              }
+            });
+            
+            console.log('✅ Docker构建触发请求已发送');
+
+      - name: Wait for tag creation
         run: |
-          if [[ "${{ steps.semantic.outputs.new_release_published }}" == "true" ]]; then
-            echo "🎉 新版本发布成功！"
-            echo "🏷️  版本号: ${{ steps.semantic.outputs.new_release_version }}"
-            echo "📋 发布说明: ${{ steps.semantic.outputs.new_release_notes }}"
-          else
-            echo "ℹ️  没有满足发布条件的更改"
-            echo "💡 请确保提交信息遵循 Conventional Commits 规范"
-          fi 
+          echo "⏳ 等待标签创建完成..."
+          sleep 10
+          echo "✅ 继续执行Docker构建触发" 

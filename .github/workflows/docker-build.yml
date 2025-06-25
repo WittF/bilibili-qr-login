@@ -12,6 +12,8 @@ on:
       - 'release.py'
     tags:
       - 'v*.*.*'
+  repository_dispatch:
+    types: [semantic-release]
 
 env:
   REGISTRY: docker.io
@@ -32,17 +34,26 @@ jobs:
       - name: Extract version info
         id: version
         run: |
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            # semantic-release触发的构建
+            VERSION="${{ github.event.client_payload.version }}"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            echo "🚀 Semantic-Release触发的构建，版本: $VERSION"
+          elif [[ $GITHUB_REF == refs/tags/v* ]]; then
+            # 标签推送触发的构建
             VERSION=${GITHUB_REF#refs/tags/v}
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "is_release=true" >> $GITHUB_OUTPUT
+            echo "🏷️ 标签推送触发的构建，版本: $VERSION"
           else
+            # 普通推送触发的构建
             VERSION=$(node -p "require('./package.json').version")
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "📦 开发构建，版本: $VERSION"
           fi
           echo "short_sha=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
-          echo "Detected version: $VERSION"
 
   # 主构建任务（AMD64 + 多平台）
   build:
