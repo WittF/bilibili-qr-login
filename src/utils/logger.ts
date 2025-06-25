@@ -26,7 +26,6 @@ class Logger {
   }
 
   public info(message: string, data?: any): void {
-    if (!isDebugMode()) return;
     console.log(this.formatMessage('info', message), data);
   }
 
