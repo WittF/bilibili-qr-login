@@ -1,122 +1,67 @@
 <template>
   <div class="cookie-converter">
+    <!-- 原始Cookie卡片 -->
     <div class="cookie-card">
       <div class="cookie-card__header">
-        <div class="cookie-card__title">
-          <span>{{ t.cookie.info }}</span>
-        </div>
-        <div class="cookie-card__actions">
-          <button class="cookie-card__btn cookie-card__btn--convert" :disabled="isConverting" @click="convert">
-            <ConvertIcon class="cookie-card__icon" />
-            <div class="cookie-card__btn-text">
-              <transition name="text-fade" mode="out-in">
-                <span :key="isConverting ? 'converting' : 'convert'">
-                  {{ isConverting ? t.cookie.converting : t.cookie.convert }}
-                </span>
-              </transition>
-            </div>
-          </button>
-        </div>
+        <h3 class="cookie-card__title">{{ t.cookie.info }}</h3>
+        <button class="action-btn action-btn--primary" :disabled="isConverting" @click="convert">
+          <ConvertIcon class="action-btn__icon" />
+          <span class="action-btn__text">
+            {{ isConverting ? t.cookie.converting : t.cookie.convert }}
+          </span>
+        </button>
       </div>
 
       <div class="cookie-card__content">
-        <pre ref="pre" class="cookie-card__pre" @click="copy">{{ value }}</pre>
+        <pre ref="pre" class="cookie-display" @click="copy">{{ value }}</pre>
 
-        <div class="cookie-card__copy-indicator" :class="{ 'cookie-card__copy-indicator--visible': copied }">
-          <CheckCopyIcon class="cookie-card__copy-icon" />
-          <transition name="text-fade" mode="out-in">
-            <span :key="t.cookie.copied">{{ t.cookie.copied }}</span>
-          </transition>
-        </div>
+        <transition name="fade-bounce">
+          <div v-if="copied" class="copy-tooltip">
+            <CheckCopyIcon class="copy-tooltip__icon" />
+            <span>{{ t.cookie.copied }}</span>
+          </div>
+        </transition>
       </div>
     </div>
 
-    <transition name="fade-slide">
+    <!-- 转换结果卡片 -->
+    <transition name="slide-up">
       <div v-if="convertedData" class="result-card">
-        <!-- 成功状态指示器 -->
-        <div class="result-card__status">
-          <div class="result-card__success-indicator">
-            <CheckCopyIcon class="result-card__success-icon" />
-            <span class="result-card__success-text">转换成功</span>
+        <div class="result-card__header">
+          <div class="result-indicator">
+            <div class="result-indicator__dot"></div>
+            <h3 class="result-indicator__title">{{ t.cookie.result }}</h3>
           </div>
-          <div class="result-card__timestamp">
-            {{ new Date().toLocaleTimeString('zh-CN', { hour12: false }) }}
+
+          <div class="result-actions">
+            <button class="action-btn action-btn--secondary" @click="copyConverted">
+              <ContentCopyIcon class="action-btn__icon" />
+              <span class="action-btn__text">{{ convertedCopyText }}</span>
+            </button>
+            <button class="action-btn action-btn--success" @click="downloadConverted">
+              <DownloadIcon class="action-btn__icon" />
+              <span class="action-btn__text">{{ t.cookie.download }}</span>
+            </button>
           </div>
         </div>
 
-        <!-- 结果统计信息 -->
-        <div class="result-card__stats">
-          <div class="result-card__stat">
-            <span class="result-card__stat-label">数据大小</span>
-            <span class="result-card__stat-value">{{ getDataSize(convertedData) }}</span>
+        <div class="result-card__content">
+          <div class="json-preview">
+            <pre ref="convertedPre" class="json-display">{{ convertedData }}</pre>
           </div>
-          <div class="result-card__stat">
-            <span class="result-card__stat-label">格式</span>
-            <span class="result-card__stat-value">JSON</span>
-          </div>
-          <div class="result-card__stat">
-            <span class="result-card__stat-label">字段数</span>
-            <span class="result-card__stat-value">{{ getFieldCount(convertedData) }}</span>
-          </div>
-        </div>
-
-        <!-- 主要内容区域 -->
-        <div class="result-card__main">
-          <div class="result-card__header">
-            <div class="result-card__title">
-              <transition name="text-fade" mode="out-in">
-                <span :key="t.cookie.result">{{ t.cookie.result }}</span>
-              </transition>
-            </div>
-            <div class="result-card__actions">
-              <button class="result-card__btn result-card__btn--copy" @click="copyConverted">
-                <ContentCopyIcon class="result-card__icon" />
-                <div class="result-card__btn-text">
-                  <transition name="text-fade" mode="out-in">
-                    <span :key="convertedCopyText">{{ convertedCopyText }}</span>
-                  </transition>
-                </div>
-              </button>
-              <button class="result-card__btn result-card__btn--download" @click="downloadConverted">
-                <DownloadIcon class="result-card__icon" />
-                <div class="result-card__btn-text">
-                  <transition name="text-fade" mode="out-in">
-                    <span :key="t.cookie.download">{{ t.cookie.download }}</span>
-                  </transition>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div class="result-card__content">
-            <div class="result-card__content-header">
-              <span class="result-card__content-label">转换结果</span>
-              <div class="result-card__content-meta">
-                <span class="result-card__content-type">application/json</span>
-              </div>
-            </div>
-            <div class="result-card__code-container">
-              <pre ref="convertedPre" class="result-card__code">{{ convertedData }}</pre>
-              <div class="result-card__code-overlay">
-                <div class="result-card__copy-hint">点击复制 JSON 数据</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 装饰性元素 -->
-        <div class="result-card__decoration">
-          <div class="result-card__glow"></div>
-          <div class="result-card__pattern"></div>
         </div>
       </div>
     </transition>
 
-    <transition name="fade-slide">
-      <div v-if="errorMsg" class="cookie-card cookie-card--error">
-        <div class="cookie-card__error">
-          <ErrorIcon class="cookie-card__error-icon" />
-          <span>{{ errorMsg }}</span>
+    <!-- 错误提示 -->
+    <transition name="slide-up">
+      <div v-if="errorMsg" class="error-card">
+        <div class="error-content">
+          <ErrorIcon class="error-content__icon" />
+          <div class="error-content__message">
+            <h4 class="error-content__title">转换失败</h4>
+            <p class="error-content__text">{{ errorMsg }}</p>
+          </div>
         </div>
       </div>
     </transition>
@@ -168,18 +113,6 @@ const copyConverted = () => {
   window.document.execCommand('copy');
   selection.removeAllRanges();
   changeConvertedCopyText(t.value.cookie.copied);
-
-  // 添加视觉反馈
-  if (convertedPre.value) {
-    convertedPre.value.style.background = 'var(--bilibili-pink-light)';
-    convertedPre.value.style.transform = 'scale(1.02)';
-    setTimeout(() => {
-      if (convertedPre.value) {
-        convertedPre.value.style.background = '';
-        convertedPre.value.style.transform = '';
-      }
-    }, 300);
-  }
 };
 
 const downloadConverted = () => {
@@ -297,29 +230,6 @@ const convert = async () => {
     isConverting.value = false;
   }
 };
-
-const getDataSize = (data: string): string => {
-  const byteSize = new TextEncoder().encode(data).length;
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let size = byteSize;
-  let unitIndex = 0;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-
-  return `${size.toFixed(2)} ${units[unitIndex]}`;
-};
-
-const getFieldCount = (data: string): number => {
-  try {
-    const parsed = JSON.parse(data);
-    return Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
-  } catch {
-    return 0;
-  }
-};
 </script>
 
 <style lang="less" scoped>
@@ -327,763 +237,401 @@ const getFieldCount = (data: string): number => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
 }
 
+// 基础卡片样式
 .cookie-card {
-  width: 100%;
+  background: var(--card-background);
   border-radius: var(--radius-lg);
-  background-color: var(--card-background);
+  border: 1px solid var(--divider);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: all 0.3s ease;
-  border: 1px solid var(--divider);
 
-  &--result {
-    border-left: 3px solid var(--bilibili-blue);
-  }
-
-  &--error {
-    border-left: 3px solid var(--error);
+  &:hover {
+    box-shadow: var(--shadow-md);
   }
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--background) 0%, var(--card-background) 100%);
+    border-bottom: 1px solid var(--divider);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  &__content {
+    position: relative;
+    padding: var(--spacing-lg);
+  }
+}
+
+// 转换结果卡片
+.result-card {
+  background: var(--card-background);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bilibili-blue);
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 1px rgba(0, 161, 214, 0.1);
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--bilibili-blue) 0%, var(--bilibili-pink) 100%);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--bilibili-blue-light) 0%, transparent 100%);
     background-color: var(--background);
     border-bottom: 1px solid var(--divider);
   }
 
+  &__content {
+    padding: var(--spacing-lg);
+  }
+}
+
+// 结果指示器
+.result-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
   &__title {
-    font-size: 1rem;
+    margin: 0;
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-primary);
   }
+}
 
-  &__actions {
-    display: flex;
-    gap: var(--spacing-sm);
+// 操作按钮组
+.result-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+// 统一的按钮样式
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
   }
 
-  &__content {
-    position: relative;
+  &:not(:disabled):hover {
+    transform: translateY(-2px);
   }
 
-  &__btn {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--radius-md);
+  &:not(:disabled):active {
+    transform: translateY(0);
+  }
+
+  &--primary {
+    background: var(--bilibili-pink);
     color: white;
-    font-size: 0.9rem;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    transition:
-      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      transform 0.15s ease;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-    will-change: width, transform;
+    box-shadow: 0 2px 8px rgba(251, 114, 153, 0.3);
 
-    &:hover {
-      transform: translateY(-1px);
-    }
-
-    &:active {
-      transform: scale(0.98);
-      transition: transform 0.1s ease;
-    }
-
-    &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    &--convert {
-      background-color: var(--bilibili-pink);
-
-      &:hover {
-        filter: brightness(1.1);
-        box-shadow: 0 4px 12px rgba(251, 114, 153, 0.3);
-      }
-    }
-
-    &--copy {
-      background-color: var(--bilibili-blue);
-
-      &:hover {
-        filter: brightness(1.1);
-        box-shadow: 0 4px 12px rgba(0, 161, 214, 0.3);
-      }
-    }
-
-    &--download {
-      background-color: var(--success);
-
-      &:hover {
-        filter: brightness(1.1);
-        box-shadow: 0 4px 12px rgba(68, 194, 133, 0.3);
-      }
+    &:not(:disabled):hover {
+      background: #ff5a8a;
+      box-shadow: 0 4px 16px rgba(251, 114, 153, 0.4);
     }
   }
 
-  &__btn-text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
-    overflow: hidden;
-    will-change: width;
-    position: relative;
+  &--secondary {
+    background: var(--bilibili-blue);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 161, 214, 0.3);
 
-    span {
-      display: inline-block;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    &:not(:disabled):hover {
+      background: #0090c7;
+      box-shadow: 0 4px 16px rgba(0, 161, 214, 0.4);
+    }
+  }
+
+  &--success {
+    background: var(--success);
+    color: white;
+    box-shadow: 0 2px 8px rgba(68, 194, 133, 0.3);
+
+    &:not(:disabled):hover {
+      background: #39b876;
+      box-shadow: 0 4px 16px rgba(68, 194, 133, 0.4);
     }
   }
 
   &__icon {
-    flex-shrink: 0;
     width: 16px;
     height: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-      all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      transform 0.15s ease;
-    will-change: transform;
-    position: relative;
-
-    svg {
-      width: 16px !important;
-      height: 16px !important;
-      display: block;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  }
-
-  &__copy-indicator {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--loading-bg);
-    color: var(--text-primary);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
-    z-index: 10;
-
-    &--visible {
-      opacity: 1;
-      visibility: visible;
-      animation: fadeInOut 1.2s ease-in-out;
-    }
-  }
-
-  &__copy-icon {
-    color: var(--text-primary);
     flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     svg {
-      width: 16px !important;
-      height: 16px !important;
-      display: block;
-    }
-  }
-
-  &__pre {
-    margin: 0;
-    padding: var(--spacing-md);
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: var(--text-primary);
-    background-color: var(--card-background);
-    text-wrap: wrap;
-    word-break: break-all;
-    white-space: pre-wrap;
-    max-height: 200px;
-    overflow-y: auto;
-    cursor: pointer;
-    transition: background 0.2s ease;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: var(--background);
-      border-radius: var(--radius-sm);
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: var(--text-tertiary);
-      border-radius: var(--radius-sm);
-    }
-
-    &:hover {
-      background: var(--overlay-mask);
-    }
-
-    &--result {
-      background-color: var(--bilibili-pink-light);
-      cursor: text;
-    }
-  }
-
-  &__error {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md);
-    color: var(--error);
-    font-size: 0.95rem;
-  }
-
-  &__error-icon {
-    color: var(--error);
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    svg {
-      width: 20px !important;
-      height: 20px !important;
-      display: block;
-    }
-  }
-}
-
-// 新的转换结果卡片样式
-.result-card {
-  position: relative;
-  width: 100%;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, var(--card-background) 0%, var(--background) 100%);
-  box-shadow:
-    var(--shadow-lg),
-    0 0 0 1px rgba(251, 114, 153, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid var(--bilibili-pink-border);
-  animation: resultCardEnter 0.6s ease-out;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 12px 24px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(251, 114, 153, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  }
-
-  // 成功状态指示器
-  &__status {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: linear-gradient(90deg, var(--bilibili-pink-light) 0%, var(--bilibili-blue-light) 100%);
-    border-bottom: 1px solid var(--bilibili-pink-border);
-  }
-
-  &__success-indicator {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-  }
-
-  &__success-icon {
-    width: 16px;
-    height: 16px;
-    color: var(--success);
-    animation: successBounce 0.6s ease-out 0.3s both;
-
-    svg {
-      width: 16px !important;
-      height: 16px !important;
-    }
-  }
-
-  &__success-text {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--success);
-    text-shadow: 0 1px 2px rgba(68, 194, 133, 0.3);
-  }
-
-  &__timestamp {
-    font-size: 0.75rem;
-    color: var(--text-tertiary);
-    font-weight: 500;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background: var(--overlay-light);
-    border-radius: var(--radius-sm);
-    backdrop-filter: blur(4px);
-  }
-
-  // 统计信息区域
-  &__stats {
-    display: flex;
-    justify-content: space-around;
-    padding: var(--spacing-md);
-    background: var(--overlay-light);
-    border-bottom: 1px solid var(--divider);
-    gap: var(--spacing-sm);
-  }
-
-  &__stat {
-    flex: 1;
-    text-align: center;
-    padding: var(--spacing-sm);
-    border-radius: var(--radius-md);
-    background: var(--card-background);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: var(--overlay-medium);
-      transform: translateY(-1px);
-    }
-  }
-
-  &__stat-label {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-tertiary);
-    margin-bottom: var(--spacing-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-  }
-
-  &__stat-value {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--bilibili-pink);
-    text-shadow: 0 1px 2px rgba(251, 114, 153, 0.3);
-  }
-
-  // 主要内容区域
-  &__main {
-    position: relative;
-  }
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-md);
-    background: var(--card-background);
-    border-bottom: 1px solid var(--divider);
-  }
-
-  &__title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    background: linear-gradient(45deg, var(--bilibili-pink) 0%, var(--bilibili-blue) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  &__actions {
-    display: flex;
-    gap: var(--spacing-sm);
-  }
-
-  &__btn {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-md);
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s ease;
-    }
-
-    &:hover::before {
-      left: 100%;
-    }
-
-    &:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-
-    &--copy {
-      background: linear-gradient(135deg, var(--bilibili-blue) 0%, #0088cc 100%);
-      box-shadow: 0 4px 12px rgba(0, 161, 214, 0.3);
-
-      &:hover {
-        box-shadow: 0 6px 20px rgba(0, 161, 214, 0.4);
-      }
-    }
-
-    &--download {
-      background: linear-gradient(135deg, var(--success) 0%, #35a373 100%);
-      box-shadow: 0 4px 12px rgba(68, 194, 133, 0.3);
-
-      &:hover {
-        box-shadow: 0 6px 20px rgba(68, 194, 133, 0.4);
-      }
     }
   }
 
-  &__btn-text {
-    transition: all 0.3s ease;
-    white-space: nowrap;
-
-    span {
-      display: inline-block;
-      transition: all 0.3s ease;
-    }
-  }
-
-  &__icon {
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-    transition: transform 0.3s ease;
-
-    svg {
-      width: 16px !important;
-      height: 16px !important;
-    }
-  }
-
-  // 内容区域
-  &__content {
-    background: var(--card-background);
-  }
-
-  &__content-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm) var(--spacing-md);
-    background: var(--overlay-light);
-    border-bottom: 1px solid var(--divider);
-  }
-
-  &__content-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  &__content-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-  }
-
-  &__content-type {
-    font-size: 0.7rem;
-    color: var(--text-tertiary);
-    background: var(--overlay-medium);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--radius-sm);
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
-  }
-
-  &__code-container {
-    position: relative;
-    max-height: 280px;
-    overflow: hidden;
-  }
-
-  &__code {
-    margin: 0;
-    padding: var(--spacing-md);
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: var(--text-primary);
-    background: linear-gradient(135deg, var(--card-background) 0%, var(--overlay-light) 100%);
-    white-space: pre-wrap;
-    word-break: break-all;
-    overflow-y: auto;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-    outline: none;
-
-    &::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: var(--background);
-      border-radius: var(--radius-sm);
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, var(--bilibili-pink) 0%, var(--bilibili-blue) 100%);
-      border-radius: var(--radius-sm);
-
-      &:hover {
-        background: linear-gradient(180deg, var(--bilibili-blue) 0%, var(--bilibili-pink) 100%);
-      }
-    }
-
-    &:hover {
-      background: var(--overlay-medium);
-      box-shadow: inset 0 0 0 1px var(--bilibili-pink-border);
-    }
-  }
-
-  &__code-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, var(--card-background));
-    padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &__copy-hint {
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--text-tertiary);
+  &__text {
     font-weight: 500;
   }
+}
 
-  &__code-container:hover &__code-overlay {
-    opacity: 1;
+// 数据显示区域
+.cookie-display,
+.json-display {
+  width: 100%;
+  margin: 0;
+  padding: var(--spacing-md);
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--background);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: auto;
+  transition: all 0.3s ease;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
 
-  // 装饰性元素
-  &__decoration {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: -1;
+  &::-webkit-scrollbar-track {
+    background: var(--background);
   }
 
-  &__glow {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(251, 114, 153, 0.1) 0%, transparent 70%);
-    animation: glowPulse 4s ease-in-out infinite;
+  &::-webkit-scrollbar-thumb {
+    background: var(--text-tertiary);
+    border-radius: 3px;
   }
+}
 
-  &__pattern {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(45deg, transparent 40%, rgba(251, 114, 153, 0.05) 50%, transparent 60%);
-    opacity: 0.3;
+.cookie-display {
+  max-height: 120px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--hover-background);
+    border-color: var(--bilibili-blue);
   }
+}
 
-  // 响应式设计
-  @media (max-width: 768px) {
-    &__stats {
-      flex-direction: column;
-      gap: var(--spacing-xs);
-    }
+.json-preview {
+  position: relative;
+}
 
-    &__stat {
-      padding: var(--spacing-xs);
-    }
+.json-display {
+  max-height: 240px;
+  background: var(--bilibili-pink-light);
+  border-color: var(--bilibili-pink-border);
+}
 
-    &__header {
-      flex-direction: column;
-      gap: var(--spacing-sm);
-      align-items: stretch;
-    }
+// 复制提示
+.copy-tooltip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--success);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
 
-    &__actions {
-      justify-content: center;
-    }
+  &__icon {
+    width: 16px;
+    height: 16px;
 
-    &__btn {
-      flex: 1;
-      justify-content: center;
-    }
-
-    &__code {
-      font-size: 0.8rem;
-      padding: var(--spacing-sm);
-    }
-
-    &__code-container {
-      max-height: 200px;
+    svg {
+      width: 100%;
+      height: 100%;
     }
   }
 }
 
-// 动画定义
-@keyframes resultCardEnter {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
+// 错误卡片
+.error-card {
+  background: var(--card-background);
+  border: 1px solid var(--error);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow:
+    var(--shadow-sm),
+    0 0 0 1px rgba(247, 98, 96, 0.1);
+}
+
+.error-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    color: var(--error);
+    flex-shrink: 0;
+    margin-top: 2px;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+
+  &__message {
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--error);
+  }
+
+  &__text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
   }
 }
 
-@keyframes successBounce {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes glowPulse {
+// 动画
+@keyframes pulse {
   0%,
   100% {
-    opacity: 0.3;
+    opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.6;
+    opacity: 0.7;
     transform: scale(1.1);
   }
 }
 
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-// 淡入滑动动画
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-}
-
-.fade-slide-enter-from,
-.fade-slide-leave-to {
+.slide-up-enter-from,
+.slide-up-leave-to {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(20px) scale(0.95);
 }
 
-// 文本切换动画
-.text-fade-enter-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition-delay: 0.1s;
+.fade-bounce-enter-active {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.text-fade-leave-active {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+.fade-bounce-leave-active {
+  transition: all 0.2s ease-out;
 }
 
-.text-fade-enter-from {
+.fade-bounce-enter-from,
+.fade-bounce-leave-to {
   opacity: 0;
-  transform: translateY(8px) scale(0.98);
+  transform: translate(-50%, -50%) scale(0.8);
 }
 
-.text-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-8px) scale(1.02);
-}
-
-.text-fade-enter-to,
-.text-fade-leave-from {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
+// 响应式设计
 @media (max-width: 768px) {
-  .cookie-card {
-    &__header {
-      padding: var(--spacing-sm) var(--spacing-md);
-    }
+  .cookie-card__header,
+  .result-card__header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: stretch;
+  }
 
-    &__pre {
-      padding: var(--spacing-sm) var(--spacing-md);
-      max-height: 150px;
-      font-size: 0.85rem;
-    }
+  .result-actions {
+    justify-content: center;
+  }
 
-    &__btn {
-      padding: var(--spacing-xs) var(--spacing-sm);
-      font-size: 0.85rem;
-    }
+  .action-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .cookie-display,
+  .json-display {
+    font-size: 0.8rem;
+  }
+
+  .error-content {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .cookie-converter {
+    gap: var(--spacing-md);
+  }
+
+  .cookie-card__content,
+  .result-card__content {
+    padding: var(--spacing-md);
+  }
+
+  .cookie-card__header,
+  .result-card__header {
+    padding: var(--spacing-md);
+  }
+
+  .result-actions {
+    flex-direction: column;
   }
 }
 </style>
