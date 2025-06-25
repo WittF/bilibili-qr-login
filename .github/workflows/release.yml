@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*.*.*'
+    # 移除tags触发，避免循环
   workflow_dispatch:
 
 jobs:
