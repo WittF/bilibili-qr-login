@@ -34,6 +34,28 @@ export const postQrMessage = (data: Omit<QrMessage, 'mode'>) => {
 
   const message: QrMessage = { ...data, mode: PARAM_MODE };
 
+  // 尝试获取父页面的origin
+  const getParentOrigin = (): string | null => {
+    try {
+      if (PARAM_MODE === 'window' && window.opener) {
+        return window.opener.location.origin;
+      }
+      if (PARAM_MODE === 'iframe' && window.parent !== window) {
+        return window.parent.location.origin;
+      }
+    } catch (error) {
+      // 跨域限制，尝试从referrer获取
+      if (document.referrer) {
+        try {
+          return new URL(document.referrer).origin;
+        } catch {
+          // referrer解析失败
+        }
+      }
+    }
+    return null;
+  };
+
   loggers.postMessage.debug('准备发送消息到父窗口', {
     mode: PARAM_MODE,
     messageType: message.type,
@@ -67,13 +89,16 @@ export const postQrMessage = (data: Omit<QrMessage, 'mode'>) => {
         messageType: message.type,
       });
     } else {
-      // 生产模式默认：发送到当前域名
-      const currentOrigin = window.location.origin;
-      targetWindow.postMessage(message, currentOrigin);
-      loggers.postMessage.important('消息已发送到当前域名', {
+      // 生产模式默认：尝试发送到父页面origin，失败则发送到当前域名
+      const parentOrigin = getParentOrigin();
+      const targetOrigin = parentOrigin || window.location.origin;
+
+      targetWindow.postMessage(message, targetOrigin);
+      loggers.postMessage.important('消息已发送到目标域名', {
         mode: PARAM_MODE,
-        targetOrigin: currentOrigin,
+        targetOrigin,
         messageType: message.type,
+        parentOriginDetected: !!parentOrigin,
       });
     }
   } catch (error) {

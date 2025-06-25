@@ -331,7 +331,7 @@
     </div>
 
     <script>
-        // 配置
+        // 配置 - 使用线上服务
         const SERVICE_URL = 'https://login.bilibili.bi';
         const API_URL = 'https://login.bilibili.bi/api/convert';
         
@@ -381,7 +381,13 @@
 
         // 监听登录消息
         window.addEventListener('message', (event) => {
-            if (event.origin !== SERVICE_URL) return;
+            // 验证消息来源（主要来自线上服务）
+            if (event.origin !== SERVICE_URL) {
+                console.warn('[Demo] 收到非预期来源的消息:', event.origin, '预期:', SERVICE_URL);
+                return;
+            }
+            
+            console.log('[Demo] 收到登录消息:', event.data);
             
             const { type, mode, data } = event.data;
             if (type === 'success') {
