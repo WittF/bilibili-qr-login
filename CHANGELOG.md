@@ -5,6 +5,18 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.4.1](https://github.com/WittF/bilibili-qr-login/compare/v1.4.0...v1.4.1) (2025-06-25)
+
+
+### 🐛 Bug修复
+
+* **ci:** 修复Dependabot提交时无法访问secrets导致的Docker发布失败问题 ([9cd15a8](https://github.com/WittF/bilibili-qr-login/commit/9cd15a84e9ca177ddef0830939367cdfaad00440))
+
+
+### 📚 文档更新
+
+* **ci:** 添加Dependabot无法访问secrets问题的详细说明文档 ([1caeaca](https://github.com/WittF/bilibili-qr-login/commit/1caeacaaddd1e1677e6c22b2f73a00f00b47263d))
+
 ## [1.4.0](https://github.com/WittF/bilibili-qr-login/compare/v1.3.0...v1.4.0) (2025-06-25)
 
 
