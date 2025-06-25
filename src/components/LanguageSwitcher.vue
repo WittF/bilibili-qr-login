@@ -9,8 +9,10 @@
       @click="toggleDropdown"
       @keydown="handleKeyDown"
     >
-      <LanguageIcon class="language-switcher__icon" />
-      <span class="language-switcher__label">{{ getLanguageDisplayName(currentLanguage) }}</span>
+      <div class="language-switcher__content">
+        <LanguageIcon class="language-switcher__icon" />
+        <span class="language-switcher__label">{{ getLanguageDisplayName(currentLanguage) }}</span>
+      </div>
       <ArrowDownIcon class="language-switcher__arrow" :class="{ 'language-switcher__arrow--open': isOpen }" />
     </button>
 
@@ -176,7 +178,7 @@ onUnmounted(() => {
   &__current {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    justify-content: space-between;
     padding: calc(var(--spacing-xs) + 1px) var(--spacing-sm);
     background-color: transparent;
     border: none;
@@ -187,7 +189,7 @@ onUnmounted(() => {
       transform 0.15s ease;
     color: var(--text-secondary);
     font-size: 0.9rem;
-    width: 110px;
+    width: 113px;
     min-height: 20px;
     font-family: inherit;
     will-change: transform, background-color;
@@ -209,6 +211,15 @@ onUnmounted(() => {
       background-color: var(--overlay-light);
       color: var(--text-primary);
     }
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex: 1;
+    justify-content: center;
+    margin-right: var(--spacing-xs);
   }
 
   &__icon {
@@ -233,16 +244,12 @@ onUnmounted(() => {
   }
 
   &__label {
-    flex: 1;
     font-weight: 500;
     display: flex;
     align-items: center;
     min-height: 18px;
     line-height: 1.2;
-    overflow: hidden;
     white-space: nowrap;
-    text-overflow: ellipsis;
-    text-align: left;
   }
 
   &__arrow {
@@ -402,6 +409,10 @@ onUnmounted(() => {
       padding: var(--spacing-xs) calc(var(--spacing-xs) + 2px);
       font-size: 0.85rem;
       min-height: 32px;
+    }
+
+    &__content {
+      margin-right: calc(var(--spacing-xs) - 1px);
       gap: calc(var(--spacing-xs) - 1px);
     }
 
@@ -417,8 +428,8 @@ onUnmounted(() => {
     }
 
     &__dropdown {
-      min-width: 105px;
-      width: 105px;
+      min-width: 111px;
+      width: 111px;
     }
 
     &__option {
@@ -448,8 +459,8 @@ onUnmounted(() => {
       right: auto;
       margin-left: 0;
       margin-bottom: var(--spacing-xs);
-      min-width: 105px;
-      width: 105px;
+      min-width: 111px;
+      width: 111px;
     }
   }
 }
