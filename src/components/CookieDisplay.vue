@@ -237,7 +237,7 @@ const convert = async () => {
   transition: all 0.2s ease;
 
   &--result {
-    border-left: 3px solid var(--success);
+    // 移除左边框，保持简洁风格
   }
 
   &--error {
