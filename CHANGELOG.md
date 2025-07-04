@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.9.0](https://github.com/WittF/bilibili-qr-login/compare/v1.8.2...v1.9.0) (2025-07-04)
+
+
+### ✨ 功能更新
+
+* **security:** 增强Referer检查支持TRUST_ORIGIN环境变量配置 ([6796700](https://github.com/WittF/bilibili-qr-login/commit/6796700ed3c0ff3a8f304e70e0a58e4ada20ecbc))
+
 ## [1.8.2](https://github.com/WittF/bilibili-qr-login/compare/v1.8.1...v1.8.2) (2025-06-25)
 
 
