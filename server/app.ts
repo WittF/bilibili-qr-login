@@ -620,12 +620,42 @@ app.get('/api/qr', c => {
     try {
       const host = c.req.header('Host');
       const referer = c.req.header('Referer');
-      if (!referer || new URL(referer).host !== host) {
-        logger.warn(sessionId, 'Referer检查失败', { host, referer });
+
+      if (!referer) {
+        logger.warn(sessionId, 'Referer检查失败：缺少Referer头', { host, referer });
         return c.text('', 403);
       }
-    } catch {
-      logger.warn(sessionId, 'Host检查异常');
+
+      const refererHost = new URL(referer).host;
+      const refererOrigin = new URL(referer).origin;
+
+      // 检查是否为同域名访问
+      if (refererHost === host) {
+        // 同域名访问，允许通过
+        logger.debug(sessionId, 'Referer检查通过：同域名访问', { host, referer });
+      } else if (ALLOW_ALL_ORIGINS) {
+        // 如果TRUST_ORIGIN配置为*，允许所有来源
+        logger.debug(sessionId, 'Referer检查通过：允许所有来源', { host, referer });
+      } else if (allowedOrigins.includes(refererOrigin)) {
+        // 如果referer在信任的域名列表中，允许通过
+        logger.debug(sessionId, 'Referer检查通过：在信任域名列表中', { host, referer, allowedOrigins });
+      } else {
+        // 其他情况拒绝访问
+        logger.warn(sessionId, 'Referer检查失败：不在信任域名列表中', {
+          host,
+          referer,
+          refererOrigin,
+          allowedOrigins:
+            allowedOrigins.length > 10 ? `${allowedOrigins.slice(0, 10).join(',')}...` : allowedOrigins.join(','),
+        });
+        return c.text('', 403);
+      }
+    } catch (error) {
+      logger.warn(sessionId, 'Referer检查异常', {
+        error: error instanceof Error ? error.message : String(error),
+        host: c.req.header('Host'),
+        referer: c.req.header('Referer'),
+      });
       return c.text('', 403);
     }
   }
