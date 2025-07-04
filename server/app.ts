@@ -636,9 +636,15 @@ app.get('/api/qr', c => {
       } else if (ALLOW_ALL_ORIGINS) {
         // 如果TRUST_ORIGIN配置为*，允许所有来源
         logger.debug(sessionId, 'Referer检查通过：允许所有来源', { host, referer });
-      } else if (allowedOrigins.includes(refererOrigin)) {
-        // 如果referer在信任的域名列表中，允许通过
-        logger.debug(sessionId, 'Referer检查通过：在信任域名列表中', { host, referer, allowedOrigins });
+      } else if (allowedOrigins.includes(refererOrigin) || allowedOrigins.includes(refererHost)) {
+        // 如果referer在信任的域名列表中，允许通过（支持完整origin或仅域名匹配）
+        logger.debug(sessionId, 'Referer检查通过：在信任域名列表中', {
+          host,
+          referer,
+          refererOrigin,
+          refererHost,
+          allowedOrigins,
+        });
       } else {
         // 其他情况拒绝访问
         logger.warn(sessionId, 'Referer检查失败：不在信任域名列表中', {
