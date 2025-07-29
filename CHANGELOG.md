@@ -5,6 +5,18 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.10.0](https://github.com/WittF/bilibili-qr-login/compare/v1.9.0...v1.10.0) (2025-07-29)
+
+
+### ✨ 功能更新
+
+* **structured-data:** 添加结构化数据（JSON-LD）以增强SEO和应用信息 ([d161309](https://github.com/WittF/bilibili-qr-login/commit/d161309b4f350a90cc6500f85e07b12e31602178))
+
+
+### 🐛 Bug修复
+
+* **security:** 修复Referer检查兼容域名和完整origin配置 ([1d63d80](https://github.com/WittF/bilibili-qr-login/commit/1d63d80505339d1ac87da468e9e75dbfa6c64235))
+
 ## [1.9.0](https://github.com/WittF/bilibili-qr-login/compare/v1.8.2...v1.9.0) (2025-07-04)
 
 
