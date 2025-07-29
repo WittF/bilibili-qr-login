@@ -177,6 +177,57 @@
         setMetaTag('twitter:description', '哔哩哔哩二维码登录工具 - 使用手机APP扫码快速登录哔哩哔哩，安全获取Cookie信息');
       }
     </script>
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json" id="structured-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "哔哩哔哩 Cookie 获取工具",
+      "alternateName": ["Bilibili QR Login Tool", "B站登录工具", "哔哩哔哩二维码登录"],
+      "description": "哔哩哔哩二维码登录工具 - 使用手机APP扫码快速登录哔哩哔哩，安全获取Cookie信息",
+      "url": "https://login.bilibili.bi/",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Web Browser",
+      "browserRequirements": "Requires JavaScript. Modern web browser required.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY",
+        "availability": "https://schema.org/InStock"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "WittF",
+        "url": "https://github.com/WittF"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "WittF",
+        "url": "https://github.com/WittF"
+      },
+      "softwareVersion": "2.0.0",
+      "dateCreated": "2025-01-01",
+      "dateModified": "2025-07-29",
+      "license": "https://github.com/WittF/bilibili-qr-login/blob/main/LICENSE",
+      "codeRepository": "https://github.com/WittF/bilibili-qr-login",
+      "programmingLanguage": ["TypeScript", "Vue.js"],
+      "runtimePlatform": "Web Browser",
+      "screenshot": "https://login.bilibili.bi/og-image.png",
+      "featureList": [
+        "二维码登录",
+        "Cookie获取",
+        "Cookie转换",
+        "多语言支持",
+        "跨域安全控制",
+        "移动端适配"
+      ],
+      "keywords": "哔哩哔哩,bilibili,二维码登录,QR码,Cookie获取,扫码登录,B站登录",
+      "inLanguage": ["zh-CN", "zh-TW", "en", "ja"],
+      "isAccessibleForFree": true,
+      "isFamilyFriendly": true
+    }
+    </script>
   </head>
   <body>
     <div id="app"></div>
