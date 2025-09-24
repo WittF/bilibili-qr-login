@@ -449,8 +449,8 @@ onUnmounted(() => {
   }
 }
 
-// 超小屏幕：向上展开
-@media (max-width: 480px) {
+// 当页面高度大于等于800px时，向上展开（有足够空间）
+@media (max-width: 480px) and (min-height: 800px) {
   .language-switcher {
     &__dropdown {
       top: auto;
@@ -459,6 +459,22 @@ onUnmounted(() => {
       right: auto;
       margin-left: 0;
       margin-bottom: var(--spacing-xs);
+      min-width: 111px;
+      width: 111px;
+    }
+  }
+}
+
+// 当页面高度小于800px时，向下展开（避免被遮挡）
+@media (max-width: 480px) and (max-height: 799px) {
+  .language-switcher {
+    &__dropdown {
+      top: 100%;
+      bottom: auto;
+      left: 0;
+      right: auto;
+      margin-left: 0;
+      margin-top: var(--spacing-xs);
       min-width: 111px;
       width: 111px;
     }
