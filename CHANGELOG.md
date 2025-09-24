@@ -5,6 +5,18 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.10.1](https://github.com/WittF/bilibili-qr-login/compare/v1.10.0...v1.10.1) (2025-09-24)
+
+
+### 🐛 Bug修复
+
+* **seo:** 修改HTML文件中的初始标题，解决链接预览显示Loading问题 ([dee41bd](https://github.com/WittF/bilibili-qr-login/commit/dee41bd6d05d5900264551abab14bd64a8dd18f5))
+
+
+### 💄 样式优化
+
+* **LanguageSwitcher:** 高度≥800px时向上展开，高度<800px时向下展开 ([5c497f5](https://github.com/WittF/bilibili-qr-login/commit/5c497f58f28b80274cead43bf192cb969a9bc19f))
+
 ## [1.10.0](https://github.com/WittF/bilibili-qr-login/compare/v1.9.0...v1.10.0) (2025-07-29)
 
 
