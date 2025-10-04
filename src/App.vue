@@ -187,21 +187,23 @@ const qrCodeOption: QRCodeRenderersOptions = {
   },
 };
 
-// 防抖函数
-let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+// 监听窗口大小变化（防抖优化）
+const handleResize = (() => {
+  let resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
-// 监听窗口大小变化
-const handleResize = () => {
-  if (resizeTimer) {
-    clearTimeout(resizeTimer);
-  }
-  resizeTimer = setTimeout(() => {
-    const newScale = getQrCodeScale();
-    if (Math.abs(newScale - qrCodeScale.value) > 0.001) {
-      qrCodeScale.value = newScale;
+  return () => {
+    if (resizeTimer) {
+      clearTimeout(resizeTimer);
     }
-  }, 150); // 150ms防抖延迟
-};
+    resizeTimer = setTimeout(() => {
+      const newScale = getQrCodeScale();
+      if (Math.abs(newScale - qrCodeScale.value) > 0.001) {
+        qrCodeScale.value = newScale;
+      }
+      resizeTimer = null; // 释放引用
+    }, 150); // 150ms防抖延迟
+  };
+})();
 
 const { state, getters, restart, stop } = useQrSSE();
 const hasCookieBeforeReset = ref(false);
@@ -252,9 +254,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
-  if (resizeTimer) {
-    clearTimeout(resizeTimer);
-  }
   stop();
 });
 </script>
