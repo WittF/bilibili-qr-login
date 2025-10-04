@@ -19,6 +19,20 @@ export default defineConfig(({ command, mode }) => {
     },
     build: {
       outDir: 'dist/static',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vue-vendor': ['vue'],
+            qrcode: ['@chenfengyuan/vue-qrcode', 'qrcode'],
+          },
+        },
+      },
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: mode === 'production',
+        },
+      },
     },
     define: {
       __TRUST_ORIGIN__: JSON.stringify(process.env.TRUST_ORIGIN || (mode === 'development' ? '*' : '')),
