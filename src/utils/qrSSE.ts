@@ -111,25 +111,30 @@ class QrSSE {
   }
 
   private handleMessage = ({ type, data }: MessageEvent<string>) => {
-    const obj = JSON.parse(data);
-    loggers.qrSSE.info('收到SSE消息', { type, data: obj });
+    try {
+      const obj = JSON.parse(data);
+      loggers.qrSSE.info('收到SSE消息', { type, data: obj });
 
-    // 收到消息说明连接正常，重置重连计数器
-    if (this.reconnectAttempts > 0) {
-      loggers.qrSSE.info('连接已恢复，重置重连计数器', {
-        previousAttempts: this.reconnectAttempts,
-      });
-      this.reconnectAttempts = 0;
-      this.clearReconnectTimeout();
-    }
+      // 收到消息说明连接正常，重置重连计数器
+      if (this.reconnectAttempts > 0) {
+        loggers.qrSSE.info('连接已恢复，重置重连计数器', {
+          previousAttempts: this.reconnectAttempts,
+        });
+        this.reconnectAttempts = 0;
+        this.clearReconnectTimeout();
+      }
 
-    switch (type) {
-      case SSEEvent.POLL:
-        this.handlePoll(obj);
-        break;
-      case SSEEvent.GENERATE:
-        this.handleGenerate(obj);
-        break;
+      switch (type) {
+        case SSEEvent.POLL:
+          this.handlePoll(obj);
+          break;
+        case SSEEvent.GENERATE:
+          this.handleGenerate(obj);
+          break;
+      }
+    } catch (error) {
+      loggers.qrSSE.error('解析SSE消息失败', error);
+      this.handleError('数据解析失败');
     }
   };
 
@@ -241,7 +246,7 @@ class QrSSE {
         break;
       case PollQrResultCode.SUCCESS:
         this.state.status = QrStatus.SUCCESS;
-        this.state.cookie = cookie!;
+        this.state.cookie = cookie || '';
         this.state.cookieValidation = cookieValidation;
 
         // 在浏览器控制台显示Cookie验证结果
@@ -249,7 +254,9 @@ class QrSSE {
           this.logCookieValidationResult(cookieValidation);
         }
 
-        postQrMessage({ type: 'success', data: cookie! });
+        if (cookie) {
+          postQrMessage({ type: 'success', data: cookie });
+        }
         break;
       default:
         this.handleError(msg);
