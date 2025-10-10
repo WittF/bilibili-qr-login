@@ -53,7 +53,7 @@ defineExpose({
 .client-selector {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-sm);
   padding: var(--spacing-sm);
   background-color: var(--card-background);
   border-radius: var(--radius-md);

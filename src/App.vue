@@ -431,8 +431,9 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   justify-content: center;
+  transform: translateX(-30px);
 }
 
 .qrcode {
