@@ -50,6 +50,12 @@ interface TranslationTexts {
     refreshQR: string;
   };
 
+  // 客户端类型
+  client: {
+    web: string;
+    tv: string;
+  };
+
   // 安全文本
   security: {
     embedNotice: string;
@@ -101,6 +107,10 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       viewSource: '查看源码',
       refreshQR: '刷新二维码',
     },
+    client: {
+      web: 'Web端',
+      tv: 'TV端',
+    },
     security: {
       embedNotice: '登录信息将发送至',
     },
@@ -146,6 +156,10 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
     common: {
       viewSource: '查看源碼',
       refreshQR: '重新整理二維碼',
+    },
+    client: {
+      web: 'Web端',
+      tv: 'TV端',
     },
     security: {
       embedNotice: '登入資訊將發送至',
@@ -193,6 +207,10 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       viewSource: 'View Source',
       refreshQR: 'Refresh QR Code',
     },
+    client: {
+      web: 'Web',
+      tv: 'TV',
+    },
     security: {
       embedNotice: 'Login info will be sent to',
     },
@@ -239,6 +257,10 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
     common: {
       viewSource: 'ソースコードを見る',
       refreshQR: 'QRコードを更新',
+    },
+    client: {
+      web: 'Web',
+      tv: 'TV',
     },
     security: {
       embedNotice: 'ログイン情報の送信先',

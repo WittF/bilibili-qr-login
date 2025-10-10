@@ -67,17 +67,32 @@ class QrSSE {
   private reconnectTimeout?: number;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 3;
+  private clientType: 'web' | 'tv' = 'web';
 
-  public constructor(private state: QrState) {
-    this.start();
+  public constructor(
+    private state: QrState,
+    clientType: 'web' | 'tv' = 'web',
+  ) {
+    this.clientType = clientType;
+    this.start(clientType);
   }
 
-  public restart() {
+  public restart(clientType?: 'web' | 'tv') {
     const { url } = this.state;
+    if (clientType !== undefined) {
+      this.clientType = clientType;
+    }
     Object.assign(this.state, defaultState(), { url });
     this.reconnectAttempts = 0;
     this.clearReconnectTimeout();
-    this.start();
+    this.start(this.clientType);
+  }
+
+  public setClientType(clientType: 'web' | 'tv') {
+    if (this.clientType !== clientType) {
+      this.clientType = clientType;
+      this.restart(clientType);
+    }
   }
 
   public stop() {
@@ -93,17 +108,18 @@ class QrSSE {
     }
   }
 
-  private start() {
+  private start(clientType: 'web' | 'tv' = 'web') {
     this.stop();
 
     try {
-      this.es = new EventSource('/api/qr');
+      const url = `/api/qr?client=${clientType}`;
+      this.es = new EventSource(url);
       this.es.addEventListener(SSEEvent.GENERATE, this.handleMessage);
       this.es.addEventListener(SSEEvent.POLL, this.handleMessage);
       this.es.addEventListener(SSEEvent.END, this.handleEnd);
       this.es.addEventListener('error', this.handleConnectionError);
 
-      loggers.qrSSE.info('SSE连接已创建');
+      loggers.qrSSE.info(`SSE连接已创建 (${clientType}端)`);
     } catch (error) {
       loggers.qrSSE.error('创建SSE连接失败', error);
       this.handleError('连接服务器失败，请检查网络连接');
@@ -265,7 +281,7 @@ class QrSSE {
   }
 }
 
-export const useQrSSE = () => {
+export const useQrSSE = (clientType: 'web' | 'tv' = 'web') => {
   const state = reactive<QrState>(defaultState());
   const { t } = useI18n();
 
@@ -288,12 +304,13 @@ export const useQrSSE = () => {
     }),
   });
 
-  const qrSSE = new QrSSE(state);
+  const qrSSE = new QrSSE(state, clientType);
 
   return {
     state,
     getters,
     restart: qrSSE.restart.bind(qrSSE),
     stop: qrSSE.stop.bind(qrSSE),
+    setClientType: qrSSE.setClientType.bind(qrSSE),
   };
 };
