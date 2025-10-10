@@ -5,6 +5,34 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.11.0](https://github.com/WittF/bilibili-qr-login/compare/v1.10.1...v1.11.0) (2025-10-10)
+
+
+### ✨ 功能更新
+
+* **login:** 实现TV端QR码登录与双端切换 ([393ba27](https://github.com/WittF/bilibili-qr-login/commit/393ba27ee48325bb684fd443add6ffa98da6822c))
+
+
+### 🐛 Bug修复
+
+* **qrSSE:** 增强SSE类型安全与容错，避免异常数据崩溃 ([f262417](https://github.com/WittF/bilibili-qr-login/commit/f26241754969e418155d29463fb6d1ebc3aff416))
+
+
+### 💄 样式优化
+
+* **icon:** 更新语言切换器图标为国际化样式 ([76cf92e](https://github.com/WittF/bilibili-qr-login/commit/76cf92ee1ffcf60a35406c264e30a5e489381da4))
+* **layout:** 优化客户端选择器与二维码布局间距 ([9f5b1f1](https://github.com/WittF/bilibili-qr-login/commit/9f5b1f1e1cf471234ea0066b9d410161fd59e9cb))
+
+
+### ⚡ 性能优化
+
+* **app:** 修复防抖函数内存泄漏 ([9b81701](https://github.com/WittF/bilibili-qr-login/commit/9b817011a9b7c76547f6e59dc7c86b44893ae50d))
+
+
+### 📦 构建
+
+* **vite:** 拆分代码与压缩优化，减小构建体积 ([d7323ed](https://github.com/WittF/bilibili-qr-login/commit/d7323ed4c0233021353023740828c349022df9fd))
+
 ## [1.10.1](https://github.com/WittF/bilibili-qr-login/compare/v1.10.0...v1.10.1) (2025-09-24)
 
 
