@@ -33,30 +33,33 @@
 
       <div class="main-content">
         <div class="qrcode-container" :class="{ 'qrcode-container--with-cookie': state.cookie && !PARAM_MODE }">
-          <div class="qrcode flex no-select card" :class="{ 'qrcode--scanned': showCheckIcon }">
-            <transition name="fade" mode="out-in">
-              <QrCode
-                v-if="state.url"
-                :value="state.url"
-                :options="qrCodeOption"
-                :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
-                class="qrcode__content"
-              />
-              <div
-                v-else
-                class="qrcode__placeholder"
-                :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
-              ></div>
-            </transition>
-            <div v-if="state.status !== QrStatus.WAIT" class="qrcode__mask flex">
-              <LoadingIcon v-if="state.status === QrStatus.LOADING" />
-              <div v-else class="qrcode__actions">
-                <CheckIcon v-if="showCheckIcon" class="icon--success" />
-                <RefreshBtn
-                  class="icon--refresh"
-                  :class="{ 'always-visible': state.status === QrStatus.EXPIRED }"
-                  @click="handleRestart"
+          <div class="qrcode-wrapper">
+            <ClientSelector @change="handleClientChange" />
+            <div class="qrcode flex no-select card" :class="{ 'qrcode--scanned': showCheckIcon }">
+              <transition name="fade" mode="out-in">
+                <QrCode
+                  v-if="state.url"
+                  :value="state.url"
+                  :options="qrCodeOption"
+                  :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
+                  class="qrcode__content"
                 />
+                <div
+                  v-else
+                  class="qrcode__placeholder"
+                  :style="{ transform: `scale(${qrCodeScale})`, transformOrigin: 'center center' }"
+                ></div>
+              </transition>
+              <div v-if="state.status !== QrStatus.WAIT" class="qrcode__mask flex">
+                <LoadingIcon v-if="state.status === QrStatus.LOADING" />
+                <div v-else class="qrcode__actions">
+                  <CheckIcon v-if="showCheckIcon" class="icon--success" />
+                  <RefreshBtn
+                    class="icon--refresh"
+                    :class="{ 'always-visible': state.status === QrStatus.EXPIRED }"
+                    @click="handleRestart"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -108,6 +111,7 @@ import CookieDisplay from './components/CookieDisplay.vue';
 import LoadingIcon from './components/LoadingIcon.vue';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import CheckIcon from './components/CheckIcon.vue';
+import ClientSelector from './components/ClientSelector.vue';
 import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
 import { PARAM_MODE, APP_VERSION } from './utils/const';
@@ -115,6 +119,7 @@ import { themeManager } from './utils/theme';
 
 import GithubIcon from './assets/icons/github.svg';
 import type { QRCodeRenderersOptions } from 'qrcode';
+import type { ClientType } from './components/ClientSelector.vue';
 
 const { t, updatePageTitle } = useI18n();
 
@@ -187,24 +192,40 @@ const qrCodeOption: QRCodeRenderersOptions = {
   },
 };
 
-// 防抖函数
-let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+// 监听窗口大小变化（防抖优化）
+const handleResize = (() => {
+  let resizeTimer: ReturnType<typeof setTimeout> | null = null;
 
-// 监听窗口大小变化
-const handleResize = () => {
-  if (resizeTimer) {
-    clearTimeout(resizeTimer);
-  }
-  resizeTimer = setTimeout(() => {
-    const newScale = getQrCodeScale();
-    if (Math.abs(newScale - qrCodeScale.value) > 0.001) {
-      qrCodeScale.value = newScale;
+  return () => {
+    if (resizeTimer) {
+      clearTimeout(resizeTimer);
     }
-  }, 150); // 150ms防抖延迟
-};
+    resizeTimer = setTimeout(() => {
+      const newScale = getQrCodeScale();
+      if (Math.abs(newScale - qrCodeScale.value) > 0.001) {
+        qrCodeScale.value = newScale;
+      }
+      resizeTimer = null; // 释放引用
+    }, 150); // 150ms防抖延迟
+  };
+})();
 
-const { state, getters, restart, stop } = useQrSSE();
+const { state, getters, restart, stop, setClientType } = useQrSSE();
 const hasCookieBeforeReset = ref(false);
+
+const handleClientChange = (clientType: ClientType) => {
+  if (state.cookie) {
+    hasCookieBeforeReset.value = true;
+  }
+  setClientType(clientType);
+  setTimeout(() => {
+    if (hasCookieBeforeReset.value) {
+      setTimeout(() => {
+        hasCookieBeforeReset.value = false;
+      }, 500);
+    }
+  }, 100);
+};
 
 const showCheckIcon = computed(() => state.status === QrStatus.SCANNED || state.status === QrStatus.SUCCESS);
 
@@ -252,9 +273,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
-  if (resizeTimer) {
-    clearTimeout(resizeTimer);
-  }
   stop();
 });
 </script>
@@ -407,6 +425,15 @@ onBeforeUnmount(() => {
     margin-bottom: var(--spacing-sm);
     transform: scale(0.95);
   }
+}
+
+.qrcode-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  transform: translateX(-30px);
 }
 
 .qrcode {
@@ -764,6 +791,10 @@ onBeforeUnmount(() => {
     margin-bottom: var(--spacing-sm);
   }
 
+  .qrcode-wrapper {
+    gap: var(--spacing-sm);
+  }
+
   .footer-links {
     margin-top: var(--spacing-xs);
     padding: var(--spacing-xs) 0 0;
@@ -960,12 +991,12 @@ onBeforeUnmount(() => {
 
 // 文本切换动画
 .text-fade-enter-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transition-delay: 0.1s;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: 0.05s;
 }
 
 .text-fade-leave-active {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.6, 1);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.6, 1);
 }
 
 .text-fade-enter-from {

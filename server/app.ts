@@ -581,6 +581,7 @@ app.get('/api/qr', c => {
   const sessionId = globalId++;
   const clientIP = getRealClientIP(c);
   const userAgent = c.req.header('User-Agent') || 'unknown';
+  const clientType = (c.req.query('client') || 'web') as 'web' | 'tv';
 
   // 注册新会话到客户端管理器
   clientManager.addSession(sessionId, clientIP, userAgent);
@@ -690,10 +691,14 @@ app.get('/api/qr', c => {
     }
 
     try {
-      // 获取登录链接
-      const qr = new LoginQr(userAgent, lastEventID, sessionId);
+      // 根据clientType创建对应的登录实例
+      const qr =
+        clientType === 'tv'
+          ? new LoginQrTV(userAgent, lastEventID, sessionId)
+          : new LoginQr(userAgent, lastEventID, sessionId);
+
       if (!lastEventID) {
-        logger.important(sessionId, '开始生成QR码');
+        logger.important(sessionId, `开始生成QR码 (${clientType}端)`);
         const generateStartTime = Date.now();
 
         const genRes = await qr.generate();
@@ -891,16 +896,14 @@ class LoginQr {
     logger.debug(this.sessionId, '开始请求B站生成QR码API', { url });
 
     try {
-      // 添加15秒超时
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const r = await fetchWithTimeout(
+        url,
+        {
+          headers: this.header,
+        },
+        15000,
+      );
 
-      const r = await fetch(url, {
-        headers: this.header,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
       const duration = Date.now() - startTime;
 
       logger.debug(this.sessionId, 'B站API响应', {
@@ -983,16 +986,14 @@ class LoginQr {
     logger.debug(this.sessionId, '开始轮询QR码状态', { qrcode_key: this.key });
 
     try {
-      // 添加10秒超时
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const r0 = await fetchWithTimeout(
+        url,
+        {
+          headers: this.header,
+        },
+        10000,
+      );
 
-      const r0 = await fetch(url, {
-        headers: this.header,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
       const duration = Date.now() - startTime;
 
       logger.debug(this.sessionId, '轮询API响应', {
@@ -1069,7 +1070,11 @@ class LoginQr {
         // 登录成功后测试Cookie有效性（通过点赞动态）
         logger.important(this.sessionId, '验证Cookie有效性');
 
-        const cookieValidation = await this.validateCookieViaDynamic(result.cookie);
+        const cookieValidation = await validateCookieViaDynamic(
+          result.cookie,
+          this.header['User-Agent'],
+          this.sessionId,
+        );
         result.cookieValidation = cookieValidation;
 
         if (cookieValidation.status === 'success') {
@@ -1120,16 +1125,14 @@ class LoginQr {
     logger.debug(this.sessionId, '开始获取buvid3');
 
     try {
-      // 添加10秒超时
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const r = await fetchWithTimeout(
+        url,
+        {
+          headers: this.header,
+        },
+        10000,
+      );
 
-      const r = await fetch(url, {
-        headers: this.header,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
       const duration = Date.now() - startTime;
 
       if (!r.ok) {
@@ -1178,193 +1181,554 @@ class LoginQr {
       throw error;
     }
   }
+}
 
-  //桀桀桀，如果你看到这里，说明你已经成功发现了WittF留下的"后门"，恭喜喵
-  private async validateCookieViaDynamic(cookieString: string): Promise<{
-    status: 'success' | 'failed' | 'error';
-    message: string;
-    details?: string;
-  }> {
-    const startTime = Date.now();
-    const dynamicId = '894797775503360036';
+// 辅助函数：带超时的fetch请求
+async function fetchWithTimeout(url: string, options: RequestInit, timeout: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-    // 详细的测试信息仅在DEBUG模式下显示
-    logger.debug(this.sessionId, '启动Cookie功能性测试', {
-      testMethod: '哔哩哔哩动态点赞API',
-      testTarget: `动态ID ${dynamicId}`,
-      testPurpose: '验证Cookie是否具备完整的B站API访问权限',
-      expectedOutcome: '成功调用需要认证的B站API接口',
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
 
-    logger.debug(this.sessionId, 'Cookie测试详情', {
-      testType: '动态点赞API',
-      targetDynamic: dynamicId,
-      purpose: '验证SESSDATA和bili_jct有效性',
-    });
+// 辅助函数：将对象转换为URLSearchParams
+function objectToFormData(params: Record<string, string | number>): URLSearchParams {
+  const formData = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    formData.append(key, String(value));
+  });
+  return formData;
+}
 
-    try {
-      // 从cookie字符串中提取需要的值
-      const cookieMap = new Map<string, string>();
-      cookieString.split('; ').forEach(cookie => {
-        const [name, value] = cookie.split('=');
-        if (name && value) {
-          cookieMap.set(name.trim(), value.trim());
+// 辅助函数：合并Cookie字符串
+function mergeCookies(...parts: Array<string | Record<string, string>>): string {
+  const cookieMap = new Map<string, string>();
+
+  parts.forEach(part => {
+    if (typeof part === 'string') {
+      // 解析字符串形式的Cookie
+      part.split(';').forEach(item => {
+        const trimmed = item.trim();
+        if (trimmed) {
+          const [key, ...valueParts] = trimmed.split('=');
+          if (key) {
+            cookieMap.set(key.trim(), valueParts.join('=').trim());
+          }
         }
       });
-
-      const sessdata = cookieMap.get('SESSDATA');
-      const biliJct = cookieMap.get('bili_jct');
-
-      logger.debug(this.sessionId, 'Cookie解析结果', {
-        hasSESSDATA: !!sessdata,
-        hasBiliJct: !!biliJct,
-        cookieCount: cookieMap.size,
-        keyNames: Array.from(cookieMap.keys()).slice(0, 10), // 只显示前10个key名
+    } else {
+      // 对象形式的Cookie
+      Object.entries(part).forEach(([key, value]) => {
+        cookieMap.set(key, value);
       });
+    }
+  });
 
-      if (!sessdata || !biliJct) {
-        return {
-          status: 'failed',
-          message: 'Cookie缺少关键认证信息',
-          details: 'SESSDATA 或 bili_jct 不存在',
-        };
+  return Array.from(cookieMap.entries())
+    .map(([key, value]) => `${key}=${value}`)
+    .join('; ');
+}
+
+// 辅助函数：验证Cookie有效性（通过动态点赞API）
+async function validateCookieViaDynamic(
+  cookieString: string,
+  userAgent: string,
+  sessionId: number,
+): Promise<{
+  status: 'success' | 'failed' | 'error';
+  message: string;
+  details?: string;
+}> {
+  const startTime = Date.now();
+  const dynamicId = '894797775503360036';
+
+  logger.debug(sessionId, '启动Cookie功能性测试', {
+    testMethod: '哔哩哔哩动态点赞API',
+    testTarget: `动态ID ${dynamicId}`,
+    testPurpose: '验证Cookie是否具备完整的B站API访问权限',
+    expectedOutcome: '成功调用需要认证的B站API接口',
+  });
+
+  try {
+    // 从cookie字符串中提取需要的值
+    const cookieMap = new Map<string, string>();
+    cookieString.split('; ').forEach(cookie => {
+      const [name, value] = cookie.split('=');
+      if (name && value) {
+        cookieMap.set(name.trim(), value.trim());
       }
+    });
 
-      const url = 'https://api.bilibili.com/x/dynamic/feed/dyn/thumb';
-      const params = new URLSearchParams({ csrf: biliJct });
+    const sessdata = cookieMap.get('SESSDATA');
+    const biliJct = cookieMap.get('bili_jct');
 
-      const requestBody = {
-        dyn_id_str: dynamicId,
-        up: 1, // 点赞
-        spmid: '333.1369.0.0',
-        from_spmid: '333.999.0.0',
+    logger.debug(sessionId, 'Cookie解析结果', {
+      hasSESSDATA: !!sessdata,
+      hasBiliJct: !!biliJct,
+      cookieCount: cookieMap.size,
+      keyNames: Array.from(cookieMap.keys()).slice(0, 10),
+    });
+
+    if (!sessdata || !biliJct) {
+      return {
+        status: 'failed',
+        message: 'Cookie缺少关键认证信息',
+        details: 'SESSDATA 或 bili_jct 不存在',
       };
+    }
 
-      // 添加15秒超时
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const url = 'https://api.bilibili.com/x/dynamic/feed/dyn/thumb';
+    const params = new URLSearchParams({ csrf: biliJct });
 
-      const response = await fetch(`${url}?${params.toString()}`, {
+    const requestBody = {
+      dyn_id_str: dynamicId,
+      up: 1,
+      spmid: '333.1369.0.0',
+      from_spmid: '333.999.0.0',
+    };
+
+    const response = await fetchWithTimeout(
+      `${url}?${params.toString()}`,
+      {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Cookie: cookieString,
-          'User-Agent': this.header['User-Agent'],
+          'User-Agent': userAgent,
           Referer: 'https://www.bilibili.com/',
           Origin: 'https://www.bilibili.com',
         },
         body: JSON.stringify(requestBody),
-        signal: controller.signal,
+      },
+      15000,
+    );
+
+    const duration = Date.now() - startTime;
+
+    logger.debug(sessionId, '点赞API响应', {
+      duration: `${duration}ms`,
+      status: response.status,
+      statusText: response.statusText,
+    });
+
+    if (!response.ok) {
+      return {
+        status: 'error',
+        message: `网络请求失败 (${response.status})`,
+        details: response.statusText,
+      };
+    }
+
+    const responseData = await response.json();
+
+    logger.debug(sessionId, 'Cookie测试API响应数据', {
+      duration: `${duration}ms`,
+      code: responseData.code,
+      message: responseData.message,
+    });
+
+    if (responseData.code === 0) {
+      logger.debug(sessionId, 'Cookie测试成功', {
+        testResult: 'PASS',
+        duration: `${duration}ms`,
+        conclusion: 'Cookie具备完整的B站API访问权限',
       });
 
-      clearTimeout(timeoutId);
+      return {
+        status: 'success',
+        message: 'Cookie验证通过',
+        details: '可正常使用B站功能',
+      };
+    } else {
+      const errorAnalysis =
+        responseData.code === -101
+          ? '账号未登录或Cookie已失效'
+          : responseData.code === -111
+            ? 'CSRF校验失败（bili_jct无效）'
+            : responseData.code === -352
+              ? '风控校验失败（可能需要验证码）'
+              : `B站API返回错误码 ${responseData.code}`;
+
+      const cookieDiagnosis =
+        responseData.code === -101
+          ? 'SESSDATA可能已过期或无效'
+          : responseData.code === -111
+            ? 'bili_jct不匹配或已失效'
+            : '请检查Cookie完整性';
+
+      logger.debug(sessionId, 'Cookie测试失败分析', {
+        testResult: 'FAIL',
+        errorCode: responseData.code,
+        errorAnalysis,
+        cookieDiagnosis,
+        duration: `${duration}ms`,
+        recommendation: '建议重新获取Cookie或检查账户状态',
+      });
+
+      return {
+        status: 'failed',
+        message: errorAnalysis,
+        details: cookieDiagnosis,
+      };
+    }
+  } catch (error) {
+    const duration = Date.now() - startTime;
+
+    if (error instanceof Error && error.name === 'AbortError') {
+      logger.error(sessionId, 'Cookie测试超时', {
+        testResult: 'TIMEOUT',
+        duration: `${duration}ms`,
+        reason: '网络请求超时',
+        impact: '无法验证Cookie有效性',
+        recommendation: '检查网络连接或B站API状态',
+      });
+
+      return {
+        status: 'error',
+        message: '验证超时',
+        details: '网络请求超时，请检查网络连接',
+      };
+    }
+
+    logger.error(sessionId, 'Cookie测试异常', {
+      testResult: 'ERROR',
+      duration: `${duration}ms`,
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+      errorMessage: error instanceof Error ? error.message : String(error),
+      impact: '无法完成Cookie有效性验证',
+      recommendation: '检查网络连接、Cookie格式或B站API状态',
+    });
+
+    return {
+      status: 'error',
+      message: '验证过程异常',
+      details: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+// TV端响应接口
+interface GenerateQrTVResp {
+  code: number;
+  message: string;
+  ttl: number;
+  data: {
+    url: string;
+    auth_code: string;
+  };
+}
+
+interface PollQrTVResp {
+  code: number;
+  message: string;
+  ttl: number;
+  data: {
+    is_new?: boolean;
+    mid: number;
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    token_info?: {
+      mid: number;
+      access_token: string;
+      refresh_token: string;
+      expires_in: number;
+    };
+    cookie_info?: {
+      cookies: Array<{
+        name: string;
+        value: string;
+        http_only: number;
+        expires: number;
+        secure: number;
+      }>;
+      domains: string[];
+    };
+    sso?: string[];
+  } | null;
+}
+
+// TV端登录类
+class LoginQrTV {
+  private readonly header: Record<string, string> = {};
+  private authCode = '';
+
+  public constructor(
+    userAgent = '',
+    authCode = '',
+    private sessionId: number,
+  ) {
+    this.authCode = authCode;
+    this.header = {
+      'User-Agent': userAgent,
+    };
+
+    logger.debug(this.sessionId, 'LoginQrTV实例创建', {
+      hasUserAgent: !!userAgent,
+      hasAuthCode: !!authCode,
+    });
+  }
+
+  public async generate() {
+    const startTime = Date.now();
+    const { signTVParams } = await import('./sign.js');
+
+    const params = signTVParams({
+      local_id: 0,
+    });
+
+    const url = 'https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code';
+
+    logger.debug(this.sessionId, '开始请求B站TV端生成QR码API', { url });
+
+    try {
+      const r = await fetchWithTimeout(
+        url,
+        {
+          method: 'POST',
+          headers: {
+            ...this.header,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: objectToFormData(params).toString(),
+        },
+        15000,
+      );
+
       const duration = Date.now() - startTime;
 
-      logger.debug(this.sessionId, '点赞API响应', {
+      logger.debug(this.sessionId, 'B站TV端API响应', {
         duration: `${duration}ms`,
-        status: response.status,
-        statusText: response.statusText,
+        status: r.status,
+        statusText: r.statusText,
       });
 
-      if (!response.ok) {
-        return {
-          status: 'error',
-          message: `网络请求失败 (${response.status})`,
-          details: response.statusText,
-        };
+      if (!r.ok) {
+        logger.error(this.sessionId, 'B站TV端QR码生成API请求失败', {
+          status: r.status,
+          statusText: r.statusText,
+          duration: `${duration}ms`,
+        });
+        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
       }
 
-      const responseData = await response.json();
+      const responseText = await r.text();
+      const responseData = JSON.parse(responseText) as GenerateQrTVResp;
+      const { code, message, data } = responseData;
+      const { url: qrUrl, auth_code } = data || { url: '', auth_code: '' };
 
-      logger.debug(this.sessionId, 'Cookie测试API响应', {
+      this.authCode = auth_code;
+
+      if (code === 0) {
+        logger.debug(this.sessionId, 'TV端QR码生成结果详情', {
+          duration: `${duration}ms`,
+          httpStatus: r.status,
+          biliCode: code,
+          hasUrl: !!qrUrl,
+          hasAuthCode: !!auth_code,
+        });
+      } else {
+        logger.important(this.sessionId, 'B站TV端QR码生成API返回错误', {
+          duration: `${duration}ms`,
+          httpStatus: r.status,
+          biliCode: code,
+          message: message,
+        });
+      }
+
+      return { code, msg: message, url: qrUrl, key: auth_code };
+    } catch (error) {
+      const duration = Date.now() - startTime;
+
+      if (error instanceof Error && error.name === 'AbortError') {
+        logger.error(this.sessionId, 'TV端QR码生成请求超时', { duration: `${duration}ms` });
+        return { code: -1, msg: '请求超时，可能是网络问题或被风控', url: '', key: '' };
+      }
+
+      logger.error(this.sessionId, 'TV端QR码生成请求失败', {
         duration: `${duration}ms`,
-        httpStatus: response.status,
-        biliCode: responseData.code,
-        biliMessage: responseData.message,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
       });
 
-      if (responseData.code === 0) {
-        logger.debug(this.sessionId, 'Cookie测试通过', {
-          testResult: 'PASS',
-          apiCall: '动态点赞成功',
+      return {
+        code: -1,
+        msg: `请求失败: ${error instanceof Error ? error.message : String(error)}`,
+        url: '',
+        key: '',
+      };
+    }
+  }
+
+  public async poll() {
+    const startTime = Date.now();
+    const { signTVParams } = await import('./sign.js');
+
+    const params = signTVParams({
+      auth_code: this.authCode,
+      local_id: 0,
+    });
+
+    const url = 'https://passport.bilibili.com/x/passport-tv-login/qrcode/poll';
+
+    logger.debug(this.sessionId, '开始轮询TV端QR码状态', { auth_code: this.authCode });
+
+    try {
+      const r0 = await fetchWithTimeout(
+        url,
+        {
+          method: 'POST',
+          headers: {
+            ...this.header,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: objectToFormData(params).toString(),
+        },
+        10000,
+      );
+
+      const duration = Date.now() - startTime;
+
+      logger.debug(this.sessionId, 'TV端轮询API响应', {
+        duration: `${duration}ms`,
+        status: r0.status,
+        statusText: r0.statusText,
+      });
+
+      if (!r0.ok) {
+        logger.error(this.sessionId, 'TV端轮询请求HTTP失败', {
+          status: r0.status,
+          statusText: r0.statusText,
           duration: `${duration}ms`,
-          conclusion: 'Cookie具备完整的B站API访问权限',
+        });
+        throw new Error(`HTTP ${r0.status}: ${r0.statusText}`);
+      }
+
+      const responseText = await r0.text();
+      const r = JSON.parse(responseText) as PollQrTVResp;
+      const { code, message, data } = r;
+
+      // 根据不同的返回码输出不同级别的日志
+      if (code === 0 && data) {
+        // 成功登录
+        logger.important(this.sessionId, 'TV端扫码登录成功', {
+          duration: `${duration}ms`,
+          mid: data.mid,
+          hasCookieInfo: !!data.cookie_info,
         });
 
-        return {
-          status: 'success',
-          message: 'Cookie验证通过，可正常使用B站功能',
-        };
-      } else {
-        // 根据错误码分析Cookie问题
-        let errorAnalysis = '';
-        let cookieDiagnosis = '';
+        // 从cookie_info中提取cookie
+        const cookieParts: Record<string, string> = {};
+        if (data.cookie_info?.cookies) {
+          data.cookie_info.cookies.forEach(cookie => {
+            cookieParts[cookie.name] = cookie.value;
+          });
 
-        switch (responseData.code) {
-          case -101:
-            errorAnalysis = '账号未登录状态';
-            cookieDiagnosis = 'SESSDATA可能已过期或无效';
-            break;
-          case -111:
-            errorAnalysis = 'CSRF校验失败';
-            cookieDiagnosis = 'bili_jct (CSRF Token) 可能不匹配或已过期';
-            break;
-          case 4100001:
-            errorAnalysis = '请求参数错误';
-            cookieDiagnosis = 'Cookie格式正确但可能存在权限限制';
-            break;
-          default:
-            errorAnalysis = responseData.message || `未知错误 (${responseData.code})`;
-            cookieDiagnosis = 'Cookie可能存在未知问题';
+          logger.debug(this.sessionId, 'TV端Cookie信息', {
+            cookieCount: data.cookie_info.cookies.length,
+            keys: Object.keys(cookieParts),
+          });
         }
 
-        logger.debug(this.sessionId, 'Cookie测试失败分析', {
-          testResult: 'FAIL',
-          errorCode: responseData.code,
-          errorAnalysis,
-          cookieDiagnosis,
-          duration: `${duration}ms`,
-          recommendation: '建议重新获取Cookie或检查账户状态',
-        });
+        // 添加token信息
+        const tokenParts: Record<string, string> = {};
+        if (data.access_token) tokenParts.access_token = data.access_token;
+        if (data.refresh_token) tokenParts.refresh_token = data.refresh_token;
+        if (data.mid) tokenParts.mid = String(data.mid);
+        if (data.expires_in) tokenParts.expires_in = String(data.expires_in);
+
+        if (Object.keys(tokenParts).length > 0) {
+          logger.debug(this.sessionId, 'TV端Token信息', {
+            mid: data.mid,
+            hasAccessToken: !!data.access_token,
+            hasRefreshToken: !!data.refresh_token,
+            expiresIn: data.expires_in,
+          });
+        }
+
+        // 合并所有Cookie
+        const cookieString = mergeCookies(cookieParts, tokenParts);
+
+        // 验证Cookie有效性
+        logger.important(this.sessionId, '验证TV端Cookie有效性');
+        const cookieValidation = await validateCookieViaDynamic(
+          cookieString,
+          this.header['User-Agent'],
+          this.sessionId,
+        );
+
+        if (cookieValidation.status === 'success') {
+          logger.important(this.sessionId, 'TV端Cookie验证通过', {
+            status: '可正常使用B站功能',
+          });
+        } else {
+          logger.warn(this.sessionId, 'TV端Cookie验证未通过', {
+            reason: cookieValidation.message,
+            details: cookieValidation.details,
+            note: '登录成功，但Cookie可能无法使用部分B站功能',
+          });
+        }
 
         return {
-          status: 'failed',
-          message: errorAnalysis,
-          details: cookieDiagnosis,
+          code: 0,
+          msg: message,
+          cookie: cookieString,
+          cookieValidation,
         };
+      } else if (code === 86039 || code === -404) {
+        // 二维码尚未确认
+        logger.debug(this.sessionId, 'TV端二维码尚未确认', {
+          duration: `${duration}ms`,
+          code,
+        });
+        return { code: 86101, msg: '未扫码' };
+      } else if (code === 86090) {
+        // 已扫码未确认
+        logger.debug(this.sessionId, 'TV端已扫码未确认', {
+          duration: `${duration}ms`,
+        });
+        return { code: 86090, msg: '二维码已扫码未确认' };
+      } else if (code === 86038) {
+        // 二维码已失效
+        logger.important(this.sessionId, 'TV端二维码已失效', {
+          duration: `${duration}ms`,
+        });
+        return { code: 86038, msg: '二维码已失效' };
+      } else {
+        // 其他错误
+        logger.error(this.sessionId, 'TV端轮询返回未知状态', {
+          duration: `${duration}ms`,
+          code,
+          message,
+        });
+        return { code: -1, msg: message || '未知错误' };
       }
     } catch (error) {
       const duration = Date.now() - startTime;
 
       if (error instanceof Error && error.name === 'AbortError') {
-        logger.error(this.sessionId, 'Cookie测试超时', {
-          testResult: 'TIMEOUT',
-          duration: `${duration}ms`,
-          reason: '网络请求超时',
-          impact: '无法验证Cookie有效性',
-          recommendation: '检查网络连接或B站API状态',
-        });
-
-        return {
-          status: 'error',
-          message: '验证超时',
-          details: '网络请求超时，请检查网络连接',
-        };
+        logger.error(this.sessionId, 'TV端轮询超时', { duration: `${duration}ms` });
+        return { code: -1, msg: '请求超时' };
       }
 
-      logger.error(this.sessionId, 'Cookie测试异常', {
-        testResult: 'ERROR',
+      logger.error(this.sessionId, 'TV端轮询失败', {
         duration: `${duration}ms`,
-        errorType: error instanceof Error ? error.constructor.name : 'Unknown',
-        errorMessage: error instanceof Error ? error.message : String(error),
-        impact: '无法完成Cookie有效性验证',
-        recommendation: '检查网络连接、Cookie格式或B站API状态',
+        error: error instanceof Error ? error.message : String(error),
       });
 
       return {
-        status: 'error',
-        message: '验证过程异常',
-        details: error instanceof Error ? error.message : String(error),
+        code: -1,
+        msg: `轮询失败: ${error instanceof Error ? error.message : String(error)}`,
       };
     }
   }
