@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from '../utils/i18n';
 import WebIcon from '../assets/icons/web.svg';
 import TvIcon from '../assets/icons/tv.svg';
