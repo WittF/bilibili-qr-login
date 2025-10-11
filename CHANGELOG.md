@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.11.1](https://github.com/WittF/bilibili-qr-login/compare/v1.11.0...v1.11.1) (2025-10-11)
+
+
+### 🐛 Bug修复
+
+* **build:** 移除ClientSelector中未使用的watch导入 ([d60d6aa](https://github.com/WittF/bilibili-qr-login/commit/d60d6aa5360541d5d31d6f6a7925cdd20d71b332))
+
 ## [1.11.0](https://github.com/WittF/bilibili-qr-login/compare/v1.10.1...v1.11.0) (2025-10-10)
 
 
