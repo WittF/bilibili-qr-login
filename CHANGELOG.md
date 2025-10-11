@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.11.2](https://github.com/WittF/bilibili-qr-login/compare/v1.11.1...v1.11.2) (2025-10-11)
+
+
+### 🐛 Bug修复
+
+* **deps:** 添加terser依赖以修复Vite构建 ([70d3d3c](https://github.com/WittF/bilibili-qr-login/commit/70d3d3cb3ce04883c69552d88fd3f025f30e6982))
+
 ## [1.11.1](https://github.com/WittF/bilibili-qr-login/compare/v1.11.0...v1.11.1) (2025-10-11)
 
 
