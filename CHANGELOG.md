@@ -5,6 +5,18 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.11.3](https://github.com/WittF/bilibili-qr-login/compare/v1.11.2...v1.11.3) (2025-10-11)
+
+
+### 🐛 Bug修复
+
+* **build:** 将TV端sign模块改为静态导入，避免ncc生成额外chunk ([11df5b8](https://github.com/WittF/bilibili-qr-login/commit/11df5b8aa45b55bdb22af83e58807e1b2e58cc74))
+
+
+### 👷 CI/CD
+
+* **release:** 使用官方推荐的successComment配置 ([0868b73](https://github.com/WittF/bilibili-qr-login/commit/0868b73b5c269046c09f853d4589ad752d10b9ad))
+
 ## [1.11.2](https://github.com/WittF/bilibili-qr-login/compare/v1.11.1...v1.11.2) (2025-10-11)
 
 
