@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
+import { signTVParams } from './sign.js';
 
 /**
  * HTTP状态码说明：
@@ -1481,7 +1482,6 @@ class LoginQrTV {
 
   public async generate() {
     const startTime = Date.now();
-    const { signTVParams } = await import('./sign.js');
 
     const params = signTVParams({
       local_id: 0,
@@ -1572,7 +1572,6 @@ class LoginQrTV {
 
   public async poll() {
     const startTime = Date.now();
-    const { signTVParams } = await import('./sign.js');
 
     const params = signTVParams({
       auth_code: this.authCode,
