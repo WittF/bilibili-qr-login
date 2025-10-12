@@ -114,7 +114,7 @@ import CheckIcon from './components/CheckIcon.vue';
 import ClientSelector from './components/ClientSelector.vue';
 import { useQrSSE, QrStatus } from './utils/qrSSE';
 import { useI18n } from './utils/i18n';
-import { PARAM_MODE, APP_VERSION } from './utils/const';
+import { PARAM_MODE, PARAM_TARGET_ORIGIN, APP_VERSION } from './utils/const';
 import { themeManager } from './utils/theme';
 
 import GithubIcon from './assets/icons/github.svg';
@@ -126,6 +126,11 @@ const { t, updatePageTitle } = useI18n();
 // 检测嵌入源
 const embedOrigin = computed(() => {
   if (!PARAM_MODE) return null;
+
+  // 优先使用 URL 参数指定的 targetOrigin
+  if (PARAM_TARGET_ORIGIN) {
+    return PARAM_TARGET_ORIGIN;
+  }
 
   try {
     // iframe模式：检查是否被嵌入

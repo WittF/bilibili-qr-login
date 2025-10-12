@@ -21,6 +21,7 @@ https://login.bilibili.bi/
 | mode | string | 否 | 登录模式，`iframe`或`window` | `?mode=iframe` |
 | lang | string | 否 | 界面语言，默认`zh-CN` | `?lang=en` |
 | theme | string | 否 | 明暗模式，`light`/`dark`/`auto`，默认`auto` | `?theme=dark` |
+| targetOrigin | string | 否 | 手动指定postMessage的目标域名 | `?targetOrigin=https://app.com` |
 
 #### 主题模式说明
 
@@ -36,6 +37,9 @@ https://login.bilibili.bi/?mode=iframe&lang=en&theme=dark
 
 # 弹窗模式 + 浅色主题
 https://login.bilibili.bi/?mode=window&theme=light
+
+# iframe模式 + 指定目标域名
+https://login.bilibili.bi/?mode=iframe&targetOrigin=https://app.com
 ```
 
 ### 消息通信格式
@@ -196,35 +200,47 @@ result = response.json()
 
 ## 跨域安全配置
 
-### TRUST_ORIGIN 环境变量
+### 配置方式
 
-控制哪些域名可以接收登录Cookie信息和进行跨域访问：
+有两种方式配置 postMessage 的目标域名：
 
-| 配置 | 说明 | 示例 |
-|------|------|------|
-| `TRUST_ORIGIN="*"` | 允许所有域名（开发环境默认） | 开发测试使用 |
-| `TRUST_ORIGIN=""` | 仅允许同域名（生产环境默认） | 最高安全级别 |
-| `TRUST_ORIGIN="https://app.com"` | 指定单个信任域名 | 生产环境推荐 |
-| `TRUST_ORIGIN="https://a.com,https://b.com"` | 多个信任域名，逗号分隔 | 多站点集成 |
+#### 1. TRUST_ORIGIN 环境变量（服务端配置）
 
-### 部署示例
+| 配置 | 说明 |
+|------|------|
+| `TRUST_ORIGIN="*"` | 允许所有域名（开发环境默认） |
+| `TRUST_ORIGIN=""` | 仅允许同域名（生产环境默认） |
+| `TRUST_ORIGIN="https://app.com"` | 指定单个信任域名 |
+| `TRUST_ORIGIN="https://a.com,https://b.com"` | 多个信任域名，逗号分隔 |
 
-```bash
-# 开发环境
-TRUST_ORIGIN="*" yarn dev
+#### 2. targetOrigin URL 参数（客户端指定）
 
-# 生产环境 - 指定域名
-docker run -e TRUST_ORIGIN="https://yourdomain.com" wittf/bilibili-qr-login
-
-# 多域名支持
-docker run -e TRUST_ORIGIN="https://app.com,https://admin.app.com" wittf/bilibili-qr-login
+```
+https://login.bilibili.bi/?mode=iframe&targetOrigin=https://yourdomain.com
 ```
 
-### 安全提示
+**使用示例**：
+```javascript
+const loginUrl = 'https://login.bilibili.bi/?mode=iframe&targetOrigin=' +
+                 encodeURIComponent(window.location.origin);
+```
 
-- ✅ 嵌入时会显示"登录信息将发送至：xxx.com"提示
-- ✅ 用户明确知道Cookie发送目标
-- ⚠️ 生产环境建议配置具体域名，避免使用 `*`
+### 安全规则
+
+| TRUST_ORIGIN 配置 | targetOrigin 参数 | 实际行为 |
+|-------------------|-------------------|----------|
+| `*` | 任意值 | ✅ 允许发送到指定域名 |
+| `https://app.com` | `https://app.com` | ✅ 在白名单内，允许 |
+| `https://app.com` | `https://evil.com` | ❌ 不在白名单，降级到白名单发送 |
+| 未配置 | 任意值 | ✅ 允许 |
+| 未配置 | 未指定 | 自动检测父页面域名 |
+
+### 安全建议
+
+- ✅ 生产环境建议配置 `TRUST_ORIGIN` 白名单
+- ✅ 客户端可用 `targetOrigin` 参数明确指定域名
+- ✅ 白名单配置不会被 URL 参数绕过
+- ⚠️ 避免在生产环境使用 `TRUST_ORIGIN="*"`
 
 ## 注意事项
 
