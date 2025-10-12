@@ -8,6 +8,9 @@ export const APP_VERSION = __APP_VERSION__;
 // 模式检测
 export const PARAM_MODE = (new URL(window.location.href).searchParams.get('mode') || '') as 'window' | 'iframe' | '';
 
+// 手动指定的 targetOrigin（用于 postMessage）
+export const PARAM_TARGET_ORIGIN = new URL(window.location.href).searchParams.get('targetOrigin') || '';
+
 // 检测是否为本地环境
 const isLocalEnvironment = (): boolean => {
   const protocol = window.location.protocol;
@@ -41,7 +44,8 @@ if (PARAM_MODE) {
     referrer: document.referrer || 'none',
     isLocalEnv: isLocalEnvironment(),
     trustAllOrigin: TRUST_ALL_ORIGIN,
-    trustedOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins,
+    trustOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins,
+    customTargetOrigin: PARAM_TARGET_ORIGIN || 'none',
   });
 } else {
   loggers.app.info('标准模式运行', {
@@ -65,6 +69,6 @@ loggers.app.important('应用配置加载完成', {
   isDev: import.meta.env.DEV,
   isLocalEnvironment: isLocalEnvironment(),
   trustOriginPolicy: trustOriginStatus,
-  trustedOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins.length > 0 ? trustOrigins : [window.location.origin],
+  trustOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins.length > 0 ? trustOrigins : [window.location.origin],
   version: APP_VERSION,
 });

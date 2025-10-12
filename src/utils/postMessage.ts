@@ -1,4 +1,4 @@
-import { PARAM_MODE, TRUST_ALL_ORIGIN, trustOrigins } from './const';
+import { PARAM_MODE, PARAM_TARGET_ORIGIN, TRUST_ALL_ORIGIN, trustOrigins } from './const';
 import { loggers } from './logger';
 
 interface QrMessage {
@@ -60,46 +60,87 @@ export const postQrMessage = (data: Omit<QrMessage, 'mode'>) => {
     mode: PARAM_MODE,
     messageType: message.type,
     trustAllOrigin: TRUST_ALL_ORIGIN,
-    trustedOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins,
+    trustOrigins: TRUST_ALL_ORIGIN ? ['*'] : trustOrigins,
     targetWindowExists: !!targetWindow,
+    customTargetOrigin: PARAM_TARGET_ORIGIN || 'none',
   });
 
   try {
+    // 优先级1: 开发模式或配置了 '*'，允许发送到任意域名
     if (TRUST_ALL_ORIGIN) {
-      // 开发模式：发送到任意域名
-      targetWindow.postMessage(message, '*');
-      loggers.postMessage.important('消息已发送到所有域名', {
-        mode: PARAM_MODE,
-        targetOrigin: '*',
-        messageType: message.type,
-      });
-    } else if (trustOrigins.length > 0) {
-      // 配置了特定域名：发送到指定域名
-      trustOrigins.forEach(origin => {
-        targetWindow.postMessage(message, origin);
-        loggers.postMessage.debug('消息已发送到指定域', {
-          mode: PARAM_MODE,
-          targetOrigin: origin,
-          messageType: message.type,
-        });
-      });
-      loggers.postMessage.important('消息已发送到配置的信任域', {
-        mode: PARAM_MODE,
-        trustedOriginsCount: trustOrigins.length,
-        messageType: message.type,
-      });
-    } else {
-      // 生产模式默认：尝试发送到父页面origin，失败则发送到当前域名
-      const parentOrigin = getParentOrigin();
-      const targetOrigin = parentOrigin || window.location.origin;
-
+      const targetOrigin = PARAM_TARGET_ORIGIN || '*';
       targetWindow.postMessage(message, targetOrigin);
-      loggers.postMessage.important('消息已发送到目标域名', {
+      loggers.postMessage.important('消息已发送 (开发模式)', {
         mode: PARAM_MODE,
         targetOrigin,
         messageType: message.type,
-        parentOriginDetected: !!parentOrigin,
+        source: PARAM_TARGET_ORIGIN ? 'url-parameter' : 'wildcard',
       });
+    } else if (trustOrigins.length > 0) {
+      // 优先级2: 配置了特定域名白名单
+      if (PARAM_TARGET_ORIGIN) {
+        // URL 参数必须在白名单内
+        if (trustOrigins.includes(PARAM_TARGET_ORIGIN)) {
+          targetWindow.postMessage(message, PARAM_TARGET_ORIGIN);
+          loggers.postMessage.important('消息已发送到URL参数指定的域名 (已验证)', {
+            mode: PARAM_MODE,
+            targetOrigin: PARAM_TARGET_ORIGIN,
+            messageType: message.type,
+          });
+        } else {
+          loggers.postMessage.error('URL参数指定的域名不在信任列表中', {
+            mode: PARAM_MODE,
+            requestedOrigin: PARAM_TARGET_ORIGIN,
+            trustOrigins,
+            messageType: message.type,
+          });
+          // 降级到白名单发送
+          trustOrigins.forEach(origin => {
+            targetWindow.postMessage(message, origin);
+          });
+          loggers.postMessage.important('已降级发送到配置的信任域', {
+            mode: PARAM_MODE,
+            trustOriginsCount: trustOrigins.length,
+            messageType: message.type,
+          });
+        }
+      } else {
+        // 没有 URL 参数，发送到所有白名单域名
+        trustOrigins.forEach(origin => {
+          targetWindow.postMessage(message, origin);
+          loggers.postMessage.debug('消息已发送到指定域', {
+            mode: PARAM_MODE,
+            targetOrigin: origin,
+            messageType: message.type,
+          });
+        });
+        loggers.postMessage.important('消息已发送到配置的信任域', {
+          mode: PARAM_MODE,
+          trustOriginsCount: trustOrigins.length,
+          messageType: message.type,
+        });
+      }
+    } else {
+      // 优先级3: 没有配置 TRUST_ORIGIN，使用 URL 参数或自动检测
+      if (PARAM_TARGET_ORIGIN) {
+        targetWindow.postMessage(message, PARAM_TARGET_ORIGIN);
+        loggers.postMessage.important('消息已发送到URL参数指定的域名', {
+          mode: PARAM_MODE,
+          targetOrigin: PARAM_TARGET_ORIGIN,
+          messageType: message.type,
+        });
+      } else {
+        const parentOrigin = getParentOrigin();
+        const targetOrigin = parentOrigin || window.location.origin;
+
+        targetWindow.postMessage(message, targetOrigin);
+        loggers.postMessage.important('消息已发送到自动检测的域名', {
+          mode: PARAM_MODE,
+          targetOrigin,
+          messageType: message.type,
+          parentOriginDetected: !!parentOrigin,
+        });
+      }
     }
   } catch (error) {
     loggers.postMessage.error('发送消息失败', {
