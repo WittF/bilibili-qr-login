@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.12.0](https://github.com/WittF/bilibili-qr-login/compare/v1.11.3...v1.12.0) (2025-10-12)
+
+
+### ✨ 功能更新
+
+* **iframe:** 添加targetOrigin参数并修复安全策略 ([5bb9a8d](https://github.com/WittF/bilibili-qr-login/commit/5bb9a8dbc3915a5c2256ae2431468afb1aa56924))
+
 ## [1.11.3](https://github.com/WittF/bilibili-qr-login/compare/v1.11.2...v1.11.3) (2025-10-11)
 
 
