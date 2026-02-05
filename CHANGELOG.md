@@ -5,6 +5,18 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.12.1](https://github.com/WittF/bilibili-qr-login/compare/v1.12.0...v1.12.1) (2026-02-05)
+
+
+### 🐛 Bug修复
+
+* **qrcode:** 添加边距确保二维码可被正确识别 ([86b1e9b](https://github.com/WittF/bilibili-qr-login/commit/86b1e9b7bd3e9d973f1875f73304f57423b706bc))
+
+
+### 📚 文档更新
+
+* **readme:** 更新截图并添加TV端登录文档 ([f239136](https://github.com/WittF/bilibili-qr-login/commit/f2391363f3443480ae685af9417a9ddf8a5327f3))
+
 ## [1.12.0](https://github.com/WittF/bilibili-qr-login/compare/v1.11.3...v1.12.0) (2025-10-12)
 
 
