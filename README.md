@@ -21,14 +21,21 @@
 - 🌗 **明暗主题**：自动适配系统主题，支持手动切换明暗模式
 - 🌐 **多语言支持**：支持简体中文、繁体中文、英文、日文等多种语言
 - 🔗 **嵌入模式**：支持iframe和window模式，方便集成到其他网站
+- 📺 **TV端登录**：支持云视听小电视App扫码登录，获取TV端专属Token认证
 
 ---
 
 ## 展示截图
 
 <div style="display: flex; justify-content: center; gap: 20px;">
-  <img src="https://github.com/user-attachments/assets/6557a39a-6190-4960-bc6b-b9a691e65851" width="49%" />
-  <img src="https://github.com/user-attachments/assets/ecc415ff-dd7a-4e06-98b3-62414127a9de" width="49%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/5a8d9bbb-1e6c-4641-882b-17f48acce8e5" />
+    <img src="https://github.com/user-attachments/assets/0e7619ad-7d25-4336-9d34-daf8ce966866" width="49%" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/5960bfd3-c657-4d4b-abea-24785903f7b3" />
+    <img src="https://github.com/user-attachments/assets/98692a2f-08f0-4168-889e-de1f3031a199" width="49%" />
+  </picture>
 </div>
 
 ---
@@ -70,7 +77,7 @@ docker run -d \
 
 ---
 
-## 🔌 集成与API
+## 集成与API
 
 支持嵌入式登录集成和Cookie JSON转换功能：
 

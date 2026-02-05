@@ -72,6 +72,41 @@ window.addEventListener('message', (event) => {
 });
 ```
 
+## TV端登录
+
+### 切换方式
+
+页面左侧提供 Web/TV 端切换按钮，点击电视图标切换到TV端登录模式。
+
+### TV端Cookie特点
+
+TV端登录成功后，返回的Cookie字符串包含**额外的Token信息**：
+
+| 字段 | 说明 |
+|------|------|
+| access_token | TV端访问令牌 |
+| refresh_token | 刷新令牌 |
+| mid | 用户ID |
+| expires_in | 过期时间（秒） |
+
+### Cookie字符串示例
+
+```
+SESSDATA=xxx; bili_jct=yyy; DedeUserID=123; access_token=abc; refresh_token=def; mid=456; expires_in=7776000
+```
+
+### postMessage格式
+
+TV端与Web端的postMessage格式**完全相同**，差异仅在于`data`字段的内容包含额外Token：
+
+```javascript
+{
+  type: 'success',
+  mode: 'iframe',
+  data: 'SESSDATA=xxx; ...; access_token=abc; refresh_token=def; mid=456; expires_in=7776000'
+}
+```
+
 ## Cookie转换API
 
 ### 接口地址

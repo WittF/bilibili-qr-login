@@ -189,7 +189,7 @@ const qrCodeScale = ref(getQrCodeScale());
 
 // 固定的二维码配置，避免重新渲染
 const qrCodeOption: QRCodeRenderersOptions = {
-  margin: 0,
+  margin: 1, // 添加白色边距，确保二维码可被正确识别
   width: 196, // 固定为大屏尺寸
   color: {
     dark: '#18191C',
