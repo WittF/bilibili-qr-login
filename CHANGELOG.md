@@ -5,6 +5,28 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.13.0](https://github.com/WittF/bilibili-qr-login/compare/v1.12.1...v1.13.0) (2026-05-13)
+
+
+### ✨ 功能更新
+
+* **gateway:** 支持 B 站请求走出站代理 ([8357631](https://github.com/WittF/bilibili-qr-login/commit/8357631db74087301a24d192cb0bdd5e2a685f03))
+* **repo:** 构建时注入应用元数据 ([8f50bad](https://github.com/WittF/bilibili-qr-login/commit/8f50bade7d8f0d8cde916850e5fffe59fec0bd4f))
+
+
+### 🐛 Bug修复
+
+* **client:** 优化 SSE 重连提示时机 ([df3b79b](https://github.com/WittF/bilibili-qr-login/commit/df3b79b6d9dd69e866e7ce58c1d40370cfc4e559))
+* **client:** 修正前端初始化与调试模式读取 ([c6728ef](https://github.com/WittF/bilibili-qr-login/commit/c6728ef8553f59d2136d5a30637b1e8481c6abd7))
+* **client:** 改用 Clipboard API 复制结果 ([6d3719e](https://github.com/WittF/bilibili-qr-login/commit/6d3719e56b7ec21083c5675d154efc74c1016b18))
+* **gateway:** 兼容 Cookie 值中的等号 ([9106791](https://github.com/WittF/bilibili-qr-login/commit/91067915cc5845d506dd156e6b2360967d3fec2a))
+* **gateway:** 增加可信代理 IP 头校验 ([7c39b71](https://github.com/WittF/bilibili-qr-login/commit/7c39b713fa04a18e89bb19da84ccaf62fc0de33d))
+
+
+### 🔧 其他更改
+
+* **ci:** 改为发布后执行 k8s 滚动更新 ([da7e69d](https://github.com/WittF/bilibili-qr-login/commit/da7e69d420cac7bb2b43608adff18ecb90c81b52))
+
 ## [1.12.1](https://github.com/WittF/bilibili-qr-login/compare/v1.12.0...v1.12.1) (2026-02-05)
 
 
