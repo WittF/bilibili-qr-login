@@ -1,3 +1,4 @@
+import { isIP } from 'net';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { signTVParams } from './sign.js';
@@ -24,6 +25,14 @@ const allowedOrigins = TRUST_ORIGIN.split(',')
   .map(s => s.trim())
   .filter(Boolean);
 const ALLOW_ALL_ORIGINS = allowedOrigins.includes('*');
+const trustedProxies = (process.env.TRUSTED_PROXIES || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+const trustedProxyHeaders = (process.env.TRUSTED_PROXY_HEADERS || 'X-Forwarded-For,Forwarded')
+  .split(',')
+  .map(s => s.trim().toLowerCase())
+  .filter(Boolean);
 
 // CORS中间件
 const corsMiddleware = async (c: any, next: any) => {
@@ -318,8 +327,146 @@ app.post('/api/convert', async c => {
   }
 });
 
+const normalizeRemoteIP = (ip: string | undefined | null): string | undefined => {
+  if (!ip) return undefined;
+
+  let cleanIP = ip.trim();
+  if (cleanIP.startsWith('::ffff:')) {
+    cleanIP = cleanIP.slice(7);
+  }
+
+  if (cleanIP.startsWith('[')) {
+    const end = cleanIP.indexOf(']');
+    if (end > 0) {
+      cleanIP = cleanIP.slice(1, end);
+    }
+  } else if (/^\d{1,3}(?:\.\d{1,3}){3}:\d+$/.test(cleanIP)) {
+    cleanIP = cleanIP.slice(0, cleanIP.lastIndexOf(':'));
+  }
+
+  return cleanIP;
+};
+
+const getDirectClientIP = (c: any): string | undefined => {
+  try {
+    const candidates = [
+      c.env?.REMOTE_ADDR,
+      (c.env as any)?.incoming?.socket?.remoteAddress,
+      (c.req.raw as any)?.socket?.remoteAddress,
+      (c.req.raw as any)?.connection?.remoteAddress,
+    ];
+
+    for (const candidate of candidates) {
+      const ip = normalizeRemoteIP(candidate);
+      if (ip && isIP(ip)) {
+        return ip;
+      }
+    }
+  } catch {
+    // 忽略获取连接信息时的错误
+  }
+
+  return undefined;
+};
+
+const ipv4ToNumber = (ip: string): number | undefined => {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4 || parts.some(part => Number.isNaN(part) || part < 0 || part > 255)) {
+    return undefined;
+  }
+  return parts.reduce((result, part) => (result << 8) + part, 0) >>> 0;
+};
+
+const isIPv4InCidr = (ip: string, cidr: string): boolean => {
+  const [range, bitsText] = cidr.split('/');
+  const bits = Number(bitsText);
+  const ipNumber = ipv4ToNumber(ip);
+  const rangeNumber = ipv4ToNumber(range);
+
+  if (ipNumber === undefined || rangeNumber === undefined || !Number.isInteger(bits) || bits < 0 || bits > 32) {
+    return false;
+  }
+
+  const mask = bits === 0 ? 0 : (0xffffffff << (32 - bits)) >>> 0;
+  return (ipNumber & mask) === (rangeNumber & mask);
+};
+
+const isTrustedProxy = (ip: string | undefined): boolean => {
+  if (trustedProxies.length === 0) return true;
+  if (!ip) return false;
+
+  const normalizedIP = normalizeRemoteIP(ip);
+  if (!normalizedIP) return false;
+
+  return trustedProxies.some(proxy => {
+    if (proxy === '*') return true;
+
+    const normalizedProxy = normalizeRemoteIP(proxy);
+    if (normalizedProxy === normalizedIP) return true;
+
+    return proxy.includes('/') && isIPv4InCidr(normalizedIP, proxy);
+  });
+};
+
+const isAllowedProxyHeader = (header: string): boolean => {
+  return trustedProxies.length === 0 || trustedProxyHeaders.includes(header.toLowerCase());
+};
+
+const parseForwardedForHeader = (value: string): string[] => {
+  return value
+    .split(',')
+    .map(ip => normalizeRemoteIP(ip))
+    .filter((ip): ip is string => !!ip && !!isIP(ip));
+};
+
+const parseForwardedHeader = (value: string): string[] => {
+  return value
+    .split(',')
+    .map(part => {
+      const forMatch = part.match(/(?:^|;)\s*for=(?:"([^"]+)"|([^;,\s]+))/i);
+      return normalizeRemoteIP(forMatch?.[1] || forMatch?.[2]);
+    })
+    .filter((ip): ip is string => !!ip && !!isIP(ip));
+};
+
+const getClientIPFromTrustedProxyChain = (ips: string[]): string | undefined => {
+  for (let i = ips.length - 1; i >= 0; i--) {
+    const ip = ips[i];
+    if (!isTrustedProxy(ip) && isValidIP(ip)) {
+      return ip;
+    }
+  }
+
+  return undefined;
+};
+
+const getClientIPFromProxyHeader = (header: string, value: string): string | undefined => {
+  if (header === 'X-Forwarded-For' || header === 'Forwarded-For') {
+    const ips = parseForwardedForHeader(value);
+    if (trustedProxies.length > 0) {
+      return getClientIPFromTrustedProxyChain(ips);
+    }
+
+    return ips.find(ip => isValidIP(ip));
+  }
+
+  if (header === 'Forwarded') {
+    const ips = parseForwardedHeader(value);
+    if (trustedProxies.length > 0) {
+      return getClientIPFromTrustedProxyChain(ips);
+    }
+
+    return ips.find(ip => isValidIP(ip));
+  }
+
+  const ip = normalizeRemoteIP(value);
+  return ip && isValidIP(ip) ? ip : undefined;
+};
+
 // 获取真实客户端IP的函数
 const getRealClientIP = (c: any): string => {
+  const directClientIP = getDirectClientIP(c);
+
   // 第一优先级：检查各种代理头部，按优先级排序
   const headers = [
     'CF-Connecting-IP', // Cloudflare
@@ -333,62 +480,25 @@ const getRealClientIP = (c: any): string => {
     'Forwarded', // RFC 7239 标准格式
   ];
 
-  for (const header of headers) {
-    const value = c.req.header(header);
-    if (value) {
-      // 处理包含多个IP的情况（如 X-Forwarded-For）
-      if (header === 'X-Forwarded-For' || header === 'Forwarded-For') {
-        // X-Forwarded-For 格式: "client, proxy1, proxy2"
-        const ips = value.split(',').map((ip: string) => ip.trim());
-        const clientIP = ips[0];
-        if (clientIP && isValidIP(clientIP)) {
+  if (isTrustedProxy(directClientIP)) {
+    for (const header of headers) {
+      if (!isAllowedProxyHeader(header)) {
+        continue;
+      }
+
+      const value = c.req.header(header);
+      if (value) {
+        const clientIP = getClientIPFromProxyHeader(header, value);
+        if (clientIP) {
           return clientIP;
-        }
-      } else if (header === 'Forwarded') {
-        // Forwarded 格式: "for=192.0.2.60;proto=http;by=203.0.113.43"
-        const forMatch = value.match(/for=([^;,\s]+)/);
-        if (forMatch && forMatch[1]) {
-          const ip = forMatch[1].replace(/"/g, '');
-          if (isValidIP(ip)) {
-            return ip;
-          }
-        }
-      } else {
-        // 单个IP的情况
-        if (isValidIP(value)) {
-          return value;
         }
       }
     }
   }
 
   // 第二优先级：尝试获取直连客户端IP（用于公网IP直接访问）
-  try {
-    // 检查Hono环境变量中的连接信息
-    if (c.env && c.env.REMOTE_ADDR) {
-      const remoteIP = c.env.REMOTE_ADDR;
-      if (isValidIP(remoteIP)) {
-        return remoteIP;
-      }
-    }
-
-    // 检查Node.js环境下的socket连接信息
-    if (c.req.raw && c.req.raw.socket && c.req.raw.socket.remoteAddress) {
-      const remoteAddr = c.req.raw.socket.remoteAddress;
-      if (remoteAddr && isValidIP(remoteAddr)) {
-        return remoteAddr;
-      }
-    }
-
-    // 检查其他可能的连接信息来源
-    if (c.req.raw && c.req.raw.connection && c.req.raw.connection.remoteAddress) {
-      const remoteAddr = c.req.raw.connection.remoteAddress;
-      if (remoteAddr && isValidIP(remoteAddr)) {
-        return remoteAddr;
-      }
-    }
-  } catch (error) {
-    // 忽略获取连接信息时的错误
+  if (directClientIP && isValidIP(directClientIP)) {
+    return directClientIP;
   }
 
   // 第三优先级：本地环境处理
@@ -411,29 +521,21 @@ const getRealClientIP = (c: any): string => {
   return 'unknown';
 };
 
-// 验证IP格式的简单函数
 const isValidIP = (ip: string | undefined | null): boolean => {
   if (!ip || ip === 'unknown') return false;
 
-  // 移除端口号
-  const cleanIP = ip.split(':')[0];
+  const cleanIP = normalizeRemoteIP(ip);
+  const ipVersion = cleanIP ? isIP(cleanIP) : 0;
 
-  // IPv4 正则
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  if (!cleanIP || !ipVersion) return false;
 
-  // IPv6 正则（简化版）
-  const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$/;
-
-  // 在生产环境中排除内网IP和特殊IP
-  if (ipv4Regex.test(cleanIP)) {
+  if (ipVersion === 4) {
     const parts = cleanIP.split('.').map(Number);
 
-    // 开发环境下不排除内网IP，让所有有效IP格式都通过
     if (process.env.NODE_ENV === 'development') {
       return true;
     }
 
-    // 生产环境排除内网IP: 10.x.x.x, 172.16.x.x-172.31.x.x, 192.168.x.x, 127.x.x.x
     if (
       parts[0] === 10 ||
       parts[0] === 127 ||
@@ -445,7 +547,7 @@ const isValidIP = (ip: string | undefined | null): boolean => {
     return true;
   }
 
-  return ipv6Regex.test(cleanIP);
+  return true;
 };
 
 // 在线客户端管理系统
