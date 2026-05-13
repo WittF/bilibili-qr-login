@@ -6,7 +6,7 @@
   <!-- 主页面 -->
   <url>
     <loc>https://login.bilibili.bi/</loc>
-    <lastmod>2025-07-29</lastmod>
+    <lastmod>%APP_BUILD_DATE%</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <mobile:mobile/>
@@ -22,7 +22,7 @@
   <!-- iframe模式页面 -->
   <url>
     <loc>https://login.bilibili.bi/?mode=iframe</loc>
-    <lastmod>2025-07-29</lastmod>
+    <lastmod>%APP_BUILD_DATE%</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <mobile:mobile/>
@@ -31,7 +31,7 @@
   <!-- window模式页面 -->
   <url>
     <loc>https://login.bilibili.bi/?mode=window</loc>
-    <lastmod>2025-07-29</lastmod>
+    <lastmod>%APP_BUILD_DATE%</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <mobile:mobile/>
@@ -40,7 +40,7 @@
   <!-- 中文简体版本 -->
   <url>
     <loc>https://login.bilibili.bi/?lang=zh-CN</loc>
-    <lastmod>2025-07-29</lastmod>
+    <lastmod>%APP_BUILD_DATE%</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <mobile:mobile/>
@@ -49,7 +49,7 @@
   <!-- 中文繁体版本 -->
   <url>
     <loc>https://login.bilibili.bi/?lang=zh-TW</loc>
-    <lastmod>2025-07-29</lastmod>
+    <lastmod>%APP_BUILD_DATE%</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <mobile:mobile/>
@@ -58,7 +58,7 @@
   <!-- 英文版本 -->
   <url>
     <loc>https://login.bilibili.bi/?lang=en</loc>
-    <lastmod>2025-07-29</lastmod>
+    <lastmod>%APP_BUILD_DATE%</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <mobile:mobile/>
@@ -67,7 +67,7 @@
   <!-- 日文版本 -->
   <url>
     <loc>https://login.bilibili.bi/?lang=ja</loc>
-    <lastmod>2025-07-29</lastmod>
+    <lastmod>%APP_BUILD_DATE%</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <mobile:mobile/>
