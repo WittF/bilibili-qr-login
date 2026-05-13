@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build && ncc build ./server/index.ts -m -o dist",
+    "build": "vue-tsc && vite build && ncc build ./server/index.ts -o dist",
     "preview": "cd dist && node index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
