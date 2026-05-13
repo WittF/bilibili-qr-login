@@ -143,6 +143,31 @@ jobs:
             sleep 10
           done
 
+      - name: Smoke test published image
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:v${{ needs.prepare.outputs.version }}"
+          echo "🧪 启动镜像冒烟测试: $IMAGE"
+
+          CONTAINER_ID=$(docker run -d \
+            -e PORT=3000 \
+            -e NODE_ENV=production \
+            -e TRUST_ORIGIN="${{ env.TRUST_ORIGIN }}" \
+            -e https_proxy=http://127.0.0.1:9 \
+            "$IMAGE")
+          trap 'docker rm -f "$CONTAINER_ID" >/dev/null 2>&1 || true' EXIT
+
+          sleep 5
+          docker logs "$CONTAINER_ID"
+
+          if ! docker ps -q --filter "id=$CONTAINER_ID" | grep -q .; then
+            echo "❌ 镜像启动后已退出"
+            docker inspect "$CONTAINER_ID" --format='exit={{.State.ExitCode}} error={{.State.Error}}'
+            exit 1
+          fi
+
+          echo "✅ 镜像启动冒烟测试通过"
+
       - name: Set up kubectl
         if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
         uses: azure/setup-kubectl@v4
