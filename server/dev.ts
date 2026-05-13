@@ -1,8 +1,11 @@
 import { serve } from '@hono/node-server';
 import { app } from './app';
+import { initProxy } from './proxy';
 
 const port = Number(process.env.PORT) || 3000;
 const isDebugMode = process.env.DEBUG === '1' || process.env.DEBUG === 'true';
+
+initProxy();
 
 serve(
   {

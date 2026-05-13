@@ -2,8 +2,10 @@ import { existsSync } from 'fs';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { app } from './app';
+import { initProxy } from './proxy';
 
 app.get('*', serveStatic({ root: './dist/static' }));
+initProxy();
 
 const port = Number(process.env.PORT) || 3000;
 const isDebugMode = process.env.DEBUG === '1' || process.env.DEBUG === 'true';

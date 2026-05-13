@@ -83,22 +83,9 @@ docker run -d \
 
 - **🖼️ 嵌入集成** - 支持iframe/window模式，postMessage通信
 - **🔄 JSON转换** - Cookie转换为TinyDB格式，RESTful API调用
-- **⚙️ 访问控制** - 支持通过 `TRUST_ORIGIN` 环境变量控制授权域名
-- **🛡️ 代理校验** - 可选配置 `TRUSTED_PROXIES`，并用 `TRUSTED_PROXY_HEADERS` 指定可信代理会覆盖写入的 IP 头
 - **🔒 安全可靠** - 内置验证和错误处理，嵌入时显示Cookie发送目标
 
-📖 **[Demo示例](./demo/example.html)** | 📚 **[API文档](./demo/API.md)**
-
-## 反向代理配置
-
-默认不配置 `TRUSTED_PROXIES` 时，会保持兼容旧版本的行为，读取常见代理 IP 头。生产环境如果服务端口可能被直连，建议配置可信代理：
-
-```bash
-TRUSTED_PROXIES="127.0.0.1,10.0.0.0/8"
-TRUSTED_PROXY_HEADERS="X-Forwarded-For,Forwarded"
-```
-
-`TRUSTED_PROXIES` 支持 `*`、精确 IP、IPv4 CIDR，多个值用英文逗号分隔。`TRUSTED_PROXY_HEADERS` 默认只信任 `X-Forwarded-For,Forwarded`；只有确认反向代理会覆盖写入某个头时，才把它加入列表，例如 Cloudflare 场景可加入 `CF-Connecting-IP`。
+📖 **[Demo示例](./demo/example.html)** | 📚 **[API文档](./demo/API.md)** | ⚙️ **[配置说明](./demo/CONFIG.md)**
 
 ## 贡献者 
 

@@ -1,7 +1,9 @@
 import { isIP } from 'net';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
+import { getProxyDispatcher } from './proxy';
 import { signTVParams } from './sign.js';
+import type { Dispatcher } from 'undici';
 
 /**
  * HTTP状态码说明：
@@ -1287,15 +1289,19 @@ class LoginQr {
 }
 
 // 辅助函数：带超时的fetch请求
+type RequestInitWithDispatcher = RequestInit & { dispatcher?: Dispatcher };
+
 async function fetchWithTimeout(url: string, options: RequestInit, timeout: number): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
+    const dispatcher = getProxyDispatcher();
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
-    });
+      ...(dispatcher ? { dispatcher } : {}),
+    } as RequestInitWithDispatcher);
     clearTimeout(timeoutId);
     return response;
   } catch (error) {
