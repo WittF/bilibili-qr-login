@@ -4,14 +4,24 @@
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-// 简化的调试模式检测
-const isDebugMode = (): boolean => {
-  return (
-    new URLSearchParams(window.location.search).get('debug') === '1' ||
-    localStorage.getItem('bilibili-qr-debug') === 'true' ||
-    import.meta.env.VITE_DEBUG === 'true'
-  );
-};
+// 启动时读取一次，刷新后生效
+function getInitialDebugMode(): boolean {
+  if (typeof window === 'undefined') {
+    return import.meta.env.VITE_DEBUG === 'true';
+  }
+
+  try {
+    return (
+      new URLSearchParams(window.location.search).get('debug') === '1' ||
+      localStorage.getItem('bilibili-qr-debug') === 'true' ||
+      import.meta.env.VITE_DEBUG === 'true'
+    );
+  } catch {
+    return import.meta.env.VITE_DEBUG === 'true';
+  }
+}
+
+const INITIAL_DEBUG_MODE = getInitialDebugMode();
 
 class Logger {
   private module: string;
@@ -21,7 +31,7 @@ class Logger {
   }
 
   public debug(message: string, data?: any): void {
-    if (!isDebugMode()) return;
+    if (!INITIAL_DEBUG_MODE) return;
     if (data !== undefined) {
       console.log(this.formatMessage('debug', message), data);
     } else {

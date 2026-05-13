@@ -272,8 +272,8 @@ const handleRestart = () => {
 onMounted(() => {
   window.addEventListener('resize', handleResize);
   updatePageTitle();
-  // 确保主题管理器正确初始化
-  themeManager.reinitialize();
+  // 确保主题管理器已初始化
+  themeManager.init();
 });
 
 onBeforeUnmount(() => {

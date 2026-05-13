@@ -94,7 +94,6 @@ export const themeManager = {
   getEffectiveTheme() {
     return getEffectiveTheme();
   },
-  reinitialize: init,
 };
 
 // 自动初始化
