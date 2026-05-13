@@ -180,27 +180,26 @@ class QrSSE {
       case EventSource.CONNECTING:
         this.reconnectAttempts++;
 
-        if (this.reconnectAttempts <= this.maxReconnectAttempts) {
-          this.handleError('正在重连服务器...');
-
-          // 设置重连超时，如果超时仍未连接成功，则提示用户手动重试
-          this.clearReconnectTimeout();
-          this.reconnectTimeout = window.setTimeout(() => {
-            if (eventSource.readyState === EventSource.CONNECTING) {
-              loggers.qrSSE.warn('重连超时', {
-                attempts: this.reconnectAttempts,
-                duration: '10s',
-              });
-              this.handleError('重连超时，请刷新二维码重试');
-            }
-          }, 10000);
-        } else {
+        if (this.reconnectAttempts > this.maxReconnectAttempts) {
           loggers.qrSSE.error('重连次数超限', {
             maxAttempts: this.maxReconnectAttempts,
             actualAttempts: this.reconnectAttempts,
           });
           this.handleError('连接失败次数过多，请刷新二维码重试');
+          break;
         }
+
+        // EventSource 会自动重连；短暂抖动不立即覆盖扫码状态。
+        this.clearReconnectTimeout();
+        this.reconnectTimeout = window.setTimeout(() => {
+          if (eventSource.readyState === EventSource.CONNECTING) {
+            loggers.qrSSE.warn('重连超时', {
+              attempts: this.reconnectAttempts,
+              duration: '10s',
+            });
+            this.handleError('重连超时，请刷新二维码重试');
+          }
+        }, 10000);
         break;
 
       case EventSource.CLOSED:
@@ -210,7 +209,7 @@ class QrSSE {
 
       default:
         this.clearReconnectTimeout();
-        this.handleError('网络连接异常，请检查网络状态');
+        loggers.qrSSE.warn('SSE连接状态未知，等待浏览器自动恢复');
     }
   };
 
