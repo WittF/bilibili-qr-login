@@ -5,6 +5,23 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.14.0](https://github.com/WittF/bilibili-qr-login/compare/v1.13.0...v1.14.0) (2026-05-13)
+
+
+### ✨ 功能更新
+
+* **seo:** 完善站点元数据并新增 llms.txt 与 AI 爬虫友好策略 ([5461db8](https://github.com/WittF/bilibili-qr-login/commit/5461db8df5322ccfdd5c2010d2d6553a31ec551f))
+
+
+### 📦 构建
+
+* **ncc:** 取消 server 产物 minify ([9c65f74](https://github.com/WittF/bilibili-qr-login/commit/9c65f743a611c68e6c7c3510bb704564714798ec))
+
+
+### 👷 CI/CD
+
+* **docker:** 发布镜像后增加启动冒烟测试 ([615d5ec](https://github.com/WittF/bilibili-qr-login/commit/615d5ec1c07533e242dbb1b9eeed8c7ce2cdf027))
+
 ## [1.13.0](https://github.com/WittF/bilibili-qr-login/compare/v1.12.1...v1.13.0) (2026-05-13)
 
 
