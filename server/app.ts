@@ -967,11 +967,13 @@ interface PollQrResult {
   code: number;
   msg: string;
   cookie?: string;
-  cookieValidation?: {
-    status: 'success' | 'failed' | 'error';
-    message: string;
-    details?: string;
-  };
+  cookieValidation?: CookieValidationResult;
+}
+
+interface CookieValidationResult {
+  status: 'success' | 'failed' | 'error';
+  message: string;
+  details?: string;
 }
 
 class LoginQr {
@@ -1353,11 +1355,7 @@ async function validateCookieViaDynamic(
   cookieString: string,
   userAgent: string,
   sessionId: number,
-): Promise<{
-  status: 'success' | 'failed' | 'error';
-  message: string;
-  details?: string;
-}> {
+): Promise<CookieValidationResult> {
   const startTime = Date.now();
   const dynamicId = '894797775503360036';
 
@@ -1371,10 +1369,10 @@ async function validateCookieViaDynamic(
   try {
     // 从cookie字符串中提取需要的值
     const cookieMap = new Map<string, string>();
-    cookieString.split('; ').forEach(cookie => {
-      const [name, value] = cookie.split('=');
-      if (name && value) {
-        cookieMap.set(name.trim(), value.trim());
+    cookieString.split(';').forEach(cookie => {
+      const [name, ...valueParts] = cookie.split('=');
+      if (name && valueParts.length > 0) {
+        cookieMap.set(name.trim(), valueParts.join('=').trim());
       }
     });
 
