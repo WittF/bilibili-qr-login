@@ -16,7 +16,7 @@
       </div>
 
       <div class="cookie-card__content">
-        <pre ref="pre" class="cookie-card__pre" @click="copy">{{ value }}</pre>
+        <pre class="cookie-card__pre" @click="copy">{{ value }}</pre>
 
         <div class="cookie-card__copy-indicator" :class="{ 'cookie-card__copy-indicator--visible': copied }">
           <CheckCopyIcon class="cookie-card__copy-icon" />
@@ -43,7 +43,7 @@
       </div>
 
       <div class="cookie-card__content">
-        <pre ref="convertedPre" class="cookie-card__pre cookie-card__pre--result">{{ convertedData }}</pre>
+        <pre class="cookie-card__pre cookie-card__pre--result">{{ convertedData }}</pre>
       </div>
     </div>
 
@@ -70,37 +70,56 @@ import ErrorIcon from '../assets/icons/error.svg';
 const props = defineProps<{ value: string }>();
 const { t } = useI18n();
 
-const pre = ref<HTMLElement>();
-const convertedPre = ref<HTMLElement>();
 const { text: convertedCopyText, changeText: changeConvertedCopyText } = useTipText(() => t.value.cookie.copy);
 const convertedData = ref('');
 const errorMsg = ref('');
 const isConverting = ref(false);
 const copied = ref(false);
 
-const copy = () => {
-  const selection = window.getSelection()!;
-  const range = window.document.createRange();
-  selection.removeAllRanges();
-  range.selectNode(pre.value!);
-  selection.addRange(range);
-  window.document.execCommand('copy');
-  selection.removeAllRanges();
-  copied.value = true;
-  setTimeout(() => {
-    copied.value = false;
-  }, 1200);
+const copyText = async (text: string): Promise<void> => {
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', 'true');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  textarea.style.top = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    const copiedByFallback = document.execCommand('copy');
+    if (!copiedByFallback) {
+      throw new Error('复制命令未成功执行');
+    }
+  } finally {
+    document.body.removeChild(textarea);
+  }
 };
 
-const copyConverted = () => {
-  const selection = window.getSelection()!;
-  const range = window.document.createRange();
-  selection.removeAllRanges();
-  range.selectNode(convertedPre.value!);
-  selection.addRange(range);
-  window.document.execCommand('copy');
-  selection.removeAllRanges();
-  changeConvertedCopyText(t.value.cookie.copied);
+const copy = async () => {
+  try {
+    await copyText(props.value);
+    copied.value = true;
+    setTimeout(() => {
+      copied.value = false;
+    }, 1200);
+  } catch (error) {
+    loggers.cookie.error('Cookie复制失败', error);
+  }
+};
+
+const copyConverted = async () => {
+  try {
+    await copyText(convertedData.value);
+    changeConvertedCopyText(t.value.cookie.copied);
+  } catch (error) {
+    loggers.cookie.error('转换结果复制失败', error);
+  }
 };
 
 const downloadConverted = () => {
