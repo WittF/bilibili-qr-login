@@ -65,6 +65,9 @@ interface TranslationTexts {
   meta: {
     description: string;
     devDescription?: string;
+    keywords: string;
+    siteName: string;
+    imageAlt: string;
   };
 }
 
@@ -115,8 +118,12 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       embedNotice: '登录信息将发送至',
     },
     meta: {
-      description: '哔哩哔哩二维码登录工具 - 使用手机APP扫码快速登录哔哩哔哩，安全获取Cookie信息',
+      description:
+        '哔哩哔哩二维码登录工具 - 使用手机 APP 扫码快速登录哔哩哔哩，安全获取 Cookie 信息，支持 Web 端和 TV 端 Cookie 转换。',
       devDescription: '哔哩哔哩二维码登录工具开发版 - 开发测试专用页面',
+      keywords: '哔哩哔哩,bilibili,二维码登录,QR码,Cookie获取,Cookie转换,扫码登录,B站登录',
+      siteName: '哔哩哔哩二维码登录工具',
+      imageAlt: '哔哩哔哩二维码登录工具图标',
     },
   },
 
@@ -165,8 +172,12 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
       embedNotice: '登入資訊將發送至',
     },
     meta: {
-      description: 'bilibili 二維碼登入工具 - 使用手機APP掃碼快速登入bilibili，安全取得Cookie資訊',
+      description:
+        'bilibili 二維碼登入工具 - 使用手機 APP 掃碼快速登入 bilibili，安全取得 Cookie 資訊，支援 Web 端和 TV 端 Cookie 轉換。',
       devDescription: 'bilibili 二維碼登入工具開發版 - 開發測試專用頁面',
+      keywords: 'bilibili,二維碼登入,QR碼,Cookie取得,Cookie轉換,掃碼登入,B站登入',
+      siteName: 'bilibili 二維碼登入工具',
+      imageAlt: 'bilibili 二維碼登入工具圖標',
     },
   },
 
@@ -216,8 +227,11 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
     },
     meta: {
       description:
-        'Bilibili QR Code Login Tool - Quickly login to Bilibili using mobile app QR scan, securely obtain Cookie information',
+        'Bilibili QR Code Login Tool - Quickly sign in with the mobile app, securely obtain cookies, and convert Web or TV cookie formats.',
       devDescription: 'Bilibili QR Code Login Tool Development Version - Development and testing page',
+      keywords: 'bilibili,QR code,login,cookie,scan,mobile app,authentication,cookie converter',
+      siteName: 'Bilibili QR Login Tool',
+      imageAlt: 'Bilibili QR Login Tool Icon',
     },
   },
 
@@ -267,8 +281,11 @@ const translations: Record<SupportedLanguage, TranslationTexts> = {
     },
     meta: {
       description:
-        'bilibili QRコードログインツール - モバイルアプリのQRスキャンでbilibiliに迅速ログイン、Cookieを安全取得',
+        'bilibili QRコードログインツール - モバイルアプリのQRスキャンでログインし、Cookie取得と Web / TV Cookie 変換を行えます。',
       devDescription: 'bilibili QRコードログインツール開発版 - 開発・テスト専用ページ',
+      keywords: 'bilibili,QRコード,ログイン,Cookie,Cookie変換,スキャン,モバイルアプリ,認証',
+      siteName: 'bilibili QRログインツール',
+      imageAlt: 'bilibili QRログインツールアイコン',
     },
   },
 };
@@ -340,6 +357,38 @@ function getTranslation(lang: SupportedLanguage): TranslationTexts {
   return translations[lang] || translations[DEFAULT_LANGUAGE];
 }
 
+const SITE_URL = 'https://login.bilibili.bi/';
+const SITE_IMAGE_URL = `${SITE_URL}favicon.svg`;
+
+function setMetaTag(name: string, content: string, property = false): void {
+  const attribute = property ? 'property' : 'name';
+  let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement | null;
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.setAttribute(attribute, name);
+    document.head.appendChild(meta);
+  }
+  meta.content = content;
+}
+
+function getCanonicalUrl(lang: SupportedLanguage): string {
+  const url = new URL(window.location.href);
+  const explicitLang = url.searchParams.get('lang');
+
+  return explicitLang ? `${SITE_URL}?lang=${encodeURIComponent(lang)}` : SITE_URL;
+}
+
+function getOgLocale(lang: SupportedLanguage): string {
+  const locales: Record<SupportedLanguage, string> = {
+    'zh-CN': 'zh_CN',
+    'zh-TW': 'zh_TW',
+    en: 'en_US',
+    jp: 'ja_JP',
+  };
+
+  return locales[lang];
+}
+
 // 国际化 hook
 export function useI18n() {
   // 当前翻译文本，确保总是有默认值
@@ -370,7 +419,29 @@ export function useI18n() {
   const updatePageTitle = () => {
     const PARAM_MODE = (new URL(window.location.href).searchParams.get('mode') || '') as 'window' | 'iframe' | '';
     const title = PARAM_MODE ? t.value.title.login : t.value.title.cookieTool;
+    const canonicalUrl = getCanonicalUrl(currentLanguage.value);
+
     document.title = title;
+    setMetaTag('description', t.value.meta.description);
+    setMetaTag('keywords', t.value.meta.keywords);
+    setMetaTag('robots', PARAM_MODE ? 'noindex, nofollow' : 'index, follow');
+    setMetaTag('og:url', canonicalUrl, true);
+    setMetaTag('og:title', title, true);
+    setMetaTag('og:description', t.value.meta.description, true);
+    setMetaTag('og:image', SITE_IMAGE_URL, true);
+    setMetaTag('og:image:alt', t.value.meta.imageAlt, true);
+    setMetaTag('og:site_name', t.value.meta.siteName, true);
+    setMetaTag('og:locale', getOgLocale(currentLanguage.value), true);
+    setMetaTag('twitter:url', canonicalUrl);
+    setMetaTag('twitter:title', title);
+    setMetaTag('twitter:description', t.value.meta.description);
+    setMetaTag('twitter:image', SITE_IMAGE_URL);
+    setMetaTag('twitter:image:alt', t.value.meta.imageAlt);
+
+    const canonicalLink = document.getElementById('canonical-url') as HTMLLinkElement | null;
+    if (canonicalLink) {
+      canonicalLink.href = canonicalUrl;
+    }
   };
 
   // 获取语言代码对应的显示名称

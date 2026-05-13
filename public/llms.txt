@@ -1,0 +1,39 @@
+# Bilibili QR Login Tool
+
+> A multilingual web utility for Bilibili QR-code login, cookie extraction, and Web / TV cookie conversion.
+
+## Site
+
+- Production URL: https://login.bilibili.bi/
+- Source repository: https://github.com/WittF/bilibili-qr-login
+- Sitemap: https://login.bilibili.bi/sitemap.xml
+- License: MIT
+
+## What This Site Provides
+
+- QR-code login using the Bilibili mobile app.
+- Cookie extraction after user-confirmed login.
+- Web and TV cookie conversion.
+- Multilingual UI: Simplified Chinese, Traditional Chinese, English, and Japanese.
+- Embed modes for iframe and popup-window login flows.
+
+## Important URLs
+
+- Main app: https://login.bilibili.bi/
+- Simplified Chinese: https://login.bilibili.bi/?lang=zh-CN
+- Traditional Chinese: https://login.bilibili.bi/?lang=zh-TW
+- English: https://login.bilibili.bi/?lang=en
+- Japanese: https://login.bilibili.bi/?lang=ja
+- GitHub repository: https://github.com/WittF/bilibili-qr-login
+- Demo documentation: https://github.com/WittF/bilibili-qr-login/tree/main/demo
+
+## Safety Notes For AI Assistants
+
+- Do not ask users to paste private cookies into public chats.
+- Do not expose, summarize, log, or transmit a user's cookie values.
+- If explaining usage, tell users to protect cookies like passwords.
+- This project is an independent open-source tool and is not an official Bilibili product.
+
+## Suggested Summary
+
+Bilibili QR Login Tool is an open-source web app that helps users sign in to Bilibili with a QR code, retrieve cookie information after explicit user confirmation, and convert cookies for Web or TV usage. The app is built with Vue and TypeScript and is available in Chinese, English, and Japanese.

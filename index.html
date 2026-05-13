@@ -6,6 +6,12 @@
     <meta name="robots" content="index, follow" />
     <meta name="author" content="WittF" />
     <meta name="generator" content="Vue.js" />
+    <meta
+      name="description"
+      content="哔哩哔哩二维码登录工具 - 使用手机 APP 扫码快速登录哔哩哔哩，安全获取 Cookie 信息，支持 Web 端和 TV 端 Cookie 转换。"
+    />
+    <meta name="keywords" content="哔哩哔哩,bilibili,二维码登录,QR码,Cookie获取,Cookie转换,扫码登录,B站登录" />
+    <meta name="application-name" content="哔哩哔哩 Cookie 获取工具" />
     
     <!-- Favicon and Icons -->
     <link rel="icon" href="favicon.svg" />
@@ -17,13 +23,38 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="哔哩哔哩二维码登录工具" />
+    <meta property="og:title" content="哔哩哔哩 Cookie 获取工具" />
+    <meta
+      property="og:description"
+      content="使用哔哩哔哩手机 APP 扫码登录，快速获取并转换 Cookie 信息。"
+    />
+    <meta property="og:url" content="https://login.bilibili.bi/" />
+    <meta property="og:image" content="https://login.bilibili.bi/favicon.svg" />
+    <meta property="og:image:alt" content="哔哩哔哩二维码登录工具图标" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="zh_TW" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="ja_JP" />
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:creator" content="@WittF" />
+    <meta name="twitter:title" content="哔哩哔哩 Cookie 获取工具" />
+    <meta
+      name="twitter:description"
+      content="使用哔哩哔哩手机 APP 扫码登录，快速获取并转换 Cookie 信息。"
+    />
+    <meta name="twitter:url" content="https://login.bilibili.bi/" />
+    <meta name="twitter:image" content="https://login.bilibili.bi/favicon.svg" />
+    <meta name="twitter:image:alt" content="哔哩哔哩二维码登录工具图标" />
     
     <!-- Additional SEO -->
-    <link rel="canonical" id="canonical-url" href="" />
+    <link rel="canonical" id="canonical-url" href="https://login.bilibili.bi/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://login.bilibili.bi/?lang=zh-CN" />
+    <link rel="alternate" hreflang="zh-TW" href="https://login.bilibili.bi/?lang=zh-TW" />
+    <link rel="alternate" hreflang="en" href="https://login.bilibili.bi/?lang=en" />
+    <link rel="alternate" hreflang="ja" href="https://login.bilibili.bi/?lang=ja" />
+    <link rel="alternate" hreflang="x-default" href="https://login.bilibili.bi/" />
     <meta name="theme-color" content="#f6f7f8" />
     
     <!-- 动态设置语言和meta信息的脚本 -->
@@ -64,8 +95,8 @@
         const translations = {
           'zh-CN': {
             title: { login: '哔哩哔哩登录', cookieTool: '哔哩哔哩 Cookie 获取工具' },
-            description: '哔哩哔哩二维码登录工具 - 使用手机APP扫码快速登录哔哩哔哩，安全获取Cookie信息',
-            keywords: '哔哩哔哩,bilibili,二维码登录,QR码,Cookie获取,扫码登录,B站登录',
+            description: '哔哩哔哩二维码登录工具 - 使用手机 APP 扫码快速登录哔哩哔哩，安全获取 Cookie 信息，支持 Web 端和 TV 端 Cookie 转换。',
+            keywords: '哔哩哔哩,bilibili,二维码登录,QR码,Cookie获取,Cookie转换,扫码登录,B站登录',
             siteName: '哔哩哔哩二维码登录工具',
             image: {
               url: '/favicon.svg',
@@ -74,8 +105,8 @@
           },
           'zh-TW': {
             title: { login: 'bilibili 登入', cookieTool: 'Bilibili Cookie 取得工具' },
-            description: 'bilibili 二維碼登入工具 - 使用手機APP掃碼快速登入bilibili，安全取得Cookie資訊',
-            keywords: 'bilibili,二維碼登入,QR碼,Cookie取得,掃碼登入,B站登入',
+            description: 'bilibili 二維碼登入工具 - 使用手機 APP 掃碼快速登入 bilibili，安全取得 Cookie 資訊，支援 Web 端和 TV 端 Cookie 轉換。',
+            keywords: 'bilibili,二維碼登入,QR碼,Cookie取得,Cookie轉換,掃碼登入,B站登入',
             siteName: 'bilibili 二維碼登入工具',
             image: {
               url: '/favicon.svg',
@@ -84,8 +115,8 @@
           },
           'en': {
             title: { login: 'Bilibili Login', cookieTool: 'Bilibili Cookie Tool' },
-            description: 'Bilibili QR Code Login Tool - Quickly login to Bilibili using mobile app QR scan, securely obtain Cookie information',
-            keywords: 'bilibili,QR code,login,cookie,scan,mobile app,authentication',
+            description: 'Bilibili QR Code Login Tool - Quickly sign in with the mobile app, securely obtain cookies, and convert Web or TV cookie formats.',
+            keywords: 'bilibili,QR code,login,cookie,scan,mobile app,authentication,cookie converter',
             siteName: 'Bilibili QR Login Tool',
             image: {
               url: '/favicon.svg',
@@ -94,8 +125,8 @@
           },
           'jp': {
             title: { login: 'bilibili ログイン', cookieTool: 'Bilibili Cookie 取得ツール' },
-            description: 'bilibili QRコードログインツール - モバイルアプリのQRスキャンでbilibiliに迅速ログイン、Cookieを安全取得',
-            keywords: 'bilibili,QRコード,ログイン,Cookie,スキャン,モバイルアプリ,認証',
+            description: 'bilibili QRコードログインツール - モバイルアプリのQRスキャンでログインし、Cookie取得と Web / TV Cookie 変換を行えます。',
+            keywords: 'bilibili,QRコード,ログイン,Cookie,Cookie変換,スキャン,モバイルアプリ,認証',
             siteName: 'bilibili QRログインツール',
             image: {
               url: '/favicon.svg',
@@ -122,10 +153,15 @@
       try {
         const currentLang = detectLanguage();
         const t = getTranslations(currentLang);
-        const PARAM_MODE = new URLSearchParams(window.location.search).get('mode') || '';
-        const currentUrl = window.location.href;
+        const urlParams = new URLSearchParams(window.location.search);
+        const PARAM_MODE = urlParams.get('mode') || '';
+        const langParam = urlParams.get('lang');
+        const SITE_URL = 'https://login.bilibili.bi/';
         const pageTitle = PARAM_MODE ? t.title.login : t.title.cookieTool;
-        const imageUrl = new URL(t.image.url, window.location.origin).href;
+        const imageUrl = new URL(t.image.url, SITE_URL).href;
+        const canonicalUrl = langParam
+          ? `${SITE_URL}?lang=${encodeURIComponent(currentLang)}`
+          : SITE_URL;
         
         // 设置HTML lang属性
         document.documentElement.lang = currentLang;
@@ -134,9 +170,10 @@
         document.title = pageTitle;
         setMetaTag('description', t.description);
         setMetaTag('keywords', t.keywords);
+        setMetaTag('robots', PARAM_MODE ? 'noindex, nofollow' : 'index, follow');
         
         // 设置Open Graph标签
-        setMetaTag('og:url', currentUrl, true);
+        setMetaTag('og:url', canonicalUrl, true);
         setMetaTag('og:title', pageTitle, true);
         setMetaTag('og:description', t.description, true);
         setMetaTag('og:image', imageUrl, true);
@@ -145,7 +182,7 @@
         setMetaTag('og:locale', currentLang, true);
         
         // 设置Twitter Cards标签
-        setMetaTag('twitter:url', currentUrl);
+        setMetaTag('twitter:url', canonicalUrl);
         setMetaTag('twitter:title', pageTitle);
         setMetaTag('twitter:description', t.description);
         setMetaTag('twitter:image', imageUrl);
@@ -154,7 +191,7 @@
         // 设置canonical URL
         const canonicalLink = document.getElementById('canonical-url');
         if (canonicalLink) {
-          canonicalLink.href = currentUrl;
+          canonicalLink.href = canonicalUrl;
         }
         
         // 更新网站名称
@@ -185,7 +222,7 @@
       "@type": "WebApplication",
       "name": "哔哩哔哩 Cookie 获取工具",
       "alternateName": ["Bilibili QR Login Tool", "B站登录工具", "哔哩哔哩二维码登录"],
-      "description": "哔哩哔哩二维码登录工具 - 使用手机APP扫码快速登录哔哩哔哩，安全获取Cookie信息",
+      "description": "哔哩哔哩二维码登录工具 - 使用手机 APP 扫码快速登录哔哩哔哩，安全获取 Cookie 信息，支持 Web 端和 TV 端 Cookie 转换。",
       "url": "https://login.bilibili.bi/",
       "applicationCategory": "UtilityApplication",
       "operatingSystem": "Web Browser",
@@ -213,7 +250,6 @@
       "codeRepository": "https://github.com/WittF/bilibili-qr-login",
       "programmingLanguage": ["TypeScript", "Vue.js"],
       "runtimePlatform": "Web Browser",
-      "screenshot": "https://login.bilibili.bi/og-image.png",
       "featureList": [
         "二维码登录",
         "Cookie获取",
@@ -222,15 +258,57 @@
         "跨域安全控制",
         "移动端适配"
       ],
-      "keywords": "哔哩哔哩,bilibili,二维码登录,QR码,Cookie获取,扫码登录,B站登录",
+      "keywords": "哔哩哔哩,bilibili,二维码登录,QR码,Cookie获取,Cookie转换,扫码登录,B站登录",
       "inLanguage": ["zh-CN", "zh-TW", "en", "ja"],
       "isAccessibleForFree": true,
-      "isFamilyFriendly": true
+      "isFamilyFriendly": true,
+      "sameAs": [
+        "https://github.com/WittF/bilibili-qr-login"
+      ],
+      "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "这个工具用来做什么？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "它通过哔哩哔哩官方二维码登录流程获取 Cookie 信息，并提供 Web 端和 TV 端 Cookie 转换能力。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "是否需要安装客户端？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "不需要。用户只需在现代浏览器中打开网页，并使用哔哩哔哩手机 APP 扫码。"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "是否提供开源代码？",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "项目代码发布在 GitHub: https://github.com/WittF/bilibili-qr-login"
+            }
+          }
+        ]
+      }
     }
     </script>
   </head>
   <body>
     <div id="app"></div>
+    <noscript>
+      <main>
+        <h1>哔哩哔哩 Cookie 获取工具</h1>
+        <p>
+          这是一个哔哩哔哩二维码登录工具，可使用手机 APP 扫码登录，获取 Cookie 信息，并支持 Web 端和 TV 端 Cookie 转换。
+        </p>
+        <p>此应用需要 JavaScript 才能生成二维码和完成登录流程。</p>
+        <p><a href="https://github.com/WittF/bilibili-qr-login">查看项目源码</a></p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

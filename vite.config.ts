@@ -40,20 +40,6 @@ const createSitemap = (lastModified: string) => `<?xml version="1.0" encoding="U
     <xhtml:link rel="alternate" hreflang="x-default" href="https://login.bilibili.bi/"/>
   </url>
   <url>
-    <loc>https://login.bilibili.bi/?mode=iframe</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <mobile:mobile/>
-  </url>
-  <url>
-    <loc>https://login.bilibili.bi/?mode=window</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <mobile:mobile/>
-  </url>
-  <url>
     <loc>https://login.bilibili.bi/?lang=zh-CN</loc>
     <lastmod>${lastModified}</lastmod>
     <changefreq>monthly</changefreq>
