@@ -36,7 +36,6 @@ jobs:
       DOCKER_USERNAME: ${{ vars.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       TRUST_ORIGIN: ${{ secrets.TRUST_ORIGIN }}
-      WEBHOOK_IP: ${{ secrets.WEBHOOK_IP }}
 
     steps:
       - name: Checkout repository
@@ -63,6 +62,16 @@ jobs:
           else
             echo "❌ Docker密码未配置"
           fi
+
+      - name: Check required build configuration
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
+        run: |
+          if [[ -z "$TRUST_ORIGIN" ]]; then
+            echo "❌ TRUST_ORIGIN 未配置，拒绝构建未启用 postMessage 白名单的前端包"
+            exit 1
+          fi
+
+          echo "✅ TRUST_ORIGIN 已配置"
 
       - name: Extract metadata
         id: meta
@@ -110,55 +119,54 @@ jobs:
           repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           readme-filepath: ./README.md
 
-      - name: Trigger deployment webhook
-        if: env.WEBHOOK_IP != '' && env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
-        run: |
-          echo "📡 触发生产环境部署 (镜像: v${{ needs.prepare.outputs.version }})"
-          
-          WEBHOOK_PAYLOAD=$(cat <<EOF
-          {
-            "repository": {
-              "repo_name": "${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}"
-            },
-            "version": "${{ needs.prepare.outputs.version }}",
-            "tag": "v${{ needs.prepare.outputs.version }}",
-            "sha": "${{ github.sha }}",
-            "environment": "production",
-            "pusher": "${{ github.actor }}",
-            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-          }
-          EOF
-          )
-          
-          HTTP_STATUS=$(curl -s -o /tmp/webhook_response.json -w "%{http_code}" \
-            -X POST \
-            -H "Content-Type: application/json" \
-            -d "$WEBHOOK_PAYLOAD" \
-            --connect-timeout 10 \
-            --max-time 30 \
-            http://${{ env.WEBHOOK_IP }}:9000/hooks/docker-push)
-          
-          if [[ "$HTTP_STATUS" -ge 200 && "$HTTP_STATUS" -lt 300 ]]; then
-            echo "✅ 部署Webhook触发成功！"
-          else
-            echo "❌ 部署Webhook触发失败 (HTTP $HTTP_STATUS)"
-          fi
-          
-          rm -f /tmp/webhook_response.json
-
       - name: Verify published image
         if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
         run: |
-          IMAGE="${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest"
-          echo "🧪 验证发布的镜像..."
-          
+          IMAGE="${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:v${{ needs.prepare.outputs.version }}"
+          echo "🧪 验证发布的镜像: $IMAGE"
+
           # 等待镜像传播
           sleep 10
-          
-          if docker pull "$IMAGE"; then
-            echo "✅ 镜像验证成功"
-            echo "🎉 版本 v${{ needs.prepare.outputs.version }} 发布完成！"
-            echo "📦 可用标签: latest, v${{ needs.prepare.outputs.version }}"
-          else
-            echo "⚠️  镜像拉取失败，可能是传播延迟"
-          fi 
+
+          for i in 1 2 3; do
+            if docker pull "$IMAGE"; then
+              echo "✅ 镜像验证成功"
+              exit 0
+            fi
+
+            if [[ "$i" == "3" ]]; then
+              echo "❌ 镜像拉取失败: $IMAGE"
+              exit 1
+            fi
+
+            echo "镜像可能仍在传播，重试 $i/3..."
+            sleep 10
+          done
+
+      - name: Set up kubectl
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
+        uses: azure/setup-kubectl@v4
+
+      - name: Deploy to k8s (rolling update)
+        if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
+        env:
+          KUBE_CONFIG_WITTF: ${{ secrets.KUBE_CONFIG_WITTF }}
+        run: |
+          if [[ -z "$KUBE_CONFIG_WITTF" ]]; then
+            echo "⚠️ KUBE_CONFIG_WITTF 未配置，跳过 k8s 部署"
+            exit 0
+          fi
+
+          KUBECONFIG_FILE="$RUNNER_TEMP/kubeconfig"
+          trap 'rm -f "$KUBECONFIG_FILE"' EXIT
+          printf '%s' "$KUBE_CONFIG_WITTF" > "$KUBECONFIG_FILE"
+          chmod 600 "$KUBECONFIG_FILE"
+          export KUBECONFIG="$KUBECONFIG_FILE"
+
+          IMAGE="${{ env.REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:v${{ needs.prepare.outputs.version }}"
+
+          echo "🚀 触发 k8s 滚动更新: $IMAGE"
+          kubectl -n wittf set image deployment/biliqrlogin app="$IMAGE"
+          kubectl -n wittf rollout status deployment/biliqrlogin --timeout=180s
+          echo "✅ k8s 滚动更新完成"
+          echo "🎉 版本 v${{ needs.prepare.outputs.version }} 发布完成"
