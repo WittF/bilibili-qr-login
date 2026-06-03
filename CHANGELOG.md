@@ -5,6 +5,14 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.14.1](https://github.com/WittF/bilibili-qr-login/compare/v1.14.0...v1.14.1) (2026-06-03)
+
+
+### 🐛 Bug修复
+
+* **proxy:** 支持多出口代理池缓解单 IP 风控 ([a8e3538](https://github.com/WittF/bilibili-qr-login/commit/a8e3538736cbba28eb213e5053640ff1ad5b92ad))
+* **sse:** 修正 SSE Content-Type 缺少 charset 致 chunk 乱码 ([a009d56](https://github.com/WittF/bilibili-qr-login/commit/a009d564c36d0cafb1291c25e91cb8e2ce1894eb))
+
 ## [1.14.0](https://github.com/WittF/bilibili-qr-login/compare/v1.13.0...v1.14.0) (2026-05-13)
 
 
