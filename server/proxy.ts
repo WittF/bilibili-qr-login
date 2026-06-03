@@ -19,15 +19,19 @@ type ProxyEnv = {
   noProxy: string;
 };
 
+type ActiveSlot = { count: number; urls: string[] };
+
 type ProxyState = {
   dispatcher: Dispatcher | null;
   env: ProxyEnv;
   active: {
-    https: boolean;
-    http: boolean;
-    all: boolean;
+    https: ActiveSlot;
+    http: ActiveSlot;
+    all: ActiveSlot;
   };
 };
+
+const POOL_BLACKOUT_MS = 60_000;
 
 let cached: ProxyState | undefined;
 
@@ -196,6 +200,109 @@ function buildDispatcher(proxyUrl: string): Dispatcher | null {
   }
 }
 
+function splitProxyList(raw: string): string[] {
+  return raw
+    .split(/[,\n\s]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+class PoolDispatcher extends Dispatcher {
+  private cursor = 0;
+  private readonly blackUntil: number[];
+
+  public constructor(
+    private readonly upstreams: Dispatcher[],
+    private readonly urls: string[],
+  ) {
+    super();
+    this.blackUntil = new Array(upstreams.length).fill(0);
+  }
+
+  public dispatch(opts: Dispatcher.DispatchOptions, handler: Dispatcher.DispatchHandlers): boolean {
+    const idx = this.pickIndex();
+    const wrapped: Dispatcher.DispatchHandlers = {
+      ...handler,
+      onError: (err: Error) => {
+        this.blackUntil[idx] = Date.now() + POOL_BLACKOUT_MS;
+        console.warn(
+          `[Proxy] 上游 [${idx}] ${redact(this.urls[idx])} 失败，拉黑 ${POOL_BLACKOUT_MS / 1000}s: ${err.message}`,
+        );
+        handler.onError?.(err);
+      },
+    };
+    return this.upstreams[idx].dispatch(opts, wrapped);
+  }
+
+  public close(): Promise<void>;
+  public close(callback: () => void): void;
+  public close(callback?: () => void): Promise<void> | void {
+    const promise = Promise.all(this.upstreams.map(d => d.close())).then(() => undefined);
+    if (callback) {
+      void promise.then(callback, callback);
+      return;
+    }
+    return promise;
+  }
+
+  public destroy(): Promise<void>;
+  public destroy(err: Error | null): Promise<void>;
+  public destroy(callback: () => void): void;
+  public destroy(err: Error | null, callback: () => void): void;
+  public destroy(errOrCallback?: Error | null | (() => void), callback?: () => void): Promise<void> | void {
+    const err = typeof errOrCallback === 'function' ? null : errOrCallback ?? null;
+    const done = typeof errOrCallback === 'function' ? errOrCallback : callback;
+    const promise = Promise.all(this.upstreams.map(d => d.destroy(err))).then(() => undefined);
+    if (done) {
+      void promise.then(done, done);
+      return;
+    }
+    return promise;
+  }
+
+  private pickIndex(): number {
+    const now = Date.now();
+    const n = this.upstreams.length;
+    for (let step = 0; step < n; step++) {
+      const i = (this.cursor + step) % n;
+      if (this.blackUntil[i] <= now) {
+        this.cursor = (i + 1) % n;
+        return i;
+      }
+    }
+    let bestIdx = 0;
+    let bestUntil = this.blackUntil[0];
+    for (let i = 1; i < n; i++) {
+      if (this.blackUntil[i] < bestUntil) {
+        bestUntil = this.blackUntil[i];
+        bestIdx = i;
+      }
+    }
+    this.cursor = (bestIdx + 1) % n;
+    return bestIdx;
+  }
+}
+
+function buildSlotDispatcher(raw: string): { dispatcher: Dispatcher | null; urls: string[] } {
+  const list = splitProxyList(raw);
+  if (list.length === 0) return { dispatcher: null, urls: [] };
+
+  const built = list
+    .map(url => ({ url, dispatcher: buildDispatcher(url) }))
+    .filter((x): x is { url: string; dispatcher: Dispatcher } => x.dispatcher != null);
+
+  if (built.length === 0) return { dispatcher: null, urls: [] };
+  if (built.length === 1) return { dispatcher: built[0].dispatcher, urls: [built[0].url] };
+
+  return {
+    dispatcher: new PoolDispatcher(
+      built.map(x => x.dispatcher),
+      built.map(x => x.url),
+    ),
+    urls: built.map(x => x.url),
+  };
+}
+
 class RoutingDispatcher extends Dispatcher {
   public constructor(
     private readonly httpsDispatcher: Dispatcher | null,
@@ -269,40 +376,41 @@ class RoutingDispatcher extends Dispatcher {
 
 function createProxyState(): ProxyState {
   const env = readProxyEnv();
+  const emptySlot: ActiveSlot = { count: 0, urls: [] };
 
   if (!env.httpsProxy && !env.httpProxy && !env.allProxy) {
     return {
       dispatcher: null,
       env,
-      active: { https: false, http: false, all: false },
+      active: { https: emptySlot, http: emptySlot, all: emptySlot },
     };
   }
 
-  const httpsDispatcher = env.httpsProxy ? buildDispatcher(env.httpsProxy) : null;
-  const httpDispatcher = env.httpProxy ? buildDispatcher(env.httpProxy) : null;
-  const allDispatcher = env.allProxy ? buildDispatcher(env.allProxy) : null;
+  const https = buildSlotDispatcher(env.httpsProxy);
+  const http = buildSlotDispatcher(env.httpProxy);
+  const all = buildSlotDispatcher(env.allProxy);
 
-  if (!httpsDispatcher && !httpDispatcher && !allDispatcher) {
+  if (!https.dispatcher && !http.dispatcher && !all.dispatcher) {
     return {
       dispatcher: null,
       env,
-      active: { https: false, http: false, all: false },
+      active: { https: emptySlot, http: emptySlot, all: emptySlot },
     };
   }
 
   return {
     dispatcher: new RoutingDispatcher(
-      httpsDispatcher,
-      httpDispatcher,
-      allDispatcher,
+      https.dispatcher,
+      http.dispatcher,
+      all.dispatcher,
       new Agent(),
       parseNoProxy(env.noProxy),
     ),
     env,
     active: {
-      https: httpsDispatcher != null,
-      http: httpDispatcher != null,
-      all: allDispatcher != null,
+      https: { count: https.urls.length, urls: https.urls },
+      http: { count: http.urls.length, urls: http.urls },
+      all: { count: all.urls.length, urls: all.urls },
     },
   };
 }
@@ -312,13 +420,23 @@ export function getProxyDispatcher(): Dispatcher | null {
   return cached.dispatcher;
 }
 
+function logSlot(label: string, slot: ActiveSlot): void {
+  if (slot.count === 0) return;
+  if (slot.count === 1) {
+    console.log(`[Proxy] ${label}=${redact(slot.urls[0])}`);
+    return;
+  }
+  console.log(`[Proxy] ${label} 池: ${slot.count} 条`);
+  slot.urls.forEach((url, i) => console.log(`  [${i}] ${redact(url)}`));
+}
+
 export function initProxy(): void {
   if (!cached) cached = createProxyState();
   if (!cached.dispatcher) return;
 
   const { env, active } = cached;
-  if (active.https) console.log(`[Proxy] https_proxy=${redact(env.httpsProxy)}`);
-  if (active.http) console.log(`[Proxy] http_proxy=${redact(env.httpProxy)}`);
-  if (active.all) console.log(`[Proxy] all_proxy=${redact(env.allProxy)}`);
+  logSlot('https_proxy', active.https);
+  logSlot('http_proxy', active.http);
+  logSlot('all_proxy', active.all);
   if (env.noProxy) console.log(`[Proxy] no_proxy=${env.noProxy}`);
 }
