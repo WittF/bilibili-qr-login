@@ -772,12 +772,9 @@ app.get('/api/qr', c => {
     }
   }
 
-  return streamSSE(c, async stream => {
+  const sseResponse = streamSSE(c, async stream => {
     const startTime = Date.now();
     logger.debug(sessionId, 'SSE流开始');
-
-    // 编码加上 charset
-    c.header('Content-Type', 'text/event-stream; charset=utf-8');
 
     let streamClosed = false;
     stream.onAbort(() => {
@@ -938,6 +935,9 @@ app.get('/api/qr', c => {
     }
     await stream.close();
   });
+
+  sseResponse.headers.set('Content-Type', 'text/event-stream; charset=utf-8');
+  return sseResponse;
 });
 
 interface GenerateQrResp {
