@@ -97,6 +97,8 @@ jobs:
 
       - name: Build and push
         if: env.DOCKER_PASSWORD != '' && env.DOCKER_USERNAME != ''
+        # arm64 走 QEMU 曾卡满 6 小时，超时后直接失败，线上继续跑旧镜像
+        timeout-minutes: 30
         uses: docker/build-push-action@v5
         with:
           context: .

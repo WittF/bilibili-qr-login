@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM node:24-alpine AS build
 
 ARG TRUST_ORIGIN
 ARG APP_VERSION
@@ -25,7 +25,7 @@ RUN if [ -n "$APP_VERSION" ]; then \
 RUN TRUST_ORIGIN=$TRUST_ORIGIN yarn build
 
 # 生产阶段
-FROM node:20-alpine
+FROM node:24-alpine
 
 # 添加标签
 ARG APP_VERSION
@@ -46,8 +46,8 @@ RUN if [ -n "$APP_VERSION" ]; then \
       echo "{\"version\":\"$APP_VERSION\",\"buildTime\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > ./version.json; \
     fi
 
-# 设置权限
-RUN chmod -R 777 /app
+# 以 node 镜像自带的非 root 用户运行（用数字 UID，便于 k8s 校验 runAsNonRoot）
+USER 1000:1000
 
 # 暴露端口
 EXPOSE 3000

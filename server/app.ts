@@ -206,13 +206,21 @@ app.use('*', corsMiddleware);
 // 处理所有API路由的预检请求
 app.options('/api/*', handlePreflight);
 
+// hono 4.13 的 c.json 不再带 charset，这里显式声明以保持对外响应头不变
+const JSON_UTF8_HEADERS = { 'Content-Type': 'application/json; charset=UTF-8' };
+
 // 添加cookie转换接口
 app.post('/api/convert', async c => {
-  const body = await c.req.json();
-  const { cookies } = body;
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: '无效的cookie数据' }, 400, JSON_UTF8_HEADERS);
+  }
+  const cookies = body?.cookies;
 
   if (!cookies) {
-    return c.json({ error: '无效的cookie数据' }, 400);
+    return c.json({ error: '无效的cookie数据' }, 400, JSON_UTF8_HEADERS);
   }
 
   try {
@@ -320,12 +328,12 @@ app.post('/api/convert', async c => {
       },
     };
 
-    return c.json(result);
+    return c.json(result, 200, JSON_UTF8_HEADERS);
   } catch (error) {
     // 使用统一的日志格式，这里使用简单的console.error因为无法获取sessionId
     const timestamp = getCSTTimestamp();
     console.error(`[${timestamp}] [COOKIE-CONVERT] ERROR: 转换cookie时出错`, error);
-    return c.json({ error: '处理cookie时出错' }, 500);
+    return c.json({ error: '处理cookie时出错' }, 500, JSON_UTF8_HEADERS);
   }
 });
 
@@ -707,7 +715,7 @@ app.get('/api/qr', c => {
       userAgent: c.req.header('User-Agent')?.substring(0, 50),
       socketRemoteAddress: (c.req.raw as any)?.socket?.remoteAddress,
       connectionRemoteAddress: (c.req.raw as any)?.connection?.remoteAddress,
-      envRemoteAddr: c.env?.REMOTE_ADDR,
+      envRemoteAddr: (c.env as any)?.REMOTE_ADDR,
     };
 
     logger.debug(sessionId, 'IP获取调试信息', {
@@ -818,7 +826,7 @@ app.get('/api/qr', c => {
           });
         }
 
-        await stream.writeSSE({ data: JSON.stringify(genRes), event: SSEEvent.GENERATE, id: genRes.key });
+        await stream.writeSSE({ data: JSON.stringify(genRes), event: SSEEvent.GENERATE, id: genRes.key || undefined });
 
         if (genRes.code !== 0) {
           await stream.writeSSE({ data: '', event: SSEEvent.END });
@@ -1088,7 +1096,7 @@ class LoginQr {
 
   public async poll() {
     const startTime = Date.now();
-    const url = `https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${this.key}&source=main-fe-header`;
+    const url = `https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${encodeURIComponent(this.key)}&source=main-fe-header`;
 
     logger.debug(this.sessionId, '开始轮询QR码状态', { qrcode_key: this.key });
 
