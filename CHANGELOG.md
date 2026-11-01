@@ -5,6 +5,13 @@
 版本格式遵循 [语义化版本](https://semver.org/lang/zh-CN/)，更新日志格式基于 [约定式提交](https://conventionalcommits.org/zh-hans/)。
 
 
+## [1.14.2](https://github.com/WittF/bilibili-qr-login/compare/v1.14.1...v1.14.2) (2026-11-01)
+
+
+### 🐛 Bug修复
+
+* **deps:** 升级 Node 24 与运行时依赖，容器改为非 root 运行 ([28f1ba7](https://github.com/WittF/bilibili-qr-login/commit/28f1ba7597677c758a1b12759c02754cef7ec4fe))
+
 ## [1.14.1](https://github.com/WittF/bilibili-qr-login/compare/v1.14.0...v1.14.1) (2026-06-03)
 
 
